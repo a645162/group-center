@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+
+  db:
+    image: oceanbase/oceanbase-ce
+    ports:
+      - 2881:2881
+    networks:
+      network_name:
+       aliases:
+         - OCEANBASE_URL
+    # volumes:
+    #   - "/home/important/Data/Docker/OceanBase/init.d:/root/boot/init.d"
+    #   - "/home/important/Data/Docker/OceanBase/ob:/root/ob"
+    #   - "/home/important/Data/Docker/OceanBase/obd:/root/.obd"
+    restart: always
+    container_name: OceanBase
+    privileged: true
+    environment:
+      # MODE: normal
+      MODE: slim
+      OB_MEMORY_LIMIT: 6G
+      # FASTBOOT: true
+    
+networks:
+  network_name:
+    driver: bridge

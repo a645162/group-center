@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="Oceanbase" uuid="55c7825d-3088-4756-b844-6cad0c568377">
+      <driver-ref>4011d415-65ec-4fc1-96ec-e991581692ab</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.alipay.oceanbase.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:oceanbase://localhost:2881</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="MySQL" uuid="d6016095-0c66-475c-af86-b6971e8b7ea4">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://localhost:3306</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+  </component>
+</project>
