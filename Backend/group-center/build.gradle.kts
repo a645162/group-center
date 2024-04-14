@@ -22,9 +22,11 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web")
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
     // Database
     // https://mvnrepository.com/artifact/com.alibaba/druid-spring-boot-starter
     implementation("com.alibaba:druid-spring-boot-starter:1.2.22")
@@ -35,13 +37,22 @@ dependencies {
     // Database Driver
     // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
     runtimeOnly("com.mysql:mysql-connector-j:8.3.0")
+//    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     // https://mvnrepository.com/artifact/com.oceanbase/oceanbase-client
     implementation("com.oceanbase:oceanbase-client:2.4.9")
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
     // Crypto
+    // https://mvnrepository.com/artifact/com.auth0/java-jwt
+    implementation("com.auth0:java-jwt:4.4.0")
+
+    // https://mvnrepository.com/artifact/com.tencent.kona/kona-crypto
+    // https://github.com/Tencent/TencentKonaSMSuite
 //    implementation("com.tencent.kona:kona-crypto")
 //    implementation("com.tencent.kona:kona-provider")
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3")
 }

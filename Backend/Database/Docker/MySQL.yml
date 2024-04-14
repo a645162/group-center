@@ -1,21 +1,21 @@
 version: "3"
 
 services:
-
   db:
     image: mysql:8.3
     ports:
       - 3306:3306
     networks:
       network_name:
-       aliases:
-         - MYSQL_URL
+        aliases:
+          - MYSQL_URL
     restart: always
     container_name: MySQL
     privileged: true
     environment:
+      MYSQL_DATABASE: group_center
       MYSQL_ROOT_PASSWORD: 123456
-    
+
 networks:
   network_name:
     driver: bridge
