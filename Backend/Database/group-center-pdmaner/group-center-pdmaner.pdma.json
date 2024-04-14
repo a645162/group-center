@@ -4,12 +4,12 @@
   "avatar": "",
   "version": "4.9.2",
   "createdTime": "2024-4-14 15:40:33",
-  "updatedTime": "2024-4-14 15:40:33",
+  "updatedTime": "2024-4-14 17:15:32",
   "dbConns": [],
   "profile": {
     "default": {
       "db": "29D1CE08-4C35-4D2D-AAA9-23D93305B52E",
-      "dbConn": "",
+      "dbConn": "4D1A8F43-7064-4554-8405-FF661DD8BBEC",
       "entityInitFields": [
         {
           "defKey": "TENANT_ID",
@@ -884,7 +884,19 @@
   ],
   "diagrams": [],
   "standardFields": [],
-  "dbConn": [],
+  "dbConn": [
+    {
+      "defKey": "4D1A8F43-7064-4554-8405-FF661DD8BBEC",
+      "defName": "group_center",
+      "type": "29D1CE08-4C35-4D2D-AAA9-23D93305B52E",
+      "properties": {
+        "driver_class_name": "com.mysql.cj.jdbc.Driver",
+        "url": "jdbc:mysql://localhost:3306/group_center?characterEncoding=UTF-8&useSSL=false&useUnicode=true&serverTimezone=UTC",
+        "password": "123456",
+        "username": "root"
+      }
+    }
+  ],
   "logicEntities": [],
   "namingRules": [
     {
