@@ -1,7 +1,7 @@
 logging:
   level:
-    root: info
-    org.springframework.web: info
+    root: trace
+    org.springframework.web: trace
     org.hibernate: error
   file:
     name: myapp.log
