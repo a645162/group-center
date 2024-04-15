@@ -2,6 +2,9 @@ server:
   port: 8088
 
 spring:
+  profiles:
+    # SPRING_PROFILES_ACTIVE=dev
+    active: dev
   datasource:
     username: root
     password: 123456
@@ -9,7 +12,15 @@ spring:
     url: jdbc:mysql://localhost:3306/group_center?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     type: com.alibaba.druid.pool.DruidDataSource
 
-  sql:
-    init:
-      schema-locations: classpath:db/mysql/init-schema.sql
-      data-locations: classpath:db/mysql/init-data.sql
+#  sql:
+#    init:
+#      schema-locations: classpath:db/mysql/init-schema.sql
+#      data-locations: classpath:db/mysql/init-data.sql
+
+logging:
+  file:
+    name: logs/springboot.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 7

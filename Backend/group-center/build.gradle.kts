@@ -51,6 +51,15 @@ dependencies {
 //    implementation("com.tencent.kona:kona-crypto")
 //    implementation("com.tencent.kona:kona-provider")
 
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    // Message WebHook
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Data
+    // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
+    implementation("com.alibaba.fastjson2:fastjson2:2.0.48")
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
