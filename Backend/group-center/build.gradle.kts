@@ -62,10 +62,35 @@ dependencies {
     implementation("com.alibaba.fastjson2:fastjson2:2.0.48")
 
     ///////////////////////////////////////////////////////////////////////////////////////////
+    // Document
+    // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-core
+//    implementation("io.swagger.core.v3:swagger-core:2.2.21")
+    // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations
+//    implementation("io.swagger.core.v3:swagger-annotations:2.2.21")
+    // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-models
+//    implementation("io.swagger.core.v3:swagger-models:2.2.21")
+
+    // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui
+//    implementation("org.springdoc:springdoc-openapi-ui:1.8.0")
+
+    // https://mvnrepository.com/artifact/com.github.xiaoymin/knife4j-openapi3-jakarta-spring-boot-starter
+    implementation("com.github.xiaoymin:knife4j-openapi3-jakarta-spring-boot-starter:4.5.0")
+
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3")
+}
+
+// Output Program Version
+tasks.create<WriteProperties>("writeVersionProperties") {
+    group = "export"
+    property("version", project.version.toString())
+    destinationFile = file("src/main/resources/settings/version.properties")
+}
+
+tasks.withType<ProcessResources> {
+    dependsOn("writeVersionProperties")
 }
 
 tasks.withType<KotlinCompile> {
