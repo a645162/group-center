@@ -14,7 +14,13 @@ import okhttp3.Response;
 
 import com.alibaba.fastjson2.JSON;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class WeComGroupBot {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(WeComGroupBot.class);
 
     public static final String WEBHOOK_URL_HEADER =
             "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=";
@@ -73,13 +79,13 @@ public class WeComGroupBot {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
             if (response.body() != null) {
-                System.out.println("[Webhook]WeCom(Text):" + response.body().string());
+                logger.info("[Webhook]WeCom(Text):{}", response.body().string());
                 return true;
             } else {
-                System.out.println("[Webhook]WeCom(Text) response body is null!");
+                logger.warn("[Webhook]WeCom(Text) response body is null!");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.toString());
         }
         return false;
     }
