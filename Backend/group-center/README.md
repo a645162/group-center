@@ -29,7 +29,7 @@
 ### 认证与加密
 
 - JWT
-- Tencent Kona Crypto(国密SM3算法)
+- Tencent Kona Crypto(国密SM3/SM4算法)
 
 ### 消息推送
 

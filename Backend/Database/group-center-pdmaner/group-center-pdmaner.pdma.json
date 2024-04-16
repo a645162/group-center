@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.9.2",
   "createdTime": "2024-4-14 15:40:33",
-  "updatedTime": "2024-4-16 19:05:26",
+  "updatedTime": "2024-4-16 19:48:56",
   "dbConns": [],
   "profile": {
     "default": {
@@ -530,7 +530,7 @@
         "freeze": false
       }
     ],
-    "modelType": "modalGroup",
+    "modelType": "modalAll",
     "recentColors": [
       "#d148d1",
       "#ce4bce",
@@ -549,9 +549,14 @@
       "id": "326E96F3-A459-4185-BC1D-F1FA47ABC6C3",
       "env": {
         "base": {
-          "nameSpace": "",
-          "codeRoot": ""
-        }
+          "nameSpace": "com.khm.group.center.api",
+          "codeRoot": "MachineList"
+        },
+        "template": {
+          "JAVA": {},
+          "JavaMybatisPlus": {}
+        },
+        "custom": {}
       },
       "defKey": "MACHINE_LIST",
       "defName": "机器列表",
@@ -812,9 +817,13 @@
       "id": "4F046D28-74E9-4ADF-91B3-500FA69B2C54",
       "env": {
         "base": {
-          "nameSpace": "",
-          "codeRoot": ""
-        }
+          "nameSpace": "com.khm.group.center.api",
+          "codeRoot": "GpuList"
+        },
+        "template": {
+          "JAVA": {}
+        },
+        "custom": {}
       },
       "defKey": "GPU_LIST",
       "defName": "GPU列表",
@@ -1111,9 +1120,13 @@
       "id": "D2A74510-0B5F-49A4-9815-1B192903130F",
       "env": {
         "base": {
-          "nameSpace": "",
-          "codeRoot": ""
-        }
+          "nameSpace": "com.khm.group.center.api",
+          "codeRoot": "UserList"
+        },
+        "template": {
+          "JAVA": {}
+        },
+        "custom": {}
       },
       "defKey": "USER_LIST",
       "defName": "用户列表",
@@ -1410,9 +1423,13 @@
       "id": "2F70A1A4-C052-46C7-98A4-A2EA8F888831",
       "env": {
         "base": {
-          "nameSpace": "",
-          "codeRoot": ""
-        }
+          "nameSpace": "com.khm.group.center.api",
+          "codeRoot": "TaskRecordList"
+        },
+        "template": {
+          "JAVA": {}
+        },
+        "custom": {}
       },
       "defKey": "TASK_RECORD_LIST",
       "defName": "任务记录列表",
@@ -1835,9 +1852,13 @@
       "id": "13064542-CBA7-48D6-8718-CE667997E963",
       "env": {
         "base": {
-          "nameSpace": "",
-          "codeRoot": ""
-        }
+          "nameSpace": "com.khm.group.center.api",
+          "codeRoot": "WebhookWecom"
+        },
+        "template": {
+          "JAVA": {}
+        },
+        "custom": {}
       },
       "defKey": "WEBHOOK_WECOM",
       "defName": "Webhook企业微信",
@@ -2062,9 +2083,13 @@
       "id": "BC96A2BB-01DF-44D5-BA5B-298CA6FA304B",
       "env": {
         "base": {
-          "nameSpace": "",
-          "codeRoot": ""
-        }
+          "nameSpace": "com.khm.group.center.api",
+          "codeRoot": "WebhookLark"
+        },
+        "template": {
+          "JAVA": {}
+        },
+        "custom": {}
       },
       "defKey": "WEBHOOK_LARK",
       "defName": "Webhook飞书",
@@ -2271,9 +2296,13 @@
       "id": "905FCAD3-3FB0-453F-BCCA-B78FC64723BE",
       "env": {
         "base": {
-          "nameSpace": "",
-          "codeRoot": ""
-        }
+          "nameSpace": "com.khm.group.center.admin",
+          "codeRoot": "Admin"
+        },
+        "template": {
+          "JAVA": {}
+        },
+        "custom": {}
       },
       "defKey": "ADMIN",
       "defName": "后台管理",
