@@ -1,5 +1,6 @@
 package com.khm.group.center.security;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +142,7 @@ public class ProgramCrypto {
     ///////////////////////////////////////////////////////////////////////////////////////////
     // JWT(HmacSM3)
     ///////////////////////////////////////////////////////////////////////////////////////////
-    public static String encryptJWTString(String str, String keyStr) {
+    public static @NotNull String encryptJWTString(String str, String keyStr) {
         String header, payload;
 
         header = "{\"alg\":\"HmacSM3\",\"typ\":\"JWT\"}";

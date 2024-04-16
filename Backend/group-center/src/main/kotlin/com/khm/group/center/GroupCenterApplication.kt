@@ -1,5 +1,6 @@
 package com.khm.group.center
 
+import com.khm.group.center.config.ConfigEnvironment
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -19,6 +20,9 @@ class GroupCenterApplication {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
+            // 从环境变量中读取一些配置
+            ConfigEnvironment.initializeConfigEnvironment()
+
             runApplication<GroupCenterApplication>(*args)
         }
     }

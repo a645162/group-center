@@ -40,11 +40,8 @@ public class WeComGroupBot {
             return false;
         }
 
-        webhookUrlOrKey = webhookUrlOrKey.trim();
-
-        if (!webhookUrlOrKey.startsWith(WEBHOOK_URL_HEADER)) {
-            webhookUrlOrKey = WEBHOOK_URL_HEADER + webhookUrlOrKey;
-        }
+        // 确保 webhookUrlOrKey 以 WEBHOOK_URL_HEADER 开头
+        webhookUrlOrKey = getWebhookUrl(webhookUrlOrKey.trim());
 
         if (mentionedIdList == null) {
             mentionedIdList = new ArrayList<>();
@@ -94,7 +91,14 @@ public class WeComGroupBot {
         if (key == null || key.trim().isEmpty()) {
             return null;
         }
-        return WEBHOOK_URL_HEADER + key.trim();
+
+        String webhookUrlOrKey = key.trim();
+
+        if (!webhookUrlOrKey.startsWith(WEBHOOK_URL_HEADER)) {
+            webhookUrlOrKey = WEBHOOK_URL_HEADER + webhookUrlOrKey;
+        }
+
+        return webhookUrlOrKey;
     }
 
 }
