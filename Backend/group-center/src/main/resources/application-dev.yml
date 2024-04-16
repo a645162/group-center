@@ -3,3 +3,61 @@ logging:
     root: info
     org.springframework.web: info
     org.hibernate: error
+
+# SpringDoc-OpenApi
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'API'
+      paths-to-match: '/**'
+      packages-to-scan: com.khm.group.center.controller.api
+    - group: 'Admin'
+      paths-to-match: '/**'
+      packages-to-scan: com.khm.group.center.controller.admin
+    - group: 'Program'
+      paths-to-match: '/**'
+      packages-to-scan: com.khm.group.center.controller.program
+
+# Knife4j
+# http://localhost:8088/doc.html
+knife4j:
+  enable: true
+  #  documents:
+  #    -
+  #      group: 2.X版本
+  #      name: 接口签名
+  #      locations: classpath:sign/*
+  setting:
+    language: zh-CN
+    enable-swagger-models: true
+    enable-document-manage: true
+    #    swagger-model-name: 实体类列表
+    #    enable-version: false
+    #    enable-reload-cache-parameter: false
+    #    enable-after-script: true
+    #    enable-filter-multipart-api-method-type: POST
+    #    enable-filter-multipart-apis: false
+    enable-request-cache: true
+    #    enable-host: false
+    #    enable-host-text: localhost:8088
+    #    enable-home-custom: true
+    #    home-custom-path: classpath:markdown/home.md
+    enable-search: false
+    enable-footer: false
+    enable-footer-custom: true
+    footer-custom-content: GPL-3.0 [Haomin Kong](https://github.com/a645162)
+    enable-dynamic-parameter: true
+    enable-debug: true
+    enable-open-api: true
+    enable-group: true
+  cors: false
+  production: false
+  basic:
+    enable: false
+    username: admin
+    password: 123456

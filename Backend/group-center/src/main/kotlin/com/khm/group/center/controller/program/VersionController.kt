@@ -1,4 +1,4 @@
-package com.khm.group.center.controller
+package com.khm.group.center.controller.program
 
 import com.khm.group.center.utils.program.ProgramInfo
 import io.swagger.v3.oas.annotations.Operation

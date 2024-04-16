@@ -73,10 +73,14 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui
 //    implementation("org.springdoc:springdoc-openapi-ui:1.8.0")
 
+    // https://doc.xiaominfo.com/
     // https://mvnrepository.com/artifact/com.github.xiaoymin/knife4j-openapi3-jakarta-spring-boot-starter
     implementation("com.github.xiaoymin:knife4j-openapi3-jakarta-spring-boot-starter:4.5.0")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
+    // Operations and Maintenance
+    // Spring Boot Actuator
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3")

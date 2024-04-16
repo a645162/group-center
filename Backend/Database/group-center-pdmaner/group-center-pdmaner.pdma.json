@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.9.2",
   "createdTime": "2024-4-14 15:40:33",
-  "updatedTime": "2024-4-15 22:41:38",
+  "updatedTime": "2024-4-16 14:32:57",
   "dbConns": [],
   "profile": {
     "default": {
@@ -2298,6 +2298,215 @@
       "correlations": [],
       "indexes": [],
       "type": "P"
+    },
+    {
+      "id": "905FCAD3-3FB0-453F-BCCA-B78FC64723BE",
+      "env": {
+        "base": {
+          "nameSpace": "",
+          "codeRoot": ""
+        }
+      },
+      "defKey": "ADMIN",
+      "defName": "后台管理",
+      "comment": "",
+      "properties": {
+        "partitioned by": "(date string)",
+        "row format delimited": "",
+        "fields terminated by ','": "",
+        "collection items terminated by '-'": "",
+        "map keys terminated by ':'": "",
+        "store as textfile;": ""
+      },
+      "sysProps": {
+        "nameTemplate": "{defKey}[{defName}]"
+      },
+      "notes": {},
+      "headers": [
+        {
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "defName",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "primaryKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "notNull",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "autoIncrement",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "domain",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "type",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "len",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "scale",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "comment",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "refDict",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defaultValue",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "isStandard",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "uiHint",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "extProps",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr1",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr2",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr3",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr4",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr5",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr6",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr7",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr8",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr9",
+          "freeze": false,
+          "hideInGraph": true
+        }
+      ],
+      "fields": [
+        {
+          "defKey": "USER_INDEX",
+          "defName": "用户ID",
+          "comment": "",
+          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": true,
+          "notNull": true,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "uiHint": "",
+          "id": "A2207B2A-E82A-4097-A76A-B87724A68A03",
+          "baseType": "FC9790A7-36B8-4A48-8F9A-BC1042BCFE64"
+        },
+        {
+          "defKey": "USER_NAME",
+          "defName": "用户名",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "baseType": "FC9790A7-36B8-4A48-8F9A-BC1042BCFE64",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "17653546-BAEF-46F8-8B1E-BF487C449977"
+        },
+        {
+          "defKey": "PASSWORD",
+          "defName": "密码",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "baseType": "FC9790A7-36B8-4A48-8F9A-BC1042BCFE64",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "9A8ED8E7-2D6E-44F1-BC5F-08AE8CD4FD22"
+        }
+      ],
+      "correlations": [],
+      "indexes": [],
+      "type": "P"
     }
   ],
   "views": [],
@@ -2370,7 +2579,8 @@
         "D2A74510-0B5F-49A4-9815-1B192903130F",
         "2F70A1A4-C052-46C7-98A4-A2EA8F888831",
         "13064542-CBA7-48D6-8718-CE667997E963",
-        "BC96A2BB-01DF-44D5-BA5B-298CA6FA304B"
+        "BC96A2BB-01DF-44D5-BA5B-298CA6FA304B",
+        "905FCAD3-3FB0-453F-BCCA-B78FC64723BE"
       ],
       "refViews": [],
       "refDiagrams": [
@@ -2635,6 +2845,51 @@
       "canvasData": {
         "cells": [
           {
+            "id": "988c0323-7b0e-4d7d-8887-470be0345480",
+            "shape": "table",
+            "position": {
+              "x": 60,
+              "y": 482
+            },
+            "count": 0,
+            "originKey": "13064542-CBA7-48D6-8718-CE667997E963",
+            "type": "P",
+            "size": {
+              "width": 401,
+              "height": 123
+            }
+          },
+          {
+            "id": "5a997af8-bf83-4d4e-9c96-303725e0fcd3",
+            "shape": "table",
+            "position": {
+              "x": 1030,
+              "y": 210.00000000000023
+            },
+            "count": 0,
+            "originKey": "4F046D28-74E9-4ADF-91B3-500FA69B2C54",
+            "type": "P",
+            "size": {
+              "width": 410,
+              "height": 220
+            }
+          },
+          {
+            "id": "c4fb907e-97a6-4509-9c3d-164c77cea47f",
+            "shape": "table",
+            "position": {
+              "x": 564,
+              "y": -91.99999999999986
+            },
+            "count": 0,
+            "originKey": "D2A74510-0B5F-49A4-9815-1B192903130F",
+            "type": "P",
+            "size": {
+              "width": 400,
+              "height": 220
+            }
+          },
+          {
             "id": "8ac5c0f1-8d9d-4249-9ef8-a63f7f0ea4dc",
             "shape": "erdRelation",
             "source": {
@@ -2647,9 +2902,6 @@
             },
             "relation": "1:n",
             "fillColor": "#ACDAFC",
-            "router": {
-              "name": "manhattan"
-            },
             "attrs": {
               "line": {
                 "strokeDasharray": ""
@@ -2669,9 +2921,6 @@
             },
             "relation": "1:n",
             "fillColor": "#ACDAFC",
-            "router": {
-              "name": "manhattan"
-            },
             "attrs": {
               "line": {
                 "strokeDasharray": ""
@@ -2691,9 +2940,6 @@
             },
             "relation": "1:n",
             "fillColor": "#ACDAFC",
-            "router": {
-              "name": "manhattan"
-            },
             "attrs": {
               "line": {
                 "strokeDasharray": ""
@@ -2713,9 +2959,6 @@
             },
             "relation": "1:n",
             "fillColor": "#ACDAFC",
-            "router": {
-              "name": "manhattan"
-            },
             "attrs": {
               "line": {
                 "strokeDasharray": ""
@@ -2735,9 +2978,6 @@
             },
             "relation": "1:n",
             "fillColor": "#ACDAFC",
-            "router": {
-              "name": "manhattan"
-            },
             "attrs": {
               "line": {
                 "strokeDasharray": ""
@@ -2757,9 +2997,6 @@
             },
             "relation": "1:n",
             "fillColor": "#ACDAFC",
-            "router": {
-              "name": "manhattan"
-            },
             "attrs": {
               "line": {
                 "strokeDasharray": ""
@@ -2767,18 +3004,18 @@
             }
           },
           {
-            "id": "988c0323-7b0e-4d7d-8887-470be0345480",
+            "id": "881ab480-595a-4857-8eba-351b1e1643d7",
             "shape": "table",
             "position": {
-              "x": 60,
-              "y": 482
+              "x": 559,
+              "y": 280.0000000000008
             },
             "count": 0,
-            "originKey": "13064542-CBA7-48D6-8718-CE667997E963",
+            "originKey": "326E96F3-A459-4185-BC1D-F1FA47ABC6C3",
             "type": "P",
             "size": {
-              "width": 401,
-              "height": 123
+              "width": 410,
+              "height": 150
             }
           },
           {
@@ -2812,48 +3049,18 @@
             }
           },
           {
-            "id": "881ab480-595a-4857-8eba-351b1e1643d7",
+            "id": "c20f67a9-d408-4a73-aff0-8ca3c0bf326b",
             "shape": "table",
             "position": {
-              "x": 559,
-              "y": 280.0000000000008
+              "x": 583,
+              "y": 494
             },
             "count": 0,
-            "originKey": "326E96F3-A459-4185-BC1D-F1FA47ABC6C3",
+            "originKey": "905FCAD3-3FB0-453F-BCCA-B78FC64723BE",
             "type": "P",
             "size": {
-              "width": 410,
-              "height": 150
-            }
-          },
-          {
-            "id": "5a997af8-bf83-4d4e-9c96-303725e0fcd3",
-            "shape": "table",
-            "position": {
-              "x": 1030,
-              "y": 210.00000000000023
-            },
-            "count": 0,
-            "originKey": "4F046D28-74E9-4ADF-91B3-500FA69B2C54",
-            "type": "P",
-            "size": {
-              "width": 410,
-              "height": 220
-            }
-          },
-          {
-            "id": "c4fb907e-97a6-4509-9c3d-164c77cea47f",
-            "shape": "table",
-            "position": {
-              "x": 564,
-              "y": -91.99999999999986
-            },
-            "count": 0,
-            "originKey": "D2A74510-0B5F-49A4-9815-1B192903130F",
-            "type": "P",
-            "size": {
-              "width": 400,
-              "height": 220
+              "width": 336,
+              "height": 100
             }
           }
         ]
@@ -2870,7 +3077,7 @@
       "type": "29D1CE08-4C35-4D2D-AAA9-23D93305B52E",
       "properties": {
         "driver_class_name": "com.mysql.cj.jdbc.Driver",
-        "url": "jdbc:mysql://localhost:3306/group_center?characterEncoding=UTF-8&useSSL=false&useUnicode=true&serverTimezone=UTC",
+        "url": "jdbc:mysql://localhost:3306/group_center?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai",
         "password": "123456",
         "username": "root"
       }
