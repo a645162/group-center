@@ -1,3 +1,5 @@
+// SM3算法
+// https://github.com/Tencent/TencentKonaSMSuite/blob/master/kona-crypto/README_cn.md
 package com.khm.group.center.security;
 
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +41,8 @@ public class ProgramCrypto {
         addProvider();
 
         try {
-            MessageDigest md = MessageDigest.getInstance("SM3");
+            MessageDigest md =
+                    MessageDigest.getInstance("SM3");
             return md.digest(message);
         } catch (Exception e) {
             logger.error("Error in encrypting string with SM3 algorithm");
@@ -53,7 +56,9 @@ public class ProgramCrypto {
             return null;
         }
 
-        byte[] message = str.getBytes(StandardCharsets.UTF_8);
+        final byte[] message =
+                str.getBytes(StandardCharsets.UTF_8);
+
         return hashSM3(message);
     }
 
@@ -62,7 +67,7 @@ public class ProgramCrypto {
             return null;
         }
 
-        byte[] encryptedMessage = hashSM3(str);
+        final byte[] encryptedMessage = hashSM3(str);
         if (encryptedMessage == null) {
             return null;
         }
@@ -75,7 +80,7 @@ public class ProgramCrypto {
             return null;
         }
 
-        byte[] encryptedMessage = hashSM3(str);
+        final byte[] encryptedMessage = hashSM3(str);
         if (encryptedMessage == null) {
             return null;
         }
@@ -113,8 +118,10 @@ public class ProgramCrypto {
             return null;
         }
 
-        byte[] message = str.getBytes(StandardCharsets.UTF_8);
-        byte[] key = keyStr.getBytes(StandardCharsets.UTF_8);
+        final byte[] message =
+                str.getBytes(StandardCharsets.UTF_8);
+        final byte[] key =
+                keyStr.getBytes(StandardCharsets.UTF_8);
 
         return encryptHmacSM3(message, key);
     }
@@ -125,7 +132,7 @@ public class ProgramCrypto {
             return null;
         }
 
-        byte[] encryptedMessage = encryptHmacSM3(str, keyStr);
+        final byte[] encryptedMessage = encryptHmacSM3(str, keyStr);
         return SecurityDataConvert.bytesToHex(encryptedMessage);
     }
 
@@ -135,7 +142,7 @@ public class ProgramCrypto {
             return null;
         }
 
-        byte[] encryptedMessage = encryptHmacSM3(str, keyStr);
+        final byte[] encryptedMessage = encryptHmacSM3(str, keyStr);
         return SecurityDataConvert.bytesToBase64Str(encryptedMessage);
     }
 
@@ -143,21 +150,19 @@ public class ProgramCrypto {
     // JWT(HmacSM3)
     ///////////////////////////////////////////////////////////////////////////////////////////
     public static @NotNull String encryptJWTString(String str, String keyStr) {
-        String header, payload;
+        final String header = "{\"alg\":\"HmacSM3\",\"typ\":\"JWT\"}";
+        final String payload = str.trim();
 
-        header = "{\"alg\":\"HmacSM3\",\"typ\":\"JWT\"}";
-        payload = str;
+        final String originalText = header + "." + payload;
 
-        String originalText = header + "." + payload;
-
-        String signatureBase64Str =
+        final String signatureBase64Str =
                 encryptHmacSM3Base64Str(originalText, keyStr);
 
         // Base64编码
-        String headerBase64Str = SecurityDataConvert.bytesToBase64Str(
+        final String headerBase64Str = SecurityDataConvert.bytesToBase64Str(
                 header.getBytes(StandardCharsets.UTF_8)
         );
-        String payloadBase64Str = SecurityDataConvert.bytesToBase64Str(
+        final String payloadBase64Str = SecurityDataConvert.bytesToBase64Str(
                 payload.getBytes(StandardCharsets.UTF_8)
         );
 
@@ -176,20 +181,20 @@ public class ProgramCrypto {
             return null;
         }
 
-        String headerBase64Str = jwtParts[0];
-        String payloadBase64Str = jwtParts[1];
-        String signatureBase64Str = jwtParts[2];
+        final String headerBase64Str = jwtParts[0];
+        final String payloadBase64Str = jwtParts[1];
+        final String signatureBase64Str = jwtParts[2];
 
         // Base64解码
         byte[] headerBytes = java.util.Base64.getDecoder().decode(headerBase64Str);
         byte[] payloadBytes = java.util.Base64.getDecoder().decode(payloadBase64Str);
 
-        String header = new String(headerBytes, StandardCharsets.UTF_8);
-        String payload = new String(payloadBytes, StandardCharsets.UTF_8);
+        final String header = new String(headerBytes, StandardCharsets.UTF_8);
+        final String payload = new String(payloadBytes, StandardCharsets.UTF_8);
 
-        String originalText = header + "." + payload;
+        final String originalText = header + "." + payload;
 
-        String signatureBase64Str2 =
+        final String signatureBase64Str2 =
                 encryptHmacSM3Base64Str(originalText, keyStr);
 
         if (!signatureBase64Str.equals(signatureBase64Str2)) {

@@ -1,3 +1,5 @@
+// SM3 Test
+// https://github.com/Tencent/TencentKonaSMSuite/blob/master/kona-crypto/README_cn.md
 package com.khm.group.center.security;
 
 import org.junit.jupiter.api.Test;
@@ -5,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class SM3Test {
 
     @Test
-    public void TestSm3() {
+    public void TestSm3Hash() {
         String str = "https://github.com/a645162/group-center";
 
         // Hex Version
@@ -33,7 +35,9 @@ public class SM3Test {
         String str = "https://github.com/a645162/group-center";
         String key = "a645162/group-center";
 
-        assert ProgramCrypto.encryptHmacSM3HexStr(str, key) != null;
+        String hexResult =
+                ProgramCrypto.encryptHmacSM3HexStr(str, key);
+        assert hexResult != null && hexResult.length() == 64;
         assert ProgramCrypto.encryptHmacSM3Base64Str(str, key) != null;
 
         String encryptResult =
