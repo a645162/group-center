@@ -41,7 +41,7 @@ dependencies {
     runtimeOnly("com.mysql:mysql-connector-j:8.3.0")
 //    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     // https://mvnrepository.com/artifact/com.oceanbase/oceanbase-client
-    implementation("com.oceanbase:oceanbase-client:2.4.9")
+    runtimeOnly("com.oceanbase:oceanbase-client:2.4.9")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Crypto
@@ -51,7 +51,8 @@ dependencies {
     // https://mvnrepository.com/artifact/com.tencent.kona/kona-crypto
     // https://github.com/Tencent/TencentKonaSMSuite
 //    implementation("com.tencent.kona:kona-crypto")
-//    implementation("com.tencent.kona:kona-provider")
+    // https://mvnrepository.com/artifact/com.tencent.kona/kona-crypto
+    implementation("com.tencent.kona:kona-crypto:1.0.11")
 
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Message WebHook
