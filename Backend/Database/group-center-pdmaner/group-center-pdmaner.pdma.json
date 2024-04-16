@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.9.2",
   "createdTime": "2024-4-14 15:40:33",
-  "updatedTime": "2024-4-16 14:32:57",
+  "updatedTime": "2024-4-16 19:05:26",
   "dbConns": [],
   "profile": {
     "default": {
@@ -784,18 +784,27 @@
           "uiHint": "",
           "id": "74CE2879-8FFB-4031-BA0F-A97F8545BF8C",
           "baseType": "FC9790A7-36B8-4A48-8F9A-BC1042BCFE64"
-        }
-      ],
-      "correlations": [
+        },
         {
-          "myField": "BA0D9EB7-CD80-4714-AB6D-57CCED89AF46",
-          "refEntity": "4F046D28-74E9-4ADF-91B3-500FA69B2C54",
-          "refField": "CE0B65BC-FA01-4E46-8315-17ECA54C4AFB",
-          "myRows": "1",
-          "refRows": "n",
-          "innerType": ""
+          "defKey": "DASHBOARD_API_URL",
+          "defName": "看板API地址",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "baseType": "FC9790A7-36B8-4A48-8F9A-BC1042BCFE64",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "3E550754-5C23-49A8-B829-D8CF6087E279"
         }
       ],
+      "correlations": [],
       "indexes": [],
       "type": "P"
     },
@@ -1818,48 +1827,7 @@
           "id": "1BF0B75E-315A-4FC0-9C26-FE08B8298C14"
         }
       ],
-      "correlations": [
-        {
-          "myField": "1966486A-5AED-4547-BCCD-F36877F37BB9",
-          "refEntity": "D2A74510-0B5F-49A4-9815-1B192903130F",
-          "refField": "6C0C3851-43D0-4B84-B64E-E01A7160E88D",
-          "myRows": "1",
-          "refRows": "n",
-          "innerType": ""
-        },
-        {
-          "myField": "51C5CB13-FC1D-4767-9E48-5CEDCDA816AB",
-          "refEntity": "326E96F3-A459-4185-BC1D-F1FA47ABC6C3",
-          "refField": "F7B8A547-0E83-4650-8E65-C7574ACDDCC4",
-          "myRows": "1",
-          "refRows": "n",
-          "innerType": ""
-        },
-        {
-          "myField": "8D28240D-D0B0-4F2A-8095-287185ECC003",
-          "refEntity": "4F046D28-74E9-4ADF-91B3-500FA69B2C54",
-          "refField": "CE0B65BC-FA01-4E46-8315-17ECA54C4AFB",
-          "myRows": "1",
-          "refRows": "n",
-          "innerType": ""
-        },
-        {
-          "myField": "1966486A-5AED-4547-BCCD-F36877F37BB9",
-          "refEntity": "13064542-CBA7-48D6-8718-CE667997E963",
-          "refField": "465595E6-1F05-4526-B2ED-784E40EA066E",
-          "myRows": "1",
-          "refRows": "n",
-          "innerType": ""
-        },
-        {
-          "myField": "1966486A-5AED-4547-BCCD-F36877F37BB9",
-          "refEntity": "BC96A2BB-01DF-44D5-BA5B-298CA6FA304B",
-          "refField": "18C7EFE1-DA7D-4068-BE38-94C459579FCC",
-          "myRows": "1",
-          "refRows": "n",
-          "innerType": ""
-        }
-      ],
+      "correlations": [],
       "indexes": [],
       "type": "P"
     },
@@ -2247,8 +2215,8 @@
           "type": "",
           "len": 32,
           "scale": "",
-          "primaryKey": false,
-          "notNull": false,
+          "primaryKey": true,
+          "notNull": true,
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
@@ -2890,6 +2858,21 @@
             }
           },
           {
+            "id": "2309f99b-bcb1-44ed-a1b4-e1e25201a086",
+            "shape": "table",
+            "position": {
+              "x": 60,
+              "y": 627
+            },
+            "count": 0,
+            "originKey": "BC96A2BB-01DF-44D5-BA5B-298CA6FA304B",
+            "type": "P",
+            "size": {
+              "width": 377,
+              "height": 100
+            }
+          },
+          {
             "id": "8ac5c0f1-8d9d-4249-9ef8-a63f7f0ea4dc",
             "shape": "erdRelation",
             "source": {
@@ -3004,36 +2987,6 @@
             }
           },
           {
-            "id": "881ab480-595a-4857-8eba-351b1e1643d7",
-            "shape": "table",
-            "position": {
-              "x": 559,
-              "y": 280.0000000000008
-            },
-            "count": 0,
-            "originKey": "326E96F3-A459-4185-BC1D-F1FA47ABC6C3",
-            "type": "P",
-            "size": {
-              "width": 410,
-              "height": 150
-            }
-          },
-          {
-            "id": "2309f99b-bcb1-44ed-a1b4-e1e25201a086",
-            "shape": "table",
-            "position": {
-              "x": 60,
-              "y": 627
-            },
-            "count": 0,
-            "originKey": "BC96A2BB-01DF-44D5-BA5B-298CA6FA304B",
-            "type": "P",
-            "size": {
-              "width": 377,
-              "height": 100
-            }
-          },
-          {
             "id": "8ef49d7d-fe68-4b2a-a386-d9d67a1e30dd",
             "shape": "table",
             "position": {
@@ -3061,6 +3014,21 @@
             "size": {
               "width": 336,
               "height": 100
+            }
+          },
+          {
+            "id": "881ab480-595a-4857-8eba-351b1e1643d7",
+            "shape": "table",
+            "position": {
+              "x": 559,
+              "y": 260.0000000000002
+            },
+            "count": 0,
+            "originKey": "326E96F3-A459-4185-BC1D-F1FA47ABC6C3",
+            "type": "P",
+            "size": {
+              "width": 410,
+              "height": 170
             }
           }
         ]
