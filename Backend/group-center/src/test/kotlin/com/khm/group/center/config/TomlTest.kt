@@ -1,5 +1,6 @@
 package com.khm.group.center.config
 
+import com.akuleshov7.ktoml.Toml
 import org.junit.jupiter.api.Test
 import org.mozilla.universalchardet.UniversalDetector
 import java.io.File
@@ -32,5 +33,15 @@ class TomlTest {
         }
 
         assert(encoding != null)
+
+        val text = file.readText(Charsets.UTF_8)
+
+        parseTomlText(text)
+    }
+
+    fun parseTomlText(text: String) {
+        // Parse Toml Text
+        val toml = Toml().tomlParser.parseString(text)
+        println("Toml:${toml}")
     }
 }

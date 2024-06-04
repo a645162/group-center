@@ -3,7 +3,7 @@ package com.khm.group.center.utils.file
 import org.mozilla.universalchardet.UniversalDetector
 import java.io.File
 
-class File {
+class ProgramFile {
 
     companion object {
 

@@ -5,4 +5,4 @@ description = "This is a test group"
 
 [[password]]
 
-PASSWORD_JWT = "123456啊"
+PASSWORD_JWT = "123456"
