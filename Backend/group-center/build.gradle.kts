@@ -15,8 +15,28 @@ java {
     sourceCompatibility = JavaVersion.VERSION_21
 }
 
+allprojects {
+    repositories {
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/spring") }
+
+        mavenLocal()
+        mavenCentral()
+    }
+}
+
 repositories {
+    maven { url = uri("https://maven.aliyun.com/repository/central") }
+    maven { url = uri("https://maven.aliyun.com/repository/public") }
+    maven { url = uri("https://maven.aliyun.com/repository/spring") }
+
+    maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+
+    mavenLocal()
     mavenCentral()
+
+    gradlePluginPortal()
 }
 
 dependencies {
@@ -61,7 +81,7 @@ dependencies {
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
 //    implementation("com.alibaba.fastjson2:fastjson2:2.0.51")
-    implementation("com.alibaba.fastjson2:fastjson2-kotlin:2.0.51")
+    implementation("com.alibaba.fastjson2:fastjson2-kotlin:2.0.50")
 
     // Config File
     implementation("com.akuleshov7:ktoml-core:0.5.1")
