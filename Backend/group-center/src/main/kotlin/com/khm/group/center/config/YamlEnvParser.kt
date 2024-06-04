@@ -7,9 +7,7 @@ import java.util.*
 import kotlin.collections.HashMap
 
 class YamlEnvParser {
-
     companion object {
-
         fun parseYamlText(text: String): HashMap<String, String> {
             val result = HashMap<String, String>()
 
@@ -30,7 +28,5 @@ class YamlEnvParser {
 
             return result
         }
-
     }
-
 }

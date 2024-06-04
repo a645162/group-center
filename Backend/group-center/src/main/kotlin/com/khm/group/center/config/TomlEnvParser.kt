@@ -8,9 +8,7 @@ import java.util.*
 import kotlin.collections.HashMap
 
 class TomlEnvParser {
-
     companion object {
-
         fun parseTomlText(text: String): HashMap<String, String> {
             val result: HashMap<String, String> = HashMap()
 
@@ -40,7 +38,5 @@ class TomlEnvParser {
 
             return result
         }
-
     }
-
 }
