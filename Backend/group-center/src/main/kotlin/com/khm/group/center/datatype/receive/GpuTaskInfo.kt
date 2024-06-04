@@ -1,4 +1,4 @@
-package com.khm.group.center.datatype
+package com.khm.group.center.datatype.receive
 
 class GpuTaskInfo {
     var taskID: Int = 0;

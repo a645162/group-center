@@ -1,10 +1,11 @@
 package com.khm.group.center.controller.api.client.task
 
-import com.khm.group.center.datatype.ClientResponse
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.web.bind.annotation.*
 
-import com.khm.group.center.datatype.GpuTaskInfo
+import com.khm.group.center.datatype.receive.GpuTaskInfo
+import com.khm.group.center.datatype.response.ClientResponse
+
 
 @RestController
 class GpuTaskController {

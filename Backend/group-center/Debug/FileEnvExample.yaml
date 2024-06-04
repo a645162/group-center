@@ -1,6 +1,6 @@
-general:
-  name: "Test Group"
-  description: "This is a test group"
+General:
+  Name: "Test Group"
+  Description: "This is a test group"
 
-password:
-  PASSWORD_JWT: "123456"
+Password:
+  JWT: "123456"

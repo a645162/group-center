@@ -1,8 +1,8 @@
-[[general]]
+[[General]]
 
-name = "Test Group"
-description = "This is a test group"
+Name = "Test Group"
+Description = "This is a test group"
 
-[[password]]
+[[Password]]
 
-PASSWORD_JWT = "123456"
+JWT = "123456"

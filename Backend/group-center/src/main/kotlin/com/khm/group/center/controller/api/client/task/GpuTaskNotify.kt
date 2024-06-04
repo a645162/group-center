@@ -1,6 +1,7 @@
 package com.khm.group.center.controller.api.client.task
 
-import com.khm.group.center.datatype.GpuTaskInfo
+import com.khm.group.center.datatype.receive.GpuTaskInfo
+
 
 class GpuTaskNotify {
 

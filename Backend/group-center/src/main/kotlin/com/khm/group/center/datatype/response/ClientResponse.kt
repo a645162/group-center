@@ -1,4 +1,4 @@
-package com.khm.group.center.datatype
+package com.khm.group.center.datatype.response
 
 class ClientResponse {
     var isAuthenticated: Boolean = false

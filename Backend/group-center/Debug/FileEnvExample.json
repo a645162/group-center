@@ -1,0 +1,9 @@
+{
+  "General": {
+    "Name": "Test Group",
+    "Description": "This is a test group"
+  },
+  "Password": {
+    "JWT": "123456"
+  }
+}

@@ -1,6 +1,8 @@
 package com.khm.group.center.config
 
+import com.khm.group.center.config.JsonEnvParser.Companion.parseJsonText
 import com.khm.group.center.config.TomlEnvParser.Companion.parseTomlText
+import com.khm.group.center.config.YamlEnvParser.Companion.parseYamlText
 import java.io.File
 
 import com.khm.group.center.utils.datetime.DateTime
@@ -39,7 +41,10 @@ class ConfigEnvironment {
 
         private fun initializeFileEnvList() {
             // Read File
-            val fileEnvListPath = getEnvStr("FILE_ENV_PATH", "./Debug/FileEnvExample.toml")
+            val fileEnvListPath = getEnvStr(
+                "FILE_ENV_PATH",
+                "./Debug/FileEnvExample.toml"
+            )
 
             val file = File(fileEnvListPath)
 
@@ -48,11 +53,14 @@ class ConfigEnvironment {
                     .readFileWithEncodingPredict(fileEnvListPath)
 
             if (fileEnvListPath.endsWith(".json")) {
-
+                val result = parseJsonText(fileText)
+                FILE_ENV_LIST.putAll(result)
             } else if (fileEnvListPath.endsWith(".toml")) {
-                parseTomlText(fileText)
+                val result = parseTomlText(fileText)
+                FILE_ENV_LIST.putAll(result)
             } else if (fileEnvListPath.endsWith(".yaml")) {
-
+                val result = parseYamlText(fileText)
+                FILE_ENV_LIST.putAll(result)
             } else {
                 println("[Env File]Error File Format")
             }
