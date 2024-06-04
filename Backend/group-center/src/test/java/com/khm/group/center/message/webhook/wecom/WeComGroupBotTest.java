@@ -10,10 +10,12 @@ public class WeComGroupBotTest {
     @Test
     public void WebhookWeComTest() {
 
-        String webhookKey = System.getenv("WEBHOOK_WEWORK");
-        if (webhookKey == null || webhookKey.isEmpty()) {
-            return;
-        }
+        String webhookKey = System.getenv("GROUP_CENTER_WEBHOOK_WEWORK");
+        System.out.println("WeCom WebHook Key:" + webhookKey);
+
+        boolean key_is_valid = !(webhookKey == null || webhookKey.isEmpty());
+
+        assert key_is_valid;
 
         boolean ret = WeComGroupBot.directSendTextWithUrl(
                 webhookKey,

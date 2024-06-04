@@ -1,0 +1,8 @@
+[[general]]
+
+name = "Test Group"
+description = "This is a test group"
+
+[[password]]
+
+PASSWORD_JWT = "123456啊"

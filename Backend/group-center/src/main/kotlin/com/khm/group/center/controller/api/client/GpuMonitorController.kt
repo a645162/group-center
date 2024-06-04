@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class GpuMonitorControl {
+class GpuMonitorController {
 
     @Operation(summary = "监控启动")
-    @RequestMapping("/start", method = [RequestMethod.POST])
+    @RequestMapping("/api/client/start", method = [RequestMethod.POST])
     fun version(): String {
         val version = ProgramInfo.getVersion()
         return version

@@ -66,6 +66,9 @@ dependencies {
 
     implementation("com.charleskorn.kaml:kaml:0.59.0")
 
+    // File Encoding
+    implementation("com.github.albfernandez:juniversalchardet:2.5.0")
+
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Document
     // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-core

@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Application-Debug" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <envs>
+      <env name="SPRING_PROFILES_ACTIVE" value="debug" />
+    </envs>
+    <module name="group-center.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.khm.group.center.GroupCenterApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
