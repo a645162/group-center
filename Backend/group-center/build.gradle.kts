@@ -1,10 +1,11 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+//import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.springframework.boot") version "3.2.4"
     id("io.spring.dependency-management") version "1.1.4"
     kotlin("jvm") version "1.9.23"
     kotlin("plugin.spring") version "1.9.23"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
 }
 
 group = "com.khm.group"
@@ -59,7 +60,8 @@ dependencies {
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
-    implementation("com.alibaba.fastjson2:fastjson2:2.0.48")
+//    implementation("com.alibaba.fastjson2:fastjson2:2.0.51")
+    implementation("com.alibaba.fastjson2:fastjson2-kotlin:2.0.51")
 
     // Config File
     implementation("com.akuleshov7:ktoml-core:0.5.1")
@@ -106,12 +108,21 @@ tasks.withType<ProcessResources> {
     dependsOn("writeVersionProperties")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs += "-Xjsr305=strict"
-        jvmTarget = "21"
+tasks.named(
+    "compileKotlin",
+    org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask::class.java
+) {
+    compilerOptions {
+        freeCompilerArgs.add("-Xjsr305=strict")
     }
 }
+
+//tasks.withType<KotlinCompile> {
+//    kotlinOptions {
+//        freeCompilerArgs += "-Xjsr305=strict"
+//        jvmTarget = "21"
+//    }
+//}
 
 tasks.withType<Test> {
     useJUnitPlatform()
