@@ -60,6 +60,12 @@ dependencies {
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
     implementation("com.alibaba.fastjson2:fastjson2:2.0.48")
 
+    // Config File
+    implementation("com.akuleshov7:ktoml-core:0.5.1")
+    implementation("com.akuleshov7:ktoml-file:0.5.1")
+
+    implementation("com.charleskorn.kaml:kaml:0.59.0")
+
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Document
     // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-core

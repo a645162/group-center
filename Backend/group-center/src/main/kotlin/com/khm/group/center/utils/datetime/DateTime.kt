@@ -17,6 +17,18 @@ class DateTime {
             return sdf.format(date)
         }
 
+        fun getCurrentExpireDateTimeStr(expireTime: Long): String {
+            val sdf = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
+            val date = Date(System.currentTimeMillis() + expireTime)
+            return sdf.format(date)
+        }
+
+        fun getTimestampFromExpireDateTime(expireTimeStr: String): Long {
+            val sdf = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
+            val date = sdf.parse(expireTimeStr)
+            return date.time
+        }
+
     }
 
 }
