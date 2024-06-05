@@ -1,0 +1,15 @@
+version: 200
+
+machineList:
+  - name: ""
+    nameEng: ""
+    host: ""
+    password: ""
+
+    webhook:
+      lark:
+        enable: true
+        groupKey: ""
+      weCom:
+        enable: true
+        groupKey: ""

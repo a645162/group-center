@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 //import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -15,6 +17,8 @@ java {
     sourceCompatibility = JavaVersion.VERSION_21
 }
 
+// https://developer.aliyun.com/mirror/
+// https://developer.aliyun.com/mirror/maven
 allprojects {
     repositories {
         maven { url = uri("https://maven.aliyun.com/repository/central") }
@@ -128,12 +132,20 @@ tasks.withType<ProcessResources> {
     dependsOn("writeVersionProperties")
 }
 
+// https://kotlinlang.org/docs/gradle-compiler-options.html#target-the-jvm
 tasks.named(
     "compileKotlin",
     org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask::class.java
 ) {
     compilerOptions {
         freeCompilerArgs.add("-Xjsr305=strict")
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
     }
 }
 

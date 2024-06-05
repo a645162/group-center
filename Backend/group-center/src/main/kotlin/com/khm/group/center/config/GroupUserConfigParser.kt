@@ -1,14 +1,14 @@
 package com.khm.group.center.config
 
 import com.charleskorn.kaml.Yaml
-import com.khm.group.center.datatype.config.UserConfig
+import com.khm.group.center.datatype.config.GroupUserConfig
 import com.khm.group.center.utils.file.ProgramFile
 import kotlinx.serialization.Serializable
 
-class GroupUser {
+class GroupUserConfigParser {
     companion object {
-        fun parseUserYaml(yamlText: String): List<UserConfig> {
-            val userList = mutableListOf<UserConfig>()
+        fun parseUserYaml(yamlText: String): List<GroupUserConfig> {
+            val userList = mutableListOf<GroupUserConfig>()
 
             @Serializable
             data class WeCom(
@@ -49,7 +49,7 @@ class GroupUser {
             )
 
             for (user in userListTemp.userList) {
-                val newUserObj = UserConfig()
+                val newUserObj = GroupUserConfig()
 
                 val currentOriUser = user
 
@@ -74,8 +74,8 @@ class GroupUser {
             return userList
         }
 
-        fun parseUserYamlInDir(dirPath: String): List<UserConfig> {
-            val userList = mutableListOf<UserConfig>()
+        fun parseUserYamlInDir(dirPath: String): List<GroupUserConfig> {
+            val userList = mutableListOf<GroupUserConfig>()
 
             val yamlPathList = ProgramFile.walkFileTreeKtRecursive(dirPath, "yaml")
 

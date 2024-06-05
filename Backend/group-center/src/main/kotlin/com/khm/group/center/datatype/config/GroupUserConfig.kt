@@ -4,7 +4,7 @@ import com.khm.group.center.datatype.config.webhook.WeComUser
 import com.khm.group.center.datatype.config.webhook.LarkUser
 
 
-class UserConfig {
+class GroupUserConfig {
     var name: String = ""
     var nameEng: String = ""
     var keywords: List<String> = listOf()
