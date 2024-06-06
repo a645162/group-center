@@ -1,5 +1,6 @@
 package com.khm.group.center.controller.api.client.task
 
+import com.khm.group.center.datatype.config.MachineConfig
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.web.bind.annotation.*
 
@@ -22,7 +23,14 @@ class GpuTaskController {
     @RequestMapping("/api/client/gpu_task/info", method = [RequestMethod.POST])
     fun gpuTaskInfo(@RequestBody gpuTaskInfo: GpuTaskInfo): ClientResponse {
         // Notify
-        GpuTaskNotify.notifyGpuTaskInfo(gpuTaskInfo)
+        val machineConfig = MachineConfig.getMachineByNameEng(gpuTaskInfo.nameEng)
+
+        val gpuTaskNotify = GpuTaskNotify(
+            gpuTaskInfo = gpuTaskInfo,
+            machineConfig = machineConfig
+        )
+
+        gpuTaskNotify.sendTaskMessage()
 
         val responseObj = ClientResponse()
         responseObj.result = "success"

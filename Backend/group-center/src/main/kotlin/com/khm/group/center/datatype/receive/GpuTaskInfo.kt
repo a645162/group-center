@@ -1,6 +1,11 @@
 package com.khm.group.center.datatype.receive
 
 class GpuTaskInfo {
+    // Common part
+    var name: String = "";
+    var nameEng: String = "";
+    var key: String = "";
+
     var taskID: Int = 0;
 
     var messageType: String = "";
@@ -30,6 +35,6 @@ class GpuTaskInfo {
     // 运行时间
     var startTime: Float = 0f;
 
-    var taskRunningTime: String = "";
+    var taskRunningTimeString: String = "";
     var taskRunningTimeInSeconds: Int = 0;
 }

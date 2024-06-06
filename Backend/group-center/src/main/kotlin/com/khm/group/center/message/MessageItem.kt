@@ -1,10 +1,15 @@
 package com.khm.group.center.message
 
+import com.khm.group.center.datatype.config.MachineConfig
+import com.khm.group.center.utils.datetime.DateTime
+
 data class MessageItem(
     val content: String,
     val targetUser: String,
-    val sendTime: Int?
+    val machineConfig: MachineConfig,
 ) {
+    val createTime = DateTime.getCurrentDateTimeStr()
+
     override fun toString(): String {
         return "[$targetUser]$content"
     }

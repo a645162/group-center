@@ -1,6 +1,5 @@
 package com.khm.group.center.datatype.config.webhook
 
-class LarkServer {
-    var enable: Boolean = false
+class LarkServer: BaseWebHookServer() {
     var groupKey: String = ""
 }

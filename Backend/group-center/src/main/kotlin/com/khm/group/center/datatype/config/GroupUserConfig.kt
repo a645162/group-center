@@ -15,5 +15,15 @@ class GroupUserConfig {
 
     companion object {
         var userList: List<GroupUserConfig> = listOf()
+
+        fun getUserByName(name: String): GroupUserConfig? {
+            for (user in userList) {
+                if (user.name == name) {
+                    return user
+                }
+            }
+
+            return null
+        }
     }
 }
