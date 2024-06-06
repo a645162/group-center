@@ -32,11 +32,6 @@ class GpuTaskController {
 
         gpuTaskNotify.sendTaskMessage()
 
-        println(gpuTaskInfo.taskGpuName)
-        println(gpuTaskInfo.taskPid)
-        println(gpuTaskInfo.taskUser)
-        println(gpuTaskInfo.taskStatus)
-
         val responseObj = ClientResponse()
         responseObj.result = "success"
         responseObj.isSucceed = true

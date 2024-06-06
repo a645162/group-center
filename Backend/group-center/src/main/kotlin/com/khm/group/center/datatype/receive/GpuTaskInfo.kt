@@ -27,10 +27,12 @@ class GpuTaskInfo {
     var taskGpuId: Int = 0;
     var taskGpuName: String = "";
 
-    var taskGpuMemoryMb: Int = 0;
+//    var taskGpuMemoryMb: Long = 0;
+    var taskGpuMemoryGb: Float = 0f;
     var taskGpuMemoryHuman: String = "";
 
-    var taskGpuMemoryMaxMb: Int = 0;
+//    var taskGpuMemoryMaxMb: Long = 0;
+    var taskGpuMemoryMaxGb: Float = 0f;
 
     // 运行时间
     var taskStartTime: Float = 0f;

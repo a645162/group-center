@@ -15,7 +15,7 @@ class GpuTaskNotify(
         return (
                 "[GPU${gpuTaskInfo.taskGpuId}]启动->\n"
                         + "用户:${gpuTaskInfo.taskUser} "
-                        + "最大显存:${gpuTaskInfo.taskGpuMemoryMaxMb} "
+                        + "最大显存:${gpuTaskInfo.taskGpuMemoryMaxGb}GB "
                         + "运行时长:${gpuTaskInfo.taskRunningTimeString} "
                 )
     }
@@ -24,7 +24,7 @@ class GpuTaskNotify(
         return (
                 "[GPU${gpuTaskInfo.taskGpuId}]完成!\n"
                         + "用户:${gpuTaskInfo.taskUser} "
-                        + "最大显存:${gpuTaskInfo.taskGpuMemoryMaxMb} "
+                        + "最大显存:${gpuTaskInfo.taskGpuMemoryMaxGb}GB "
                         + "运行时长:${gpuTaskInfo.taskRunningTimeString} "
                 )
     }
@@ -38,7 +38,7 @@ class GpuTaskNotify(
         var finalText = ""
 
         // Generate Text
-        when (gpuTaskInfo.taskStatus) {
+        when (gpuTaskInfo.messageType) {
             "create" -> {
                 finalText = generateTaskStartMessage(gpuTaskInfo)
             }
