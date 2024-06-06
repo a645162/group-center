@@ -12,4 +12,8 @@ class GroupUserConfig {
 
     var weComUser = WeComUser()
     var larkUser = LarkUser()
+
+    companion object {
+        private var userList: List<GroupUserConfig> = listOf()
+    }
 }

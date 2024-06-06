@@ -1,6 +1,5 @@
 package com.khm.group.center.message.webhook.wecom;
 
-import com.khm.group.center.utils.environ.EnvironVariable;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

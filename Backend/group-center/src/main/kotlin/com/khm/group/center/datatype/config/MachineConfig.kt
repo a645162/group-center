@@ -13,4 +13,8 @@ class MachineConfig {
 
     var weComServer = WeComServer()
     var larkServer = LarkServer()
+
+    companion object{
+        private var machineList: List<MachineConfig> = listOf()
+    }
 }
