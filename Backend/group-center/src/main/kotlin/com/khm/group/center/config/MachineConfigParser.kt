@@ -109,7 +109,7 @@ class MachineConfigParser {
 
                     machineList.addAll(machineListTemp)
                 } catch (e: Exception) {
-                    println("Read ${yamlFilePath} Error: ${e.message}")
+                    println("Read $yamlFilePath Error: ${e.message}")
                 }
             }
 

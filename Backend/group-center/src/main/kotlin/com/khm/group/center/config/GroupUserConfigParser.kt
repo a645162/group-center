@@ -107,7 +107,7 @@ class GroupUserConfigParser {
 
                     userList.addAll(userListTemp)
                 } catch (e: Exception) {
-                    println("Read ${yamlFilePath} Error: ${e.message}")
+                    println("Read $yamlFilePath Error: ${e.message}")
                 }
             }
 
