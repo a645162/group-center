@@ -50,7 +50,15 @@ class ConfigEnvironment {
                 "./Debug/FileEnvExample.toml"
             )
 
+            val currentDir = System.getProperty("user.dir")
+            println("Current Directory:${currentDir}")
+
+            println("File Env Path:${fileEnvListPath}")
             val file = File(fileEnvListPath)
+            if (!file.exists()) {
+                println("[Env File]Error File Not Exist")
+                return
+            }
 
             val fileText =
                 ProgramFile
