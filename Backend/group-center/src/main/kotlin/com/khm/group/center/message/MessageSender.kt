@@ -1,6 +1,7 @@
 package com.khm.group.center.message
 
 import com.khm.group.center.datatype.config.GroupUserConfig
+import com.khm.group.center.message.webhook.lark.LarkBot
 import com.khm.group.center.message.webhook.lark.LarkGroupBot
 import com.khm.group.center.message.webhook.wecom.WeComGroupBot
 
@@ -58,6 +59,11 @@ class MessageSender(private val messageItem: MessageItem) {
         if (userConfig != null) {
             val userId = userConfig.larkUser.userId
             atText = LarkGroupBot.getAtUserHtml(userId)
+
+            if (LarkBot.isAppIdSecretValid()) {
+                val larkBotObj = LarkBot(userConfig.larkUser.userId)
+                larkBotObj.sendText(messageItem.content)
+            }
         }
         val finalText = atText + messageItem.content
 

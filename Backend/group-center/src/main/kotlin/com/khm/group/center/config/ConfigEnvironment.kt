@@ -15,6 +15,9 @@ class ConfigEnvironment {
 
         var PASSWORD_JWT: String = ""
 
+        var LARK_BOT_APP_ID: String = ""
+        var LARK_BOT_APP_SECRET: String = ""
+
         fun getEnvStr(key: String, defaultValue: String = ""): String {
             val uppercaseKey = key.trim().uppercase()
 
@@ -41,6 +44,7 @@ class ConfigEnvironment {
             printFileEnvList()
 
             initializePasswordJwt()
+            initializeLarkBot()
         }
 
         private fun initializeFileEnvList() {
@@ -90,6 +94,11 @@ class ConfigEnvironment {
             if (PASSWORD_JWT.trim { it <= ' ' }.isEmpty()) {
                 PASSWORD_JWT = DateTime.getCurrentDateTimeStr()
             }
+        }
+
+        private fun initializeLarkBot() {
+            LARK_BOT_APP_ID = getEnvStr("LARK_BOT_APP_ID")
+            LARK_BOT_APP_SECRET = getEnvStr("LARK_BOT_APP_SECRET")
         }
     }
 

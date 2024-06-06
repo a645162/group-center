@@ -84,6 +84,9 @@ dependencies {
     // Message WebHook
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
+    // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
+    implementation("com.larksuite.oapi:oapi-sdk:2.2.8")
+
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
 //    implementation("com.alibaba.fastjson2:fastjson2:2.0.51")

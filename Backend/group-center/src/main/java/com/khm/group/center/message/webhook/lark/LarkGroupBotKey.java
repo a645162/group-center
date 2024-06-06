@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Base64;
 
-public class LarkBotKey {
+public class LarkGroupBotKey {
 
     public static int getLarkTimestamp() {
         return (int) (System.currentTimeMillis() / 1000);

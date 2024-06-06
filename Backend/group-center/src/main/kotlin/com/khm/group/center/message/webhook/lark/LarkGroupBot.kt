@@ -1,7 +1,6 @@
 package com.khm.group.center.message.webhook.lark
 
 import com.alibaba.fastjson2.JSON
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -39,9 +38,9 @@ class LarkGroupBot(botId: String, var botKey: String = "") {
     fun sendText(content: String) {
         val finalContent = content.trim()
 
-        val timestamp = LarkBotKey.getLarkTimestamp()
+        val timestamp = LarkGroupBotKey.getLarkTimestamp()
         try {
-            val secret = LarkBotKey.larkBotSign(botKey, timestamp)
+            val secret = LarkGroupBotKey.larkBotSign(botKey, timestamp)
             val message = LarkBotMessage(
                 timestamp.toString(),
                 secret,
