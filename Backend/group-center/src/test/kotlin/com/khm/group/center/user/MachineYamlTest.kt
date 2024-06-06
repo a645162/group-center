@@ -28,7 +28,7 @@ class MachineYamlTest {
             println(
                 "Name:${user.name}\n" +
                         "\tEng:${user.nameEng}\n" +
-                        "\tWeComId:${user.weComServer.groupKey}"
+                        "\tWeComId:${user.weComServer.groupBotKey}"
             )
         }
     }

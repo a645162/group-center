@@ -1,6 +1,7 @@
 package com.khm.group.center.message
 
 import com.khm.group.center.datatype.config.GroupUserConfig
+import com.khm.group.center.message.webhook.lark.LarkGroupBot
 import com.khm.group.center.message.webhook.wecom.WeComGroupBot
 
 
@@ -24,7 +25,7 @@ class MessageSender(private val messageItem: MessageItem) {
     }
 
     private fun sendByWeWork() {
-        val groupKey = messageItem.machineConfig.weComServer.groupKey
+        val groupKey = messageItem.machineConfig.weComServer.groupBotKey
         val url = WeComGroupBot.getWebhookUrl(groupKey)
 
         val mentionedIdList = ArrayList<String>()
@@ -48,6 +49,18 @@ class MessageSender(private val messageItem: MessageItem) {
     }
 
     private fun sendByLark() {
+        val groupBotId = messageItem.machineConfig.larkServer.groupBotId
+        val groupBotKey = messageItem.machineConfig.larkServer.groupBotKey
 
+        val larkGroupBotObj = LarkGroupBot(groupBotId, groupBotKey)
+
+        var atText = ""
+        if (userConfig != null) {
+            val userId = userConfig.larkUser.userId
+            atText = LarkGroupBot.getAtUserHtml(userId)
+        }
+        val finalText = atText + messageItem.content
+
+        larkGroupBotObj.sendText(finalText)
     }
 }

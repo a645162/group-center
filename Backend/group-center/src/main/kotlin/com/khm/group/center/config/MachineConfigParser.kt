@@ -1,9 +1,6 @@
 package com.khm.group.center.config
 
 import com.charleskorn.kaml.Yaml
-import com.khm.group.center.config.GroupUserConfigParser.Companion.parseUserYaml
-import com.khm.group.center.config.GroupUserConfigParser.Companion.parseUserYamlInDir
-import com.khm.group.center.datatype.config.GroupUserConfig
 import com.khm.group.center.datatype.config.MachineConfig
 import com.khm.group.center.utils.file.ProgramFile
 import kotlinx.serialization.Serializable
@@ -36,13 +33,14 @@ class MachineConfigParser {
             @Serializable
             data class WeCom(
                 val enable: Boolean,
-                val groupKey: String,
+                val groupBotKey: String,
             )
 
             @Serializable
             data class Lark(
                 val enable: Boolean,
-                val groupKey: String,
+                val groupBotId: String,
+                val groupBotKey: String,
             )
 
             @Serializable
@@ -85,10 +83,11 @@ class MachineConfigParser {
                 newMachineObj.password = currentOriMachine.password
 
                 newMachineObj.weComServer.enable = currentOriMachine.webhook.weCom.enable
-                newMachineObj.weComServer.groupKey = currentOriMachine.webhook.weCom.groupKey
+                newMachineObj.weComServer.groupBotKey = currentOriMachine.webhook.weCom.groupBotKey
 
                 newMachineObj.larkServer.enable = currentOriMachine.webhook.lark.enable
-                newMachineObj.larkServer.groupKey = currentOriMachine.webhook.lark.groupKey
+                newMachineObj.larkServer.groupBotId = currentOriMachine.webhook.lark.groupBotId
+                newMachineObj.larkServer.groupBotKey = currentOriMachine.webhook.lark.groupBotKey
 
                 machineList.add(newMachineObj)
             }

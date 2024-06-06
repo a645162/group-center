@@ -78,6 +78,8 @@ dependencies {
     // https://github.com/Tencent/TencentKonaSMSuite
     implementation("com.tencent.kona:kona-crypto:1.0.11")
 
+    // https://mvnrepository.com/artifact/commons-codec/commons-codec
+    implementation("commons-codec:commons-codec:1.17.0")
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Message WebHook
     implementation("com.squareup.okhttp3:okhttp:4.12.0")

@@ -13,11 +13,11 @@ class MessageCenterTest {
         val machineConfig = MachineConfig()
         machineConfig.nameEng = "3090"
         machineConfig.weComServer.enable = true
-        machineConfig.weComServer.groupKey = ""
+        machineConfig.weComServer.groupBotKey = ""
 
         val messageItem = MessageItem(
             content = "Test Content",
-            targetUser = "孔昊旻",
+            targetUser = "",
             machineConfig = machineConfig
         )
         messageCenter.enqueueMessage(messageItem)
