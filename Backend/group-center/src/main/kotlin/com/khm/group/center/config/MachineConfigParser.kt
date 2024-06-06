@@ -1,12 +1,35 @@
 package com.khm.group.center.config
 
 import com.charleskorn.kaml.Yaml
+import com.khm.group.center.config.GroupUserConfigParser.Companion.parseUserYaml
+import com.khm.group.center.config.GroupUserConfigParser.Companion.parseUserYamlInDir
+import com.khm.group.center.datatype.config.GroupUserConfig
 import com.khm.group.center.datatype.config.MachineConfig
 import com.khm.group.center.utils.file.ProgramFile
 import kotlinx.serialization.Serializable
 
 class MachineConfigParser {
     companion object {
+        fun readMachineYamlFile() {
+            val dirPath = ConfigEnvironment.getEnvStr(
+                "CONFIG_MACHINE_DIR_PATH"
+            )
+            if (dirPath.isNotEmpty()) {
+                val machineList = parseMachineYamlInDir(dirPath)
+                MachineConfig.machineList = machineList
+                return
+            }
+            val path = ConfigEnvironment.getEnvStr(
+                "CONFIG_MACHINE_PATH",
+                ""
+            )
+            val machineList = parseMachineYamlInDir(path)
+            if (path.isEmpty()) {
+                return
+            }
+            MachineConfig.machineList = machineList
+        }
+
         fun parseMachineYaml(yamlText: String): List<MachineConfig> {
             val machineList = mutableListOf<MachineConfig>()
 

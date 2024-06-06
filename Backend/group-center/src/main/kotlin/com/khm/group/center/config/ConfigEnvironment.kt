@@ -16,10 +16,12 @@ class ConfigEnvironment {
         var PASSWORD_JWT: String = ""
 
         fun getEnvStr(key: String, defaultValue: String = ""): String {
-            if (FILE_ENV_LIST.containsKey(key))
-                return FILE_ENV_LIST[key] ?: defaultValue
+            val uppercaseKey = key.trim().uppercase()
 
-            return System.getenv(key) ?: defaultValue
+            if (FILE_ENV_LIST.containsKey(uppercaseKey))
+                return FILE_ENV_LIST[uppercaseKey] ?: defaultValue
+
+            return System.getenv(uppercaseKey) ?: defaultValue
         }
 
         fun getEnvInt(key: String, defaultValue: Int = 0): Int {
@@ -36,6 +38,8 @@ class ConfigEnvironment {
 
         fun initializeConfigEnvironment() {
             initializeFileEnvList()
+            printFileEnvList()
+
             initializePasswordJwt()
         }
 
@@ -65,6 +69,12 @@ class ConfigEnvironment {
                 println("[Env File]Error File Format")
             }
 
+        }
+
+        private fun printFileEnvList() {
+            for (envName in FILE_ENV_LIST.keys) {
+                println("${envName}=${FILE_ENV_LIST[envName]}")
+            }
         }
 
         private fun initializePasswordJwt() {

@@ -16,7 +16,11 @@ class JsonEnvParser {
 
                 for (originalKey in classJson.keys) {
                     val key = (className + originalKey).uppercase()
-                    val value = classJson.getString(originalKey)
+                    val value = classJson.getString(originalKey).trim()
+
+                    if (value.isEmpty()) {
+                        continue
+                    }
 
                     result[key] = value
                 }

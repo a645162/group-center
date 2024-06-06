@@ -14,6 +14,6 @@ class GroupUserConfig {
     var larkUser = LarkUser()
 
     companion object {
-        private var userList: List<GroupUserConfig> = listOf()
+        var userList: List<GroupUserConfig> = listOf()
     }
 }

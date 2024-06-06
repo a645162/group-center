@@ -20,7 +20,11 @@ class YamlEnvParser {
 
                 for (yamlNode2 in classNode.entries) {
                     val key = (className + yamlNode2.key.content).uppercase(Locale.getDefault())
-                    val value = (yamlNode2.value as YamlScalar).content
+                    val value = (yamlNode2.value as YamlScalar).content.trim()
+
+                    if (value.isEmpty()) {
+                        continue
+                    }
 
                     result[key] = value
                 }

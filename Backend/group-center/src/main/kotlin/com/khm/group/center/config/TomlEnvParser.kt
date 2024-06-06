@@ -28,7 +28,11 @@ class TomlEnvParser {
                         val key =
                             (className + tomlKeyValue.key.toString())
                                 .uppercase(Locale.getDefault())
-                        val value = tomlKeyValue.value.content.toString()
+                        val value = tomlKeyValue.value.content.toString().trim()
+
+                        if (value.isEmpty()) {
+                            continue
+                        }
 
                         result[key] = value
                     }

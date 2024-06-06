@@ -1,6 +1,8 @@
 package com.khm.group.center
 
 import com.khm.group.center.config.ConfigEnvironment
+import com.khm.group.center.config.GroupUserConfigParser
+import com.khm.group.center.config.MachineConfigParser
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -22,6 +24,8 @@ class GroupCenterApplication {
         fun main(args: Array<String>) {
             // 从环境变量中读取一些配置
             ConfigEnvironment.initializeConfigEnvironment()
+            GroupUserConfigParser.readUserYamlFile()
+            MachineConfigParser.readMachineYamlFile()
 
             runApplication<GroupCenterApplication>(*args)
         }

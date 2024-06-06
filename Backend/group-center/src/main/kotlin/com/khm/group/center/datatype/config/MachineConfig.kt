@@ -15,6 +15,6 @@ class MachineConfig {
     var larkServer = LarkServer()
 
     companion object{
-        private var machineList: List<MachineConfig> = listOf()
+        var machineList: List<MachineConfig> = listOf()
     }
 }

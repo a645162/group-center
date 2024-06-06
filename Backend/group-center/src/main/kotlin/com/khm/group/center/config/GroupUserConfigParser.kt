@@ -7,6 +7,26 @@ import kotlinx.serialization.Serializable
 
 class GroupUserConfigParser {
     companion object {
+        fun readUserYamlFile() {
+            val dirPath = ConfigEnvironment.getEnvStr(
+                "CONFIG_USER_DIR_PATH"
+            )
+            if (dirPath.isNotEmpty()) {
+                val userList = parseUserYamlInDir(dirPath)
+                GroupUserConfig.userList = userList
+                return
+            }
+            val path = ConfigEnvironment.getEnvStr(
+                "CONFIG_USER_PATH",
+                ""
+            )
+            val userList = parseUserYaml(path)
+            if (path.isEmpty()) {
+                return
+            }
+            GroupUserConfig.userList = userList
+        }
+
         fun parseUserYaml(yamlText: String): List<GroupUserConfig> {
             val userList = mutableListOf<GroupUserConfig>()
 
