@@ -9,6 +9,12 @@ class DateTime {
 
     companion object {
 
+        fun getDateTimeStrByPythonTimeStamp(timestamp: Long): String {
+            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            val date = Date(timestamp * 1000)
+            return sdf.format(date)
+        }
+
         fun getCurrentTimestamp(): Long {
             return System.currentTimeMillis()
         }

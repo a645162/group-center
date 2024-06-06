@@ -27,16 +27,29 @@ class GpuTaskInfo {
     var taskGpuId: Int = 0;
     var taskGpuName: String = "";
 
-//    var taskGpuMemoryMb: Long = 0;
+    //    var taskGpuMemoryMb: Long = 0;
     var taskGpuMemoryGb: Float = 0f;
     var taskGpuMemoryHuman: String = "";
 
-//    var taskGpuMemoryMaxMb: Long = 0;
+    //    var taskGpuMemoryMaxMb: Long = 0;
     var taskGpuMemoryMaxGb: Float = 0f;
 
-    // 运行时间
-    var taskStartTime: Float = 0f;
+    var multiDeviceLocalRank: Int = 0
+    var multiDeviceWorldSize: Int = 0
 
+    var cudaRoot: String = ""
+    var cudaVersion: String = ""
+
+    // 运行时间
+    var taskStartTime: Long = 0;
     var taskRunningTimeString: String = "";
     var taskRunningTimeInSeconds: Int = 0;
+
+    var projectName: String = ""
+    var screenSessionName: String = ""
+    var pyFileName: String = ""
+
+    var pythonVersion: String = ""
+    var commandLine: String = ""
+    var condaEnvName: String = ""
 }
