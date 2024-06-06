@@ -3,6 +3,7 @@ package com.khm.group.center
 import com.khm.group.center.config.ConfigEnvironment
 import com.khm.group.center.config.GroupUserConfigParser
 import com.khm.group.center.config.MachineConfigParser
+import com.khm.group.center.config.ShowConfig
 import com.khm.group.center.message.MessageCenter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -27,6 +28,7 @@ class GroupCenterApplication {
             ConfigEnvironment.initializeConfigEnvironment()
             GroupUserConfigParser.readUserYamlFile()
             MachineConfigParser.readMachineYamlFile()
+            ShowConfig.showConfig()
 
             // 初始化 消息中心
             MessageCenter.startMessageCenter()

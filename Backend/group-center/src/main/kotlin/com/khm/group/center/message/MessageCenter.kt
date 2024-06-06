@@ -35,16 +35,16 @@ class MessageCenter : CoroutineScope {
         }
     }
 
-    private suspend fun sendMessage(message: MessageItem) {
+    private fun sendMessage(message: MessageItem) {
         if (!message.machineConfig.haveValidWebHookService()) {
             println("No any valid webhook server.")
             return
         }
 
-        println("Sending message: ${message.toString()}")
-        // 这里可以添加发送消息的实际逻辑，例如通过网络请求发送
-        delay(1000) // 模拟发送消息的延迟
-        println("Message sent: ${message.toString()}")
+        println("Sending message: $message")
+
+        val msgSender = MessageSender(message)
+        msgSender.sendMessage()
     }
 
     fun enqueueMessage(message: MessageItem) {

@@ -17,8 +17,22 @@ class GroupUserConfig {
         var userList: List<GroupUserConfig> = listOf()
 
         fun getUserByName(name: String): GroupUserConfig? {
+            val searchString = name.trim()
+
             for (user in userList) {
-                if (user.name == name) {
+                if (user.name == searchString) {
+                    return user
+                }
+            }
+
+            return null
+        }
+
+        fun getUserByNameEng(nameEng: String): GroupUserConfig? {
+            val searchString = nameEng.trim()
+
+            for (user in userList) {
+                if (user.nameEng == searchString) {
                     return user
                 }
             }

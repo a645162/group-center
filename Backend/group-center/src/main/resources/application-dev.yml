@@ -5,6 +5,7 @@ logging:
     org.hibernate: error
 
 # SpringDoc-OpenApi
+# http://localhost:8088/swagger-ui/
 springdoc:
   swagger-ui:
     path: /swagger-ui

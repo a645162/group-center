@@ -23,7 +23,7 @@ class GpuTaskController {
     @RequestMapping("/api/client/gpu_task/info", method = [RequestMethod.POST])
     fun gpuTaskInfo(@RequestBody gpuTaskInfo: GpuTaskInfo): ClientResponse {
         // Notify
-        val machineConfig = MachineConfig.getMachineByNameEng(gpuTaskInfo.nameEng)
+        val machineConfig = MachineConfig.getMachineByNameEng(gpuTaskInfo.serverNameEng)
 
         val gpuTaskNotify = GpuTaskNotify(
             gpuTaskInfo = gpuTaskInfo,

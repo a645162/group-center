@@ -20,6 +20,9 @@ class GroupUserConfigParser {
                 "CONFIG_USER_PATH",
                 ""
             )
+            if (path.isEmpty()) {
+                return
+            }
             val userList = parseUserYaml(path)
             if (path.isEmpty()) {
                 return

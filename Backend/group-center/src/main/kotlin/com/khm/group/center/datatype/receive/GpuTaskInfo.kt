@@ -2,9 +2,9 @@ package com.khm.group.center.datatype.receive
 
 class GpuTaskInfo {
     // Common part
-    var name: String = "";
-    var nameEng: String = "";
-    var key: String = "";
+    var serverName: String = "";
+    var serverNameEng: String = "";
+    var accessKey: String = "";
 
     var taskID: Int = 0;
 
@@ -33,7 +33,7 @@ class GpuTaskInfo {
     var taskGpuMemoryMaxMb: Int = 0;
 
     // 运行时间
-    var startTime: Float = 0f;
+    var taskStartTime: Float = 0f;
 
     var taskRunningTimeString: String = "";
     var taskRunningTimeInSeconds: Int = 0;

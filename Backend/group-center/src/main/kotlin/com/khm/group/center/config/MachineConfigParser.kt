@@ -23,10 +23,10 @@ class MachineConfigParser {
                 "CONFIG_MACHINE_PATH",
                 ""
             )
-            val machineList = parseMachineYamlInDir(path)
             if (path.isEmpty()) {
                 return
             }
+            val machineList = parseMachineYamlInDir(path)
             MachineConfig.machineList = machineList
         }
 
