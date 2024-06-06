@@ -12,10 +12,10 @@ class GpuTaskNotify(
     var machineConfig: MachineConfig?
 ) {
     fun generateTaskStartMessage(gpuTaskInfo: GpuTaskInfo): String {
-        val maxMemoryString = String.format("%.2d", gpuTaskInfo.taskGpuMemoryMaxGb)
+        val maxMemoryString = String.format("%.2f", gpuTaskInfo.taskGpuMemoryMaxGb)
         return (
                 "[GPU${gpuTaskInfo.taskGpuId}]启动->\n"
-                        + "[${gpuTaskInfo.condaEnvName}]${gpuTaskInfo.projectName}\n"
+                        + "[${gpuTaskInfo.condaEnvName}]${gpuTaskInfo.projectName}-${gpuTaskInfo.pyFileName}\n"
                         + "最大显存:${maxMemoryString}GB "
                         + "运行时长:${gpuTaskInfo.taskRunningTimeString} "
                         + "\n"
@@ -24,10 +24,10 @@ class GpuTaskNotify(
     }
 
     fun generateTaskFinishMessage(gpuTaskInfo: GpuTaskInfo): String {
-        val maxMemoryString = String.format("%.2d", gpuTaskInfo.taskGpuMemoryMaxGb)
+        val maxMemoryString = String.format("%.2f", gpuTaskInfo.taskGpuMemoryMaxGb)
         return (
                 "[GPU${gpuTaskInfo.taskGpuId}]完成!\n"
-                        + "[${gpuTaskInfo.condaEnvName}]${gpuTaskInfo.projectName}\n"
+                        + "[${gpuTaskInfo.condaEnvName}]${gpuTaskInfo.projectName}-${gpuTaskInfo.pyFileName}\n"
                         + "最大显存:${maxMemoryString}GB "
                         + "运行时长:${gpuTaskInfo.taskRunningTimeString} "
                         + "\n"
