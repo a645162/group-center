@@ -14,7 +14,6 @@ class GpuTaskNotify(
     fun generateTaskStartMessage(gpuTaskInfo: GpuTaskInfo): String {
         return (
                 "[GPU${gpuTaskInfo.taskGpuId}]启动->\n"
-                        + "用户:${gpuTaskInfo.taskUser} "
                         + "最大显存:${gpuTaskInfo.taskGpuMemoryMaxGb}GB "
                         + "运行时长:${gpuTaskInfo.taskRunningTimeString} "
                 )
@@ -23,7 +22,6 @@ class GpuTaskNotify(
     fun generateTaskFinishMessage(gpuTaskInfo: GpuTaskInfo): String {
         return (
                 "[GPU${gpuTaskInfo.taskGpuId}]完成!\n"
-                        + "用户:${gpuTaskInfo.taskUser} "
                         + "最大显存:${gpuTaskInfo.taskGpuMemoryMaxGb}GB "
                         + "运行时长:${gpuTaskInfo.taskRunningTimeString} "
                 )
