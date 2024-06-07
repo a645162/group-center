@@ -65,8 +65,16 @@ class MessageSender(private val messageItem: MessageItem) {
 
                 if (LarkBot.isAppIdSecretValid()) {
                     val larkBotObj = LarkBot(userConfig.larkUser.userId)
-                    val machineString = "\n\n${messageItem.machineConfig.name}"
-                    larkBotObj.sendText(messageItem.content.trim() + machineString)
+                    val machineUrl = LarkGroupBot.getUrlHtml(
+                        "http://" + messageItem.machineConfig.host,
+                        messageItem.machineConfig.name
+                    )
+
+                    larkBotObj.sendText(
+                        messageItem.content.trim()
+                                + "\n\n"
+                                + machineUrl
+                    )
                 }
             }
         }

@@ -58,6 +58,8 @@ class GpuTaskNotify(
 
                         + "\n"
 
+                        + "其他任务:\n"
+
                         + gpuTaskInfo.allTaskMessage
                 )
     }
