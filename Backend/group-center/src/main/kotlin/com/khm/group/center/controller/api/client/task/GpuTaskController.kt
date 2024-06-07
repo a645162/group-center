@@ -30,7 +30,9 @@ class GpuTaskController {
             machineConfig = machineConfig
         )
 
-        gpuTaskNotify.sendTaskMessage()
+        if (gpuTaskInfo.multiDeviceLocalRank < 1) {
+            gpuTaskNotify.sendTaskMessage()
+        }
 
         val responseObj = ClientResponse()
         responseObj.result = "success"

@@ -23,7 +23,15 @@ class GpuTaskInfo {
     var taskPid: Int = 0;
     var taskMainMemory: Int = 0;
 
+    var allTaskMessage: String = ""
+
     // GPU 信息
+    var gpuUsagePercent: Float = 0f
+    var gpuMemoryUsage: String = ""
+    var gpuMemoryFree: String = ""
+    var gpuMemoryTotal: String = ""
+    var gpuMemoryPercent: Float = 0f
+
     var taskGpuId: Int = 0;
     var taskGpuName: String = "";
 
