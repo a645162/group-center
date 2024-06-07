@@ -27,9 +27,9 @@ class GpuTaskInfo {
 
     // GPU 信息
     var gpuUsagePercent: Float = 0f
-    var gpuMemoryUsage: String = ""
-    var gpuMemoryFree: String = ""
-    var gpuMemoryTotal: String = ""
+    var gpuMemoryUsageString: String = ""
+    var gpuMemoryFreeString: String = ""
+    var gpuMemoryTotalString: String = ""
     var gpuMemoryPercent: Float = 0f
 
     var taskGpuId: Int = 0;
