@@ -49,7 +49,7 @@ class ClientAuthInterceptor : HandlerInterceptor {
         errorResponse.haveError = true
 
         val jsonString = JSON.toJSONString(errorResponse)
-        response.status = HttpServletResponse.SC_BAD_REQUEST
+        response.status = HttpServletResponse.SC_OK
         response.characterEncoding = "UTF-8"
         response.contentType = "application/json"
         response.writer.write(jsonString)
