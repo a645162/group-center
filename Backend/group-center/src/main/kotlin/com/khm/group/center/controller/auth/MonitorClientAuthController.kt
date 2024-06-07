@@ -3,6 +3,7 @@ package com.khm.group.center.controller.auth
 import com.khm.group.center.config.MachineConfigParser
 import com.khm.group.center.datatype.config.MachineConfig
 import com.khm.group.center.datatype.response.AuthResponse
+import com.khm.group.center.security.password.MD5
 import com.khm.group.center.security.program.ClientAccessKey
 import com.khm.group.center.utils.program.ProgramInfo
 import io.swagger.v3.oas.annotations.Operation
@@ -28,7 +29,8 @@ class MonitorClientAuthController {
             return response
         }
 
-        if (machineConfig.password != password) {
+        val correctPassword = MD5.getMd5Hash(machineConfig.password).lowercase()
+        if (correctPassword != password.lowercase()) {
             response.isAuthenticated = false
             response.isSucceed = false
             response.haveError = true

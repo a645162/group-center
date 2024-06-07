@@ -29,7 +29,7 @@ class ClientAuthInterceptor : HandlerInterceptor {
 
             if (jsonObject.containsKey("accessKey")) {
                 val accessKeyValue = jsonObject.getString("accessKey")
-                println("Key value: $accessKeyValue")
+//                println("Key value: $accessKeyValue")
                 val accessKeyObj = ClientAccessKey(accessKeyValue)
                 if (accessKeyObj.isValid()) {
                     ClientIpWhiteList.addIpToWhiteList(ipAddress)
