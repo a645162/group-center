@@ -58,11 +58,16 @@ class MessageSender(private val messageItem: MessageItem) {
         var atText = ""
         if (userConfig != null) {
             val userId = userConfig.larkUser.userId
-            atText = LarkGroupBot.getAtUserHtml(userId)
+            if (userId.isEmpty()) {
+                atText = userConfig.name
+            } else {
+                atText = LarkGroupBot.getAtUserHtml(userId)
 
-            if (LarkBot.isAppIdSecretValid()) {
-                val larkBotObj = LarkBot(userConfig.larkUser.userId)
-                larkBotObj.sendText(messageItem.content)
+                if (LarkBot.isAppIdSecretValid()) {
+                    val larkBotObj = LarkBot(userConfig.larkUser.userId)
+                    val machineString = "\n\nMachine: ${messageItem.machineConfig.name}"
+                    larkBotObj.sendText(messageItem.content.trim() + machineString)
+                }
             }
         }
         val finalText = atText + messageItem.content
