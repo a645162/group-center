@@ -63,6 +63,7 @@ class GroupUserConfigParser {
             @Serializable
             data class UserYamlFile(
                 val version: Int,
+                val enable: Boolean,
                 val userList: List<User>
             )
 
@@ -70,6 +71,10 @@ class GroupUserConfigParser {
                 UserYamlFile.serializer(),
                 yamlText
             )
+
+            if (!userListTemp.enable) {
+                return userList
+            }
 
             for (user in userListTemp.userList) {
                 val newUserObj = GroupUserConfig()

@@ -1,0 +1,16 @@
+version: 200
+enable: False
+
+userList:
+  - name: "孔昊旻"
+    nameEng: "konghaomin"
+    keywords: [ "khm","konghaomin" ]
+    year: 2023
+
+    webhook:
+      lark:
+        userId: ""
+        userMobilePhone: ""
+      weCom:
+        userId: ""
+        userMobilePhone: ""
