@@ -73,13 +73,5 @@ class LarkGroupBot(botId: String, var botKey: String = "") {
             }
             return "<at user_id=\"$finalUserId\"></at>"
         }
-
-        fun getUrlHtml(url: String, text: String): String {
-            val finalUrl = url.trim()
-            if (finalUrl.isEmpty()) {
-                return ""
-            }
-            return "<a href=\"$finalUrl\">${text}</a>"
-        }
     }
 }

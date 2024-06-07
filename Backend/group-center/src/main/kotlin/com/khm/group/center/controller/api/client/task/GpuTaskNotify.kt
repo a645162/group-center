@@ -20,7 +20,7 @@ class GpuTaskNotify(
             }
 
             "finish" -> {
-                "[GPU${gpuTaskInfo.taskGpuId}]完成!\n"
+                "[GPU${gpuTaskInfo.taskGpuId}]完成!!\n"
             }
 
             else -> {
@@ -31,6 +31,13 @@ class GpuTaskNotify(
         var screenName = gpuTaskInfo.screenSessionName;
         if (screenName.isEmpty()) {
             screenName = gpuTaskInfo.condaEnvName;
+        }
+
+        var otherTaskMessage = gpuTaskInfo.allTaskMessage.trim()
+        if (otherTaskMessage.isNotEmpty()) {
+            otherTaskMessage = "其他任务:\n${otherTaskMessage}"
+        } else {
+            otherTaskMessage = "暂无其他任务!"
         }
 
         return (
@@ -48,6 +55,7 @@ class GpuTaskNotify(
 
                         + "\n"
 
+                        + "${gpuTaskInfo.taskGpuName}\n"
                         + "核心(${FloatValue.round(gpuTaskInfo.gpuUsagePercent)}%) "
                         + "空闲显存:${FileSize.fixText(gpuTaskInfo.gpuMemoryFreeString)}\n"
 
@@ -58,9 +66,7 @@ class GpuTaskNotify(
 
                         + "\n"
 
-                        + "其他任务:\n"
-
-                        + gpuTaskInfo.allTaskMessage
+                        + otherTaskMessage
                 )
     }
 

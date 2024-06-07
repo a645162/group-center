@@ -50,6 +50,9 @@ class MessageSender(private val messageItem: MessageItem) {
     }
 
     private fun sendByLark() {
+        val machineName = messageItem.machineConfig.name
+        val machineUrl = "http://" + messageItem.machineConfig.host
+
         val groupBotId = messageItem.machineConfig.larkServer.groupBotId
         val groupBotKey = messageItem.machineConfig.larkServer.groupBotKey
 
@@ -65,14 +68,11 @@ class MessageSender(private val messageItem: MessageItem) {
 
                 if (LarkBot.isAppIdSecretValid()) {
                     val larkBotObj = LarkBot(userConfig.larkUser.userId)
-                    val machineUrl = LarkGroupBot.getUrlHtml(
-                        "http://" + messageItem.machineConfig.host,
-                        messageItem.machineConfig.name
-                    )
 
                     larkBotObj.sendText(
                         messageItem.content.trim()
                                 + "\n\n"
+                                + "${machineName}:\n"
                                 + machineUrl
                     )
                 }
@@ -80,6 +80,10 @@ class MessageSender(private val messageItem: MessageItem) {
         }
         val finalText = atText + messageItem.content
 
-        larkGroupBotObj.sendText(finalText)
+        larkGroupBotObj.sendText(
+            finalText
+                    + "\n\n"
+                    + machineUrl
+        )
     }
 }
