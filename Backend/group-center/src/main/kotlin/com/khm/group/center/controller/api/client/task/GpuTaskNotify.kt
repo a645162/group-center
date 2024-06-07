@@ -24,21 +24,22 @@ class GpuTaskNotify(
             }
 
             else -> {
-                ""
+                "[GPU Task]"
             }
         }
 
-        var screen_name = gpuTaskInfo.screenSessionName;
-        if (screen_name.isEmpty()) {
-            screen_name = gpuTaskInfo.condaEnvName;
+        var screenName = gpuTaskInfo.screenSessionName;
+        if (screenName.isEmpty()) {
+            screenName = gpuTaskInfo.condaEnvName;
         }
 
         return (
                 firstLine
-                        + "[${screen_name}]${gpuTaskInfo.projectName}-${gpuTaskInfo.pyFileName}\n"
+                        + "[${screenName}](${gpuTaskInfo.projectName})-(${gpuTaskInfo.pyFileName})\n"
 
                         + "显存:${FloatValue.round(gpuTaskInfo.taskGpuMemoryGb)}GB "
-                        + "运行时长:${gpuTaskInfo.taskRunningTimeString} "
+                        + "运行时长:${gpuTaskInfo.taskRunningTimeString}\n"
+
                         + "最大显存${FloatValue.round(gpuTaskInfo.taskGpuMemoryMaxGb)}GB\n"
 
                         + "\n"
@@ -51,7 +52,7 @@ class GpuTaskNotify(
                         + "空闲显存:${FileSize.fixText(gpuTaskInfo.gpuMemoryFreeString)}\n"
 
                         + "显存(${FloatValue.round(gpuTaskInfo.gpuMemoryPercent)}%) "
-                        + "${FileSize.fixText(gpuTaskInfo.gpuMemoryUsageString)}"
+                        + FileSize.fixText(gpuTaskInfo.gpuMemoryUsageString)
                         + "/"
                         + "${FileSize.fixText(gpuTaskInfo.gpuMemoryTotalString)}\n"
 
