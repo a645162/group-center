@@ -24,6 +24,9 @@ springdoc:
     - group: 'Program'
       paths-to-match: '/**'
       packages-to-scan: com.khm.group.center.controller.program
+    - group: 'Auth'
+      paths-to-match: '/**'
+      packages-to-scan: com.khm.group.center.controller.auth
 
 # Knife4j
 # http://localhost:8088/doc.html

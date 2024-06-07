@@ -64,6 +64,7 @@ class MachineConfigParser {
             @Serializable
             data class MachineYamlFile(
                 val version: Int,
+                val enable: Boolean,
                 val machineList: List<Machine>
             )
 
@@ -71,6 +72,10 @@ class MachineConfigParser {
                 MachineYamlFile.serializer(),
                 yamlText
             )
+
+            if (!machineListTemp.enable) {
+                return machineList
+            }
 
             for (machine in machineListTemp.machineList) {
                 val newMachineObj = MachineConfig()
