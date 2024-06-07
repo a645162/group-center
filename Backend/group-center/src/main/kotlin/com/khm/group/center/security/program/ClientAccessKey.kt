@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONObject
 import com.khm.group.center.config.ConfigEnvironment
 import com.khm.group.center.security.ProgramCrypto
+import com.khm.group.center.utils.datetime.DateTime
 
 class ClientAccessKey(private var accessKey: String = "") {
 
@@ -12,7 +13,7 @@ class ClientAccessKey(private var accessKey: String = "") {
 
     var nameEng: String = ""
     var ip: String = ""
-    var time: String = ""
+    private var dateTimeString: String = DateTime.getCurrentDateTimeStr()
 
     init {
         if (accessKey.isNotEmpty()) {
@@ -23,7 +24,7 @@ class ClientAccessKey(private var accessKey: String = "") {
     data class AccessKey(
         val nameEng: String,
         val ip: String,
-        val time: String
+        val dateTimeString: String
     )
 
     private fun parse() {
@@ -36,7 +37,7 @@ class ClientAccessKey(private var accessKey: String = "") {
             val jsonObject = JSON.parseObject(originalText) as JSONObject
             nameEng = jsonObject.getString("nameEng") ?: ""
             ip = jsonObject.getString("ip") ?: ""
-            time = jsonObject.getString("time") ?: ""
+            dateTimeString = jsonObject.getString("dateTimeString") ?: ""
         }
     }
 
@@ -52,7 +53,7 @@ class ClientAccessKey(private var accessKey: String = "") {
         val accessKey = AccessKey(
             nameEng = this.nameEng,
             ip = this.ip,
-            time = this.time
+            dateTimeString = this.dateTimeString
         )
         originalText = JSON.toJSONString(accessKey)
 
