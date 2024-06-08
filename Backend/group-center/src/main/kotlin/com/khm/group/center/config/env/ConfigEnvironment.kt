@@ -51,7 +51,10 @@ class ConfigEnvironment {
             initializeOther()
         }
 
-        fun readEnvFile(fileEnvListPath: String): HashMap<String, String> {
+        fun readEnvFile(
+            fileEnvListPath: String,
+            includeClassName: Boolean = true
+        ): HashMap<String, String> {
             val finalResult = HashMap<String, String>()
 
             val fileText =
@@ -61,13 +64,13 @@ class ConfigEnvironment {
                     )
 
             if (fileEnvListPath.endsWith(".json")) {
-                val result = parseJsonText(fileText)
+                val result = parseJsonText(fileText, includeClassName)
                 finalResult.putAll(result)
             } else if (fileEnvListPath.endsWith(".toml")) {
-                val result = parseTomlText(fileText)
+                val result = parseTomlText(fileText, includeClassName)
                 finalResult.putAll(result)
             } else if (fileEnvListPath.endsWith(".yaml")) {
-                val result = parseYamlText(fileText)
+                val result = parseYamlText(fileText, includeClassName)
                 finalResult.putAll(result)
             }
 

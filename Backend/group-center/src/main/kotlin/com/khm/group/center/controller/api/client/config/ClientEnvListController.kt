@@ -14,7 +14,11 @@ class ClientEnvListController {
         val result = HashMap<String, String>()
 
         val path = ConfigEnvironment.CLIENT_ENV_CONFIG_PATH
-        val envList = ConfigEnvironment.readEnvFile(path)
+        val envList =
+            ConfigEnvironment.readEnvFile(
+                fileEnvListPath = path,
+                includeClassName = false
+            )
         result.putAll(envList)
 
         return result

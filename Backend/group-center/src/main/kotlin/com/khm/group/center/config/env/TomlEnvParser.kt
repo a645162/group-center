@@ -9,7 +9,10 @@ import kotlin.collections.HashMap
 
 class TomlEnvParser {
     companion object {
-        fun parseTomlText(text: String): HashMap<String, String> {
+        fun parseTomlText(
+            text: String,
+            includeClassName: Boolean = true
+        ): HashMap<String, String> {
             val result: HashMap<String, String> = HashMap()
 
             // Parse Toml Text
@@ -18,7 +21,12 @@ class TomlEnvParser {
             for (classChild in tomlRoot.children) {
                 val classTomlTable = classChild as TomlTable
 
-                var className = classTomlTable.name
+                var className =
+                    if (includeClassName) {
+                        classTomlTable.name
+                    } else {
+                        ""
+                    }
                 if (className.isNotEmpty()) className = className.plus("_")
 
                 for (tomlArrayOfTablesElement in classTomlTable.children) {

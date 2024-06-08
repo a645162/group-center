@@ -8,12 +8,20 @@ import kotlin.collections.HashMap
 
 class YamlEnvParser {
     companion object {
-        fun parseYamlText(text: String): HashMap<String, String> {
+        fun parseYamlText(
+            text: String,
+            includeClassName: Boolean = true
+        ): HashMap<String, String> {
             val result = HashMap<String, String>()
 
             val yamlRoot = Yaml.default.parseToYamlNode(text) as YamlMap
             for (yamlNode1 in yamlRoot.entries) {
-                var className = yamlNode1.key.content.trim()
+                var className =
+                    if (includeClassName) {
+                        yamlNode1.key.content.trim()
+                    } else {
+                        ""
+                    }
                 if (className.isNotEmpty()) className += "_"
 
                 val classNode = yamlNode1.value as YamlMap

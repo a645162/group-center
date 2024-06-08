@@ -4,12 +4,20 @@ import com.alibaba.fastjson2.JSON
 
 class JsonEnvParser {
     companion object {
-        fun parseJsonText(text: String): HashMap<String, String> {
+        fun parseJsonText(
+            text: String,
+            includeClassName: Boolean = true
+        ): HashMap<String, String> {
             val result = HashMap<String, String>()
 
             val jsonRoot = JSON.parseObject(text)
             for (originalClassName in jsonRoot.keys) {
-                var className = originalClassName
+                var className =
+                    if (includeClassName) {
+                        originalClassName
+                    } else {
+                        ""
+                    }
                 val classJson = jsonRoot.getJSONObject(originalClassName)
 
                 if (className.isNotEmpty()) className = className.plus("_")
