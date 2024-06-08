@@ -87,14 +87,14 @@ class GroupUserConfigParser {
                 newUserObj.keywords = currentOriUser.keywords
                 newUserObj.year = currentOriUser.year
 
-                newUserObj.lark.userId =
+                newUserObj.webhook.lark.userId =
                     currentOriUser.webhook.lark.userId
-                newUserObj.lark.userMobilePhone =
+                newUserObj.webhook.lark.userMobilePhone =
                     currentOriUser.webhook.lark.userMobilePhone
 
-                newUserObj.weCom.userId =
+                newUserObj.webhook.weCom.userId =
                     currentOriUser.webhook.weCom.userId
-                newUserObj.weCom.userMobilePhone =
+                newUserObj.webhook.weCom.userMobilePhone =
                     currentOriUser.webhook.weCom.userMobilePhone
 
                 userList.add(newUserObj)
