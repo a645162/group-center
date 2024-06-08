@@ -28,10 +28,53 @@ class GpuTaskNotify(
             }
         }
 
-        val screenName = if (gpuTaskInfo.screenSessionName.isEmpty()) {
+        var screenName = if (gpuTaskInfo.screenSessionName.isEmpty()) {
             gpuTaskInfo.condaEnvName
         } else {
             gpuTaskInfo.screenSessionName
+        }
+        if (screenName.isNotEmpty()) {
+            screenName = "[${screenName}]"
+        }
+        if (screenName.length > 20) {
+            screenName += "\n"
+        }
+
+        val lineBreakThreshold = 35
+
+        var projectName = gpuTaskInfo.projectName.trim()
+        var fileName = gpuTaskInfo.pyFileName.trim()
+        if (projectName.isNotEmpty()) {
+            projectName = "{${projectName}}"
+        }
+        if (fileName.isNotEmpty()) {
+            fileName = "(${fileName})"
+        }
+        if (projectName.isNotEmpty() && fileName.isNotEmpty()) {
+            if (screenName.endsWith("\n")) {
+                if (
+                    (
+                            projectName.length
+                                    + fileName.length
+                            ) > lineBreakThreshold
+                ) {
+                    projectName += "\n"
+                } else {
+                    projectName += "-"
+                }
+            } else {
+                if (
+                    (
+                            screenName.length
+                                    + projectName.length
+                                    + fileName.length
+                            ) > lineBreakThreshold
+                ) {
+                    projectName += "\n"
+                } else {
+                    projectName += "-"
+                }
+            }
         }
 
         val pythonVersion = if (gpuTaskInfo.pythonVersion.isNotEmpty()) {
@@ -41,7 +84,7 @@ class GpuTaskNotify(
         }
 
         val cudaVersion = if (gpuTaskInfo.cudaVersion.isNotEmpty()) {
-            " CUDA:" + gpuTaskInfo.cudaVersion
+            " CUDA:" + gpuTaskInfo.cudaVersion.lowercase().replace("v", "")
         } else {
             ""
         }
@@ -70,7 +113,7 @@ class GpuTaskNotify(
 
         return (
                 firstLine
-                        + "[${screenName}](${gpuTaskInfo.projectName})-(${gpuTaskInfo.pyFileName})\n"
+                        + "${screenName}${projectName}${fileName}\n"
 
                         + "显存:${FloatValue.round(gpuTaskInfo.taskGpuMemoryGb)}GB "
                         + "运行时长:${gpuTaskInfo.taskRunningTimeString}\n"
