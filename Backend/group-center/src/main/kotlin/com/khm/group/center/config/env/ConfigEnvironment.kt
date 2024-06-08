@@ -18,6 +18,8 @@ class ConfigEnvironment {
         var LARK_BOT_APP_ID: String = ""
         var LARK_BOT_APP_SECRET: String = ""
 
+        var CLIENT_ENV_CONFIG_PATH: String = ""
+
         fun getEnvStr(key: String, defaultValue: String = ""): String {
             val uppercaseKey = key.trim().uppercase()
 
@@ -45,6 +47,31 @@ class ConfigEnvironment {
 
             initializePasswordJwt()
             initializeLarkBot()
+
+            initializeOther()
+        }
+
+        fun readEnvFile(fileEnvListPath: String): HashMap<String, String> {
+            val finalResult = HashMap<String, String>()
+
+            val fileText =
+                ProgramFile
+                    .readFileWithEncodingPredict(
+                        fileEnvListPath
+                    )
+
+            if (fileEnvListPath.endsWith(".json")) {
+                val result = parseJsonText(fileText)
+                finalResult.putAll(result)
+            } else if (fileEnvListPath.endsWith(".toml")) {
+                val result = parseTomlText(fileText)
+                finalResult.putAll(result)
+            } else if (fileEnvListPath.endsWith(".yaml")) {
+                val result = parseYamlText(fileText)
+                finalResult.putAll(result)
+            }
+
+            return finalResult
         }
 
         private fun initializeFileEnvList() {
@@ -64,23 +91,9 @@ class ConfigEnvironment {
                 return
             }
 
-            val fileText =
-                ProgramFile
-                    .readFileWithEncodingPredict(fileEnvListPath)
-
-            if (fileEnvListPath.endsWith(".json")) {
-                val result = parseJsonText(fileText)
-                FILE_ENV_LIST.putAll(result)
-            } else if (fileEnvListPath.endsWith(".toml")) {
-                val result = parseTomlText(fileText)
-                FILE_ENV_LIST.putAll(result)
-            } else if (fileEnvListPath.endsWith(".yaml")) {
-                val result = parseYamlText(fileText)
-                FILE_ENV_LIST.putAll(result)
-            } else {
-                println("[Env File]Error File Format")
-            }
-
+            FILE_ENV_LIST.putAll(
+                readEnvFile(fileEnvListPath)
+            )
         }
 
         private fun printFileEnvList() {
@@ -99,6 +112,13 @@ class ConfigEnvironment {
         private fun initializeLarkBot() {
             LARK_BOT_APP_ID = getEnvStr("LARK_BOT_APP_ID")
             LARK_BOT_APP_SECRET = getEnvStr("LARK_BOT_APP_SECRET")
+        }
+
+        private fun initializeOther() {
+            CLIENT_ENV_CONFIG_PATH = getEnvStr(
+                "CLIENT_ENV_CONFIG_PATH",
+                "./Config/Client/ClientEnv.toml"
+            )
         }
     }
 

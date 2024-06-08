@@ -125,6 +125,10 @@ dependencies {
     // Operations and Maintenance
     // Spring Boot Actuator
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools
+    implementation("org.springframework.boot:spring-boot-devtools:3.3.0")
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-gradle-plugin
+    implementation("org.springframework.boot:spring-boot-gradle-plugin:3.3.0")
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3")

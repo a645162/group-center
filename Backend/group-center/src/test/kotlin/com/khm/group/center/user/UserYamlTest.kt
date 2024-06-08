@@ -21,7 +21,7 @@ class UserYamlTest {
             println(
                 "Name:${user.name}\n" +
                         "\tEng:${user.nameEng}\n" +
-                        "\tWeComId:${user.weCom.userId}"
+                        "\tWeComId:${user.webhook.weCom.userId}"
             )
         }
     }
@@ -39,7 +39,7 @@ class UserYamlTest {
             println(
                 "Name:${user.name}\n" +
                         "\tEng:${user.nameEng}\n" +
-                        "\tWeComId:${user.weCom.userId}"
+                        "\tWeComId:${user.webhook.weCom.userId}"
             )
         }
     }

@@ -1,0 +1,5 @@
+[[General]]
+
+[[UserConfig]]
+USER_FROM_GROUP_CENTER = "True"
+USER_FROM_LOCAL_FILES = "False"

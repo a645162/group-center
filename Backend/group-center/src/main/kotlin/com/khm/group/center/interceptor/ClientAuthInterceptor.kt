@@ -16,8 +16,11 @@ import org.springframework.web.servlet.ModelAndView
 class ClientAuthInterceptor : HandlerInterceptor {
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         val ipAddress = request.remoteAddr
-//        println("Auth Interceptor Client IP: $ipAddress")
-        if (ipAddress == "0:0:0:0:0:0:0:1") {
+        // println("Auth Interceptor Client IP: $ipAddress")
+        if (
+            ipAddress == "127.0.0.1" ||
+            ipAddress == "0:0:0:0:0:0:0:1"
+        ) {
             // Local Host
             return true
         }

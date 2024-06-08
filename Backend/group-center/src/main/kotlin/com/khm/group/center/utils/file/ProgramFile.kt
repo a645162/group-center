@@ -52,7 +52,19 @@ class ProgramFile {
         }
 
         fun readFileWithEncodingPredict(filePath: String): String {
-            val file = File(filePath)
+            val finalPath = filePath.trim()
+
+            if (finalPath.isEmpty()) {
+                println("File path is empty")
+                return ""
+            }
+
+            val file = File(finalPath)
+
+            if (!file.exists()) {
+                println("File not found: $filePath")
+                return ""
+            }
 
             val encoding =
                 UniversalDetector.detectCharset(file) ?: return file.readText(Charsets.UTF_8)

@@ -9,16 +9,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class UserListController {
-
-    @Operation(summary = "Test")
-    @RequestMapping("/api/client/config/version", method = [RequestMethod.GET])
-    fun version(): ClientResponse {
-        val responseObj = ClientResponse()
-        responseObj.result = "success"
-        responseObj.isAuthenticated = true
-        return responseObj
-    }
-
+    @Operation(summary = "客户端获取环境用户列表")
     @RequestMapping("/api/client/config/user_list", method = [RequestMethod.GET])
     fun userList(): List<GroupUserConfig> {
         return GroupUserConfig.userList
