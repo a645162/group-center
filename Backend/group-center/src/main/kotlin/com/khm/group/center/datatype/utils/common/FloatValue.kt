@@ -1,4 +1,4 @@
-package com.khm.group.center.utils.datetype
+package com.khm.group.center.datatype.utils.common
 
 class FloatValue {
     companion object {

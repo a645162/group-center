@@ -8,7 +8,7 @@ import com.lark.oapi.core.utils.Jsons
 import com.lark.oapi.service.im.v1.model.CreateMessageReq
 import com.lark.oapi.service.im.v1.model.CreateMessageReqBody
 
-import com.khm.group.center.config.ConfigEnvironment
+import com.khm.group.center.config.env.ConfigEnvironment
 
 class LarkBot(val userId: String) {
     data class Content(

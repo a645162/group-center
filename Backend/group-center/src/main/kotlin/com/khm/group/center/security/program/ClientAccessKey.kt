@@ -2,9 +2,9 @@ package com.khm.group.center.security.program
 
 import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONObject
-import com.khm.group.center.config.ConfigEnvironment
+import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.security.ProgramCrypto
-import com.khm.group.center.utils.datetime.DateTime
+import com.khm.group.center.datatype.utils.datetime.DateTime
 
 class ClientAccessKey(private var accessKey: String = "") {
 

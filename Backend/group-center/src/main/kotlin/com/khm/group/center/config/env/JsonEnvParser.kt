@@ -1,4 +1,4 @@
-package com.khm.group.center.config
+package com.khm.group.center.config.env
 
 import com.alibaba.fastjson2.JSON
 
@@ -7,9 +7,9 @@ class JsonEnvParser {
         fun parseJsonText(text: String): HashMap<String, String> {
             val result = HashMap<String, String>()
 
-            val jsonRoot = JSON.parseObject(text);
+            val jsonRoot = JSON.parseObject(text)
             for (originalClassName in jsonRoot.keys) {
-                var className = originalClassName;
+                var className = originalClassName
                 val classJson = jsonRoot.getJSONObject(originalClassName)
 
                 if (className.isNotEmpty()) className = className.plus("_")

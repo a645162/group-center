@@ -1,4 +1,4 @@
-package com.khm.group.center.config
+package com.khm.group.center.config.env
 
 import com.akuleshov7.ktoml.Toml
 import com.akuleshov7.ktoml.tree.nodes.TomlArrayOfTablesElement

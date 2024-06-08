@@ -1,4 +1,4 @@
-package com.khm.group.center.config
+package com.khm.group.center.config.feature
 
 import com.khm.group.center.datatype.config.GroupUserConfig
 import com.khm.group.center.datatype.config.MachineConfig

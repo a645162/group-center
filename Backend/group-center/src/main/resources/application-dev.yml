@@ -52,8 +52,8 @@ knife4j:
     #    enable-host-text: localhost:8088
     #    enable-home-custom: true
     #    home-custom-path: classpath:markdown/home.md
-    enable-search: false
-    enable-footer: false
+    enable-search: true
+    enable-footer: true
     enable-footer-custom: true
     footer-custom-content: GPL-3.0 [Haomin Kong](https://github.com/a645162)
     enable-dynamic-parameter: true
@@ -63,6 +63,6 @@ knife4j:
   cors: false
   production: false
   basic:
-    enable: false
+    enable: true
     username: admin
     password: 123456

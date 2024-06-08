@@ -1,6 +1,7 @@
-package com.khm.group.center.config
+package com.khm.group.center.config.feature
 
 import com.charleskorn.kaml.Yaml
+import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.config.MachineConfig
 import com.khm.group.center.utils.file.ProgramFile
 import kotlinx.serialization.Serializable
@@ -31,6 +32,13 @@ class MachineConfigParser {
             val machineList = mutableListOf<MachineConfig>()
 
             @Serializable
+            data class SilentMode(
+                val enable: Boolean,
+                val startTime: String,
+                val endTime: String
+            )
+
+            @Serializable
             data class WeCom(
                 val enable: Boolean,
                 val groupBotKey: String,
@@ -45,6 +53,7 @@ class MachineConfigParser {
 
             @Serializable
             data class Webhook(
+                val silentMode: SilentMode,
                 val lark: Lark,
                 val weCom: WeCom
             )
@@ -86,6 +95,10 @@ class MachineConfigParser {
                 newMachineObj.nameEng = currentOriMachine.nameEng
                 newMachineObj.host = currentOriMachine.host
                 newMachineObj.password = currentOriMachine.password
+
+                newMachineObj.silentMode.enable = currentOriMachine.webhook.silentMode.enable
+                newMachineObj.silentMode.startTime = currentOriMachine.webhook.silentMode.startTime
+                newMachineObj.silentMode.endTime = currentOriMachine.webhook.silentMode.endTime
 
                 newMachineObj.weComServer.enable = currentOriMachine.webhook.weCom.enable
                 newMachineObj.weComServer.groupBotKey = currentOriMachine.webhook.weCom.groupBotKey

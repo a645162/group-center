@@ -1,6 +1,7 @@
 package com.khm.group.center.utils.time
 
-import com.khm.group.center.utils.datetime.DateTime
+import com.khm.group.center.datatype.utils.datetime.DateTime
+import com.khm.group.center.datatype.utils.datetime.TimeHM
 import org.junit.jupiter.api.Test
 
 class WorkTimeTest {
@@ -32,9 +33,9 @@ class WorkTimeTest {
 
     @Test
     fun testTimeParse() {
-        println(DateTime.Companion.TimeHM.getNow().toString())
-        println(DateTime.Companion.TimeHM(8, 0))
-        println(DateTime.Companion.TimeHM.parseFromString("12:00"))
+        println(TimeHM.getNow().toString())
+        println(TimeHM(8, 0))
+        println(TimeHM.parseFromString("12:00"))
     }
 
     @Test
@@ -43,12 +44,12 @@ class WorkTimeTest {
 
         val startHour = 8
         val endHour = 20
-        val startTime = DateTime.Companion.TimeHM(startHour, 0)
-        val endTime = DateTime.Companion.TimeHM(endHour, 0)
+        val startTime = TimeHM(startHour, 0)
+        val endTime = TimeHM(endHour, 0)
         for (hour in 0..23) {
-            val time = DateTime.Companion.TimeHM(hour, 0)
+            val time = TimeHM(hour, 0)
             val hourInRange = hour in startHour..endHour
-            assert(hourInRange == DateTime.isTimeWithinRange(time, startTime, endTime))
+            assert(hourInRange == TimeHM.isTimeWithinRange(time, startTime, endTime))
         }
     }
 
@@ -58,27 +59,27 @@ class WorkTimeTest {
 
         val startHour = 20
         val endHour = 8
-        val startTime = DateTime.Companion.TimeHM(startHour, 0)
-        val endTime = DateTime.Companion.TimeHM(endHour, 0)
+        val startTime = TimeHM(startHour, 0)
+        val endTime = TimeHM(endHour, 0)
         for (hour in 0..23) {
-            val time = DateTime.Companion.TimeHM(hour, 0)
+            val time = TimeHM(hour, 0)
             val hourInRange = hour in startHour..23 || hour in 0..endHour
-            assert(hourInRange == DateTime.isTimeWithinRange(time, startTime, endTime))
+            assert(hourInRange == TimeHM.isTimeWithinRange(time, startTime, endTime))
         }
 
         assert(
-            DateTime.isTimeWithinRange(
-                DateTime.Companion.TimeHM(23, 59),
-                DateTime.Companion.TimeHM(20, 0),
-                DateTime.Companion.TimeHM(2, 0)
+            TimeHM.isTimeWithinRange(
+                TimeHM(23, 59),
+                TimeHM(20, 0),
+                TimeHM(2, 0)
             )
         )
 
         assert(
-            DateTime.isTimeWithinRange(
-                DateTime.Companion.TimeHM(0, 1),
-                DateTime.Companion.TimeHM(20, 0),
-                DateTime.Companion.TimeHM(2, 0)
+            TimeHM.isTimeWithinRange(
+                TimeHM(0, 1),
+                TimeHM(20, 0),
+                TimeHM(2, 0)
             )
         )
     }

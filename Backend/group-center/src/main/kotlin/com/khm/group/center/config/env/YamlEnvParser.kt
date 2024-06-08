@@ -1,4 +1,4 @@
-package com.khm.group.center.config
+package com.khm.group.center.config.env
 
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlMap

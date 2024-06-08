@@ -1,7 +1,7 @@
 package com.khm.group.center.message
 
 import com.khm.group.center.datatype.config.MachineConfig
-import com.khm.group.center.utils.datetime.DateTime
+import com.khm.group.center.datatype.utils.datetime.DateTime
 
 data class MessageItem(
     val content: String,

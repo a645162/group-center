@@ -1,6 +1,6 @@
 package com.khm.group.center.user
 
-import com.khm.group.center.config.MachineConfigParser
+import com.khm.group.center.config.feature.MachineConfigParser
 import org.junit.jupiter.api.Test
 
 import com.khm.group.center.utils.file.ProgramFile

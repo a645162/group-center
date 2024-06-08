@@ -1,6 +1,7 @@
-package com.khm.group.center.config
+package com.khm.group.center.config.feature
 
 import com.charleskorn.kaml.Yaml
+import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.config.GroupUserConfig
 import com.khm.group.center.utils.file.ProgramFile
 import kotlinx.serialization.Serializable
