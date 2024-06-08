@@ -47,11 +47,7 @@ class ClientAccessKey(private var accessKey: String = "") {
     }
 
     fun isValid(): Boolean {
-        if (originalText.isEmpty()) {
-            return false
-        }
-
-        return true
+        return originalText.isNotEmpty()
     }
 
     fun generateAccessKey(): String {

@@ -10,11 +10,7 @@ class ClientIpWhiteList {
         }
 
         fun checkIpIsInWhiteList(ipAddress: String): Boolean {
-            if (!ipWhiteList.containsKey(ipAddress)) {
-                return false
-            }
-
-            return true
+            return ipWhiteList.containsKey(ipAddress)
         }
     }
 }

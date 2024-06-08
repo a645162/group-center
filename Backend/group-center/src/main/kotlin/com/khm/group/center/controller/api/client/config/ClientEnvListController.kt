@@ -1,8 +1,6 @@
 package com.khm.group.center.controller.api.client.config
 
 import com.khm.group.center.config.env.ConfigEnvironment
-import com.khm.group.center.datatype.config.GroupUserConfig
-import com.khm.group.center.datatype.response.ClientResponse
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
