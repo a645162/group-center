@@ -102,6 +102,10 @@ dependencies {
     implementation("com.github.albfernandez:juniversalchardet:2.5.0")
 
     ///////////////////////////////////////////////////////////////////////////////////////////
+    // Dev Tools
+    // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    compileOnly("org.projectlombok:lombok:1.18.32")
+    ///////////////////////////////////////////////////////////////////////////////////////////
     // Document
     // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-core
 //    implementation("io.swagger.core.v3:swagger-core:2.2.21")

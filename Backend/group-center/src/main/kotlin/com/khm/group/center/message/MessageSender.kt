@@ -33,11 +33,11 @@ class MessageSender(private val messageItem: MessageItem) {
         val mentionedMobileList = ArrayList<String>()
 
         if (userConfig != null) {
-            val userId = userConfig.weComUser.userId
+            val userId = userConfig.weCom.userId
             if (userId.isNotEmpty())
                 mentionedIdList.add(userId)
 
-            val userMobilePhone = userConfig.weComUser.userMobilePhone
+            val userMobilePhone = userConfig.weCom.userMobilePhone
             if (userMobilePhone.isNotEmpty())
                 mentionedMobileList.add(userMobilePhone)
         }
@@ -60,14 +60,14 @@ class MessageSender(private val messageItem: MessageItem) {
 
         var atText = ""
         if (userConfig != null) {
-            val userId = userConfig.larkUser.userId
+            val userId = userConfig.lark.userId
             if (userId.isEmpty()) {
                 atText = userConfig.name
             } else {
                 atText = LarkGroupBot.getAtUserHtml(userId)
 
                 if (LarkBot.isAppIdSecretValid()) {
-                    val larkBotObj = LarkBot(userConfig.larkUser.userId)
+                    val larkBotObj = LarkBot(userConfig.lark.userId)
 
                     larkBotObj.sendText(
                         messageItem.content.trim()

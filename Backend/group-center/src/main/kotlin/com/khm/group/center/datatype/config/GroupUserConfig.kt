@@ -10,8 +10,8 @@ class GroupUserConfig {
     var keywords: List<String> = listOf()
     var year: Int = 2024
 
-    var weComUser = WeComUser()
-    var larkUser = LarkUser()
+    var weCom = WeComUser()
+    var lark = LarkUser()
 
     companion object {
         var userList: List<GroupUserConfig> = listOf()

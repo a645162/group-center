@@ -3,7 +3,6 @@ package com.khm.group.center.interceptor
 import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONObject
 import com.khm.group.center.datatype.response.AuthResponse
-import com.khm.group.center.datatype.response.ClientResponse
 import com.khm.group.center.security.program.ClientAccessKey
 import com.khm.group.center.security.program.ClientIpWhiteList
 import jakarta.servlet.http.HttpServletRequest
@@ -17,6 +16,11 @@ import org.springframework.web.servlet.ModelAndView
 class ClientAuthInterceptor : HandlerInterceptor {
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         val ipAddress = request.remoteAddr
+//        println("Auth Interceptor Client IP: $ipAddress")
+        if (ipAddress == "0:0:0:0:0:0:0:1") {
+            // Local Host
+            return true
+        }
         if (ClientIpWhiteList.checkIpIsInWhiteList(ipAddress)) {
             return true
         }
@@ -49,7 +53,7 @@ class ClientAuthInterceptor : HandlerInterceptor {
         errorResponse.haveError = true
 
         val jsonString = JSON.toJSONString(errorResponse)
-        response.status = HttpServletResponse.SC_OK
+        response.status = HttpServletResponse.SC_UNAUTHORIZED
         response.characterEncoding = "UTF-8"
         response.contentType = "application/json"
         response.writer.write(jsonString)

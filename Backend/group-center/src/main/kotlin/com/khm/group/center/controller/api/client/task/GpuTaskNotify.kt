@@ -115,13 +115,15 @@ class GpuTaskNotify(
                 firstLine
                         + "${screenName}${projectName}${fileName}\n"
 
-                        + "显存:${FloatValue.round(gpuTaskInfo.taskGpuMemoryGb)}GB "
-                        + "运行时长:${gpuTaskInfo.taskRunningTimeString}\n"
+                        + "\n"
+
+                        + "运行时长:${gpuTaskInfo.taskRunningTimeString} "
+                        + "显存:${FloatValue.round(gpuTaskInfo.taskGpuMemoryGb)}GB\n"
 
                         + "最大显存${FloatValue.round(gpuTaskInfo.taskGpuMemoryMaxGb)}GB\n"
 
                         + "\n"
-
+                        + pythonAndCudaVersion
                         + "启动时间:${DateTime.getDateTimeStrByPythonTimeStamp(gpuTaskInfo.taskStartTime)}\n"
 
                         + "\n"
@@ -134,8 +136,6 @@ class GpuTaskNotify(
                         + FileSize.fixText(gpuTaskInfo.gpuMemoryUsageString)
                         + "/"
                         + "${FileSize.fixText(gpuTaskInfo.gpuMemoryTotalString)}\n"
-
-                        + pythonAndCudaVersion
 
                         + multiGpuStr
 
