@@ -96,10 +96,10 @@ class MachineConfigParser {
                 newMachineObj.host = currentOriMachine.host
                 newMachineObj.password = currentOriMachine.password
 
-                newMachineObj.silentMode.enable = currentOriMachine.webhook.silentMode.enable
                 newMachineObj.silentMode.startTime = currentOriMachine.webhook.silentMode.startTime
                 newMachineObj.silentMode.endTime = currentOriMachine.webhook.silentMode.endTime
                 newMachineObj.silentMode.parse()
+                newMachineObj.silentMode.enable = currentOriMachine.webhook.silentMode.enable
 
                 newMachineObj.weComServer.enable = currentOriMachine.webhook.weCom.enable
                 newMachineObj.weComServer.groupBotKey = currentOriMachine.webhook.weCom.groupBotKey
