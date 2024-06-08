@@ -8,7 +8,7 @@ import com.khm.group.center.message.webhook.wecom.WeComGroupBot
 
 class MessageSender(private val messageItem: MessageItem) {
 
-    val userConfig: GroupUserConfig? =
+    private val userConfig: GroupUserConfig? =
         GroupUserConfig.getUserByName(messageItem.targetUser)
 
     fun sendMessage() {

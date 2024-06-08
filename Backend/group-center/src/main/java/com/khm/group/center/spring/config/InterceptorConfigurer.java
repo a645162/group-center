@@ -1,4 +1,4 @@
-package com.khm.group.center.config;
+package com.khm.group.center.spring.config;
 
 import com.khm.group.center.interceptor.ClientAuthInterceptor;
 import org.springframework.context.annotation.Configuration;

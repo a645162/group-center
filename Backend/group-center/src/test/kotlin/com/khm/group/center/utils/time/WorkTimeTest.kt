@@ -38,20 +38,47 @@ class WorkTimeTest {
     }
 
     @Test
-    fun testTimeRange() {
-        println("Test Time:")
-        println(
+    fun testTimeRangeOneDay() {
+        println("Test Time Range One Day")
+
+        val startHour = 8
+        val endHour = 20
+        val startTime = DateTime.Companion.TimeHM(startHour, 0)
+        val endTime = DateTime.Companion.TimeHM(endHour, 0)
+        for (hour in 0..23) {
+            val time = DateTime.Companion.TimeHM(hour, 0)
+            val hourInRange = hour in startHour..endHour
+            assert(hourInRange == DateTime.isTimeWithinRange(time, startTime, endTime))
+        }
+    }
+
+    @Test
+    fun testTimeRangeTwoDay() {
+        println("Test Time Range Two Day")
+
+        val startHour = 20
+        val endHour = 8
+        val startTime = DateTime.Companion.TimeHM(startHour, 0)
+        val endTime = DateTime.Companion.TimeHM(endHour, 0)
+        for (hour in 0..23) {
+            val time = DateTime.Companion.TimeHM(hour, 0)
+            val hourInRange = hour in startHour..23 || hour in 0..endHour
+            assert(hourInRange == DateTime.isTimeWithinRange(time, startTime, endTime))
+        }
+
+        assert(
             DateTime.isTimeWithinRange(
-                DateTime.Companion.TimeHM.getNow(),
-                DateTime.Companion.TimeHM(8, 0),
-                DateTime.Companion.TimeHM.parseFromString("12:00")
+                DateTime.Companion.TimeHM(23, 59),
+                DateTime.Companion.TimeHM(20, 0),
+                DateTime.Companion.TimeHM(2, 0)
             )
         )
-        println(
+
+        assert(
             DateTime.isTimeWithinRange(
-                DateTime.Companion.TimeHM.getNow(),
-                DateTime.Companion.TimeHM(10, 0),
-                DateTime.Companion.TimeHM(20, 0)
+                DateTime.Companion.TimeHM(0, 1),
+                DateTime.Companion.TimeHM(20, 0),
+                DateTime.Companion.TimeHM(2, 0)
             )
         )
     }

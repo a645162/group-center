@@ -12,7 +12,7 @@ class ClientAccessKey(private var accessKey: String = "") {
     private var encryptedString: String = ""
 
     var nameEng: String = ""
-    var ip: String = ""
+    var ipAddress: String = ""
     private var dateTimeString: String = DateTime.getCurrentDateTimeStr()
 
     init {
@@ -23,7 +23,7 @@ class ClientAccessKey(private var accessKey: String = "") {
 
     data class AccessKey(
         val nameEng: String,
-        val ip: String,
+        val ipAddress: String,
         val dateTimeString: String
     )
 
@@ -33,11 +33,16 @@ class ClientAccessKey(private var accessKey: String = "") {
                 accessKey,
                 ConfigEnvironment.PASSWORD_JWT
             )?.toString() ?: ""
-        if (originalText.isNotEmpty()) {
-            val jsonObject = JSON.parseObject(originalText) as JSONObject
-            nameEng = jsonObject.getString("nameEng") ?: ""
-            ip = jsonObject.getString("ip") ?: ""
-            dateTimeString = jsonObject.getString("dateTimeString") ?: ""
+        try {
+            if (originalText.isNotEmpty()) {
+                val jsonObject = JSON.parseObject(originalText) as JSONObject
+                nameEng = jsonObject.getString("nameEng") ?: ""
+                ipAddress = jsonObject.getString("ipAddress") ?: ""
+                dateTimeString = jsonObject.getString("dateTimeString") ?: ""
+            }
+        } catch (e: Exception) {
+            originalText = ""
+            e.printStackTrace()
         }
     }
 
@@ -52,7 +57,7 @@ class ClientAccessKey(private var accessKey: String = "") {
     fun generateAccessKey(): String {
         val accessKey = AccessKey(
             nameEng = this.nameEng,
-            ip = this.ip,
+            ipAddress = this.ipAddress,
             dateTimeString = this.dateTimeString
         )
         originalText = JSON.toJSONString(accessKey)

@@ -1,4 +1,4 @@
-package com.khm.group.center.config;
+package com.khm.group.center.spring.config;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;

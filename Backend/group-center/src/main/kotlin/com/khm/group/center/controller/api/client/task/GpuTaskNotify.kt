@@ -28,9 +28,10 @@ class GpuTaskNotify(
             }
         }
 
-        var screenName = gpuTaskInfo.screenSessionName;
-        if (screenName.isEmpty()) {
-            screenName = gpuTaskInfo.condaEnvName;
+        val screenName = if (gpuTaskInfo.screenSessionName.isEmpty()) {
+            gpuTaskInfo.condaEnvName
+        } else {
+            gpuTaskInfo.screenSessionName
         }
 
         var otherTaskMessage = gpuTaskInfo.allTaskMessage.trim()
@@ -38,6 +39,12 @@ class GpuTaskNotify(
             otherTaskMessage = "其他任务:\n${otherTaskMessage}"
         } else {
             otherTaskMessage = "暂无其他任务!"
+        }
+
+        val multiGpuStr = if (gpuTaskInfo.multiDeviceWorldSize > 1) {
+            "\n${gpuTaskInfo.multiDeviceWorldSize}卡任务"
+        } else {
+            ""
         }
 
         return (
@@ -63,6 +70,10 @@ class GpuTaskNotify(
                         + FileSize.fixText(gpuTaskInfo.gpuMemoryUsageString)
                         + "/"
                         + "${FileSize.fixText(gpuTaskInfo.gpuMemoryTotalString)}\n"
+
+                        + "Python:${gpuTaskInfo.pythonVersion} CUDA:${gpuTaskInfo.cudaVersion}\n"
+
+                        + multiGpuStr
 
                         + "\n"
 

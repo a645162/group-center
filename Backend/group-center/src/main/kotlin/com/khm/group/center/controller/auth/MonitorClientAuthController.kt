@@ -1,16 +1,14 @@
 package com.khm.group.center.controller.auth
 
-import com.khm.group.center.config.MachineConfigParser
 import com.khm.group.center.datatype.config.MachineConfig
 import com.khm.group.center.datatype.response.AuthResponse
 import com.khm.group.center.security.password.MD5
 import com.khm.group.center.security.program.ClientAccessKey
-import com.khm.group.center.utils.program.ProgramInfo
+import com.khm.group.center.spring.utils.Ip
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.servlet.function.ServerRequest
 
 @RestController
 class MonitorClientAuthController {
@@ -18,6 +16,7 @@ class MonitorClientAuthController {
     @Operation(summary = "认证GPU监控客户端")
     @RequestMapping("/auth/client/auth", method = [RequestMethod.GET])
     fun auth(userName: String, password: String): AuthResponse {
+        val ipAddress = Ip.getControllerRemoteIp()
         val machineConfig = MachineConfig.getMachineByNameEng(userName)
         val response = AuthResponse()
 
@@ -43,6 +42,7 @@ class MonitorClientAuthController {
 
         val clientAccessKey = ClientAccessKey()
         clientAccessKey.nameEng = userName
+        clientAccessKey.ipAddress = ipAddress
 
         response.isAuthenticated = true
         response.isSucceed = true
