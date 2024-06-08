@@ -4,6 +4,7 @@ import com.khm.group.center.datatype.config.MachineConfig
 import com.khm.group.center.datatype.response.AuthResponse
 import com.khm.group.center.security.password.MD5
 import com.khm.group.center.security.program.ClientAccessKey
+import com.khm.group.center.security.program.ClientIpWhiteList
 import com.khm.group.center.spring.utils.Ip
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.web.bind.annotation.RequestMapping
@@ -39,6 +40,8 @@ class MonitorClientAuthController {
             response.result = "密码错误"
             return response
         }
+
+        ClientIpWhiteList.addIpToWhiteList(ipAddress)
 
         val clientAccessKey = ClientAccessKey()
         clientAccessKey.nameEng = userName

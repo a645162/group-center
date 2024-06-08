@@ -34,6 +34,27 @@ class GpuTaskNotify(
             gpuTaskInfo.screenSessionName
         }
 
+        val pythonVersion = if (gpuTaskInfo.pythonVersion.isNotEmpty()) {
+            "Python:" + gpuTaskInfo.pythonVersion
+        } else {
+            ""
+        }
+
+        val cudaVersion = if (gpuTaskInfo.cudaVersion.isNotEmpty()) {
+            " CUDA:" + gpuTaskInfo.cudaVersion
+        } else {
+            ""
+        }
+
+        val pythonAndCudaVersion = if (
+            pythonVersion.isNotEmpty()
+            || cudaVersion.isNotEmpty()
+        ) {
+            (pythonVersion + cudaVersion).trim() + "\n"
+        } else {
+            ""
+        }
+
         var otherTaskMessage = gpuTaskInfo.allTaskMessage.trim()
         if (otherTaskMessage.isNotEmpty()) {
             otherTaskMessage = "其他任务:\n${otherTaskMessage}"
@@ -71,7 +92,7 @@ class GpuTaskNotify(
                         + "/"
                         + "${FileSize.fixText(gpuTaskInfo.gpuMemoryTotalString)}\n"
 
-                        + "Python:${gpuTaskInfo.pythonVersion} CUDA:${gpuTaskInfo.cudaVersion}\n"
+                        + pythonAndCudaVersion
 
                         + multiGpuStr
 
