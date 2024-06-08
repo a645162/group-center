@@ -31,18 +31,32 @@ class ClientAuthInterceptor : HandlerInterceptor {
             val json = request.inputStream.bufferedReader().use { it.readText() }
             val jsonObject = JSON.parseObject(json) as JSONObject
 
-            if (jsonObject.containsKey("accessKey")) {
+            errorText = if (jsonObject.containsKey("accessKey")) {
                 val accessKeyValue = jsonObject.getString("accessKey")
-//                println("Key value: $accessKeyValue")
+                // println("Key value: $accessKeyValue")
                 val accessKeyObj = ClientAccessKey(accessKeyValue)
                 if (accessKeyObj.isValid()) {
                     ClientIpWhiteList.addIpToWhiteList(ipAddress)
                     return true
                 } else {
-                    errorText = "AccessKey is not valid."
+                    "AccessKey is not valid."
                 }
             } else {
-                errorText = "AccessKey does not exist in the JSON payload."
+                "AccessKey does not exist in the JSON payload."
+            }
+        } else if (request.method == "GET") {
+            val accessKeyValue = request.getParameter("accessKey")
+
+            errorText = if (accessKeyValue != null) {
+                val accessKeyObj = ClientAccessKey(accessKeyValue)
+                if (accessKeyObj.isValid()) {
+                    ClientIpWhiteList.addIpToWhiteList(ipAddress)
+                    return true
+                } else {
+                    "AccessKey is not valid."
+                }
+            } else {
+                "AccessKey does not exist in the GET request."
             }
         }
 
