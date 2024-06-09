@@ -59,7 +59,7 @@ dependencies {
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-web:3.3.0")
     implementation("com.alibaba.fastjson2:fastjson2-extension-spring6:2.0.51")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,6 +69,9 @@ dependencies {
 
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3")
     implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.6")
+
+    // https://mvnrepository.com/artifact/com.gitee.sunchenbin.mybatis.actable/mybatis-enhance-actable
+//    implementation("com.gitee.sunchenbin.mybatis.actable:mybatis-enhance-actable:1.5.0.RELEASE")
 
     // Database Driver
     // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j

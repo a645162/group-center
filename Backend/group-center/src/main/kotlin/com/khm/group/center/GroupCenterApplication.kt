@@ -11,10 +11,12 @@ import org.mybatis.spring.annotation.MapperScan
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.context.annotation.ComponentScan
 
 @Slf4jKt
 @SpringBootApplication
 @MapperScan("com.khm.group.center.db.mapper")
+@ComponentScan("com.khm.group.center.controller.*")
 class GroupCenterApplication {
 
     // final var logger: Logger = LoggerFactory.getLogger(javaClass)

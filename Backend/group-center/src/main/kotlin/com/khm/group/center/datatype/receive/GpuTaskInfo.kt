@@ -1,16 +1,12 @@
 package com.khm.group.center.datatype.receive
 
-import com.baomidou.mybatisplus.annotation.TableId
-import com.baomidou.mybatisplus.annotation.IdType
 
 class GpuTaskInfo {
-
-    @TableId(type = IdType.AUTO)
-    var id: Long? = null
 
     // Common part
     var serverName: String = ""
     var serverNameEng: String = ""
+
     var accessKey: String = ""
 
     var taskId: String = ""
@@ -42,18 +38,19 @@ class GpuTaskInfo {
     var taskGpuId: Int = 0
     var taskGpuName: String = ""
 
-    //    var taskGpuMemoryMb: Long = 0;
     var taskGpuMemoryGb: Float = 0f
     var taskGpuMemoryHuman: String = ""
 
-    //    var taskGpuMemoryMaxMb: Long = 0;
     var taskGpuMemoryMaxGb: Float = 0f
 
+    var isMultiGpu: Boolean = false
     var multiDeviceLocalRank: Int = 0
     var multiDeviceWorldSize: Int = 0
 
     var cudaRoot: String = ""
     var cudaVersion: String = ""
+
+    var isDebugMode: Boolean = false
 
     // 运行时间
     var taskStartTime: Long = 0
