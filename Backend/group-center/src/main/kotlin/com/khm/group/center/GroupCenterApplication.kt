@@ -7,12 +7,14 @@ import com.khm.group.center.config.feature.ShowConfig
 import com.khm.group.center.message.MessageCenter
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
+import org.mybatis.spring.annotation.MapperScan
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @Slf4jKt
 @SpringBootApplication
+@MapperScan("com.khm.group.center.db.mapper")
 class GroupCenterApplication {
 
     // final var logger: Logger = LoggerFactory.getLogger(javaClass)

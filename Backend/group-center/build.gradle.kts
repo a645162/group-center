@@ -37,6 +37,9 @@ repositories {
 
     maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
 
+    // MyBatis-Plus Snapshot
+    maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
+
     mavenLocal()
     mavenCentral()
 

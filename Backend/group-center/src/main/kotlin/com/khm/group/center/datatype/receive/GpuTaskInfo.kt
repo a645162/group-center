@@ -1,12 +1,19 @@
 package com.khm.group.center.datatype.receive
 
+import com.baomidou.mybatisplus.annotation.TableId
+import com.baomidou.mybatisplus.annotation.IdType
+
 class GpuTaskInfo {
+
+    @TableId(type = IdType.AUTO)
+    var id: Long? = null
+
     // Common part
     var serverName: String = ""
     var serverNameEng: String = ""
     var accessKey: String = ""
 
-    var taskID: String = ""
+    var taskId: String = ""
 
     var messageType: String = ""
 

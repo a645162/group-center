@@ -14,7 +14,7 @@ class GpuTaskNotify(
     var machineConfig: MachineConfig?
 ) {
     private fun generateTaskMessage(): String {
-        var finishTimeString: String = ""
+        var finishTimeString = ""
 
         val firstLine = when (gpuTaskInfo.messageType) {
             "create" -> {
@@ -40,11 +40,10 @@ class GpuTaskNotify(
             }
         }
 
-        var screenName = if (gpuTaskInfo.screenSessionName.isEmpty()) {
-            gpuTaskInfo.condaEnvName
-        } else {
-            gpuTaskInfo.screenSessionName
-        }
+        var screenName =
+            gpuTaskInfo.screenSessionName.ifEmpty {
+                gpuTaskInfo.condaEnvName
+            }
         if (screenName.isNotEmpty()) {
             screenName = "[${screenName}]"
         }
@@ -64,27 +63,27 @@ class GpuTaskNotify(
         }
         if (projectName.isNotEmpty() && fileName.isNotEmpty()) {
             if (screenName.endsWith("\n")) {
-                if (
+                projectName += if (
                     (
                             projectName.length
                                     + fileName.length
                             ) > lineBreakThreshold
                 ) {
-                    projectName += "\n"
+                    "\n"
                 } else {
-                    projectName += "-"
+                    "-"
                 }
             } else {
-                if (
+                projectName += if (
                     (
                             screenName.length
                                     + projectName.length
                                     + fileName.length
                             ) > lineBreakThreshold
                 ) {
-                    projectName += "\n"
+                    "\n"
                 } else {
-                    projectName += "-"
+                    "-"
                 }
             }
         }
@@ -112,11 +111,12 @@ class GpuTaskNotify(
 
         var otherTaskMessage = gpuTaskInfo.allTaskMessage.trim()
         val otherTaskCount = otherTaskMessage.split("\n").size
-        if (otherTaskMessage.isNotEmpty()) {
-            otherTaskMessage = "当前GPU任务(${otherTaskCount}个):\n${otherTaskMessage}"
-        } else {
-            otherTaskMessage = "暂无其他任务!"
-        }
+        otherTaskMessage =
+            if (otherTaskMessage.isNotEmpty()) {
+                "当前GPU任务(${otherTaskCount}个):\n${otherTaskMessage}"
+            } else {
+                "暂无任务!"
+            }
 
         val multiGpuStr = if (gpuTaskInfo.multiDeviceWorldSize > 1) {
             "\n${gpuTaskInfo.multiDeviceWorldSize}卡任务"
@@ -143,6 +143,9 @@ class GpuTaskNotify(
                         + "\n"
 
                         + "${gpuTaskInfo.taskGpuName}\n"
+
+                        + "\n"
+
                         + "核心(${FloatValue.round(gpuTaskInfo.gpuUsagePercent)}%) "
                         + "空闲显存:${FileSize.fixText(gpuTaskInfo.gpuMemoryFreeString)}\n"
 

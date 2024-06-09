@@ -6,23 +6,21 @@ import org.springframework.web.bind.annotation.*
 
 import com.khm.group.center.datatype.receive.GpuTaskInfo
 import com.khm.group.center.datatype.response.ClientResponse
+import com.khm.group.center.db.mapper.GpuTaskInfoMapper
+import org.springframework.beans.factory.annotation.Autowired
 
 
 @RestController
 class GpuTaskController {
 
-    @Operation(summary = "Test")
-    @RequestMapping("/api/client/gpu_task/test", method = [RequestMethod.GET])
-    fun test(): ClientResponse {
-        val responseObj = ClientResponse()
-        responseObj.result = "success"
-        responseObj.isAuthenticated = true
-        return responseObj
-    }
+    @Autowired
+    lateinit var gpuTaskInfoMapper: GpuTaskInfoMapper
 
     @Operation(summary = "GPU任务变动")
     @RequestMapping("/api/client/gpu_task/info", method = [RequestMethod.POST])
     fun gpuTaskInfo(@RequestBody gpuTaskInfo: GpuTaskInfo): ClientResponse {
+        gpuTaskInfoMapper.insert(gpuTaskInfo)
+
         // Notify
         val machineConfig = MachineConfig.getMachineByNameEng(gpuTaskInfo.serverNameEng)
 

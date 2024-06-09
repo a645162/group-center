@@ -7,15 +7,13 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class GpuMonitorController {
-
-    @Operation(summary = "GPU监控客户端程序启动")
-    @RequestMapping("/api/client/start", method = [RequestMethod.POST])
-    fun monitorStart(): ClientResponse {
+class ClientController {
+    @Operation(summary = "Test Client API")
+    @RequestMapping("/api/client/test", method = [RequestMethod.GET])
+    fun test(): ClientResponse {
         val responseObj = ClientResponse()
         responseObj.result = "success"
         responseObj.isAuthenticated = true
         return responseObj
     }
-
 }
