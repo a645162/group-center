@@ -1,9 +1,11 @@
 package com.khm.group.center.db.model.client
 
-import com.baomidou.mybatisplus.annotation.TableId
 import com.baomidou.mybatisplus.annotation.IdType
+import com.baomidou.mybatisplus.annotation.TableId
 import com.baomidou.mybatisplus.annotation.TableName
 import com.khm.group.center.datatype.receive.GpuTaskInfo
+import java.util.*
+
 
 @TableName(value = "gpu_task_info")
 class GpuTaskInfoModel {
@@ -63,8 +65,13 @@ class GpuTaskInfoModel {
     var isDebugMode: Boolean = false
 
     // 运行时间
+    // TimeStamp
     var taskStartTime: Long = 0
     var taskFinishTime: Long = 0
+
+    var taskStartTimeObj: Date? = null
+    var taskFinishTimeObj: Date? = null
+
     var taskRunningTimeString: String = ""
     var taskRunningTimeInSeconds: Int = 0
 
@@ -75,6 +82,20 @@ class GpuTaskInfoModel {
     var pythonVersion: String = ""
     var commandLine: String = ""
     var condaEnvName: String = ""
+
+    fun parse() {
+        // Convert Timestamp to Date Object
+        try {
+            if (taskStartTime > 0) {
+                taskStartTimeObj = Date(taskStartTime * 1000)
+            }
+            if (taskFinishTime > 0) {
+                taskFinishTimeObj = Date(taskFinishTime * 1000)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     fun copy(gpuTaskInfo: GpuTaskInfo) {
         this.serverName = gpuTaskInfo.serverName
@@ -132,6 +153,8 @@ class GpuTaskInfoModel {
         this.pythonVersion = gpuTaskInfo.pythonVersion
         this.commandLine = gpuTaskInfo.commandLine
         this.condaEnvName = gpuTaskInfo.condaEnvName
+
+        this.parse()
     }
 
     companion object {

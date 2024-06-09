@@ -28,6 +28,8 @@ CREATE TABLE group_center.gpu_task_info
     is_debug_mode                BOOLEAN      NOT NULL,
     task_start_time              BIGINT       NOT NULL,
     task_finish_time             BIGINT       NOT NULL,
+    task_start_time_obj          TIMESTAMP    NOT NULL,
+    task_finish_time_obj         TIMESTAMP    NOT NULL,
     task_running_time_string     VARCHAR(255) NOT NULL,
     task_running_time_in_seconds INT          NOT NULL,
     project_name                 VARCHAR(255) NOT NULL,
