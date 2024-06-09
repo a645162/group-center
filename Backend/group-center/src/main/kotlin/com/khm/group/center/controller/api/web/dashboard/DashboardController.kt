@@ -21,12 +21,12 @@ class DashboardController {
         // 获取当前时间
         val currentTime = Date()
         // 计算一个月前的时间
-        val oneMonthAgo = getOneMonthAgoDate(currentTime)
+        val oneMonthAgo = getOneMonthAgoDate(currentTime).time / 1000
 
         // 创建查询条件
         val queryWrapper = QueryWrapper<GpuTaskInfoModel>()
         // 查询 taskStartTime >= oneMonthAgo 的记录
-        queryWrapper.ge("taskStartTime", oneMonthAgo)
+        queryWrapper.ge("task_start_time", oneMonthAgo)
 
         // 执行查询
         return gpuTaskInfoMapper.selectList(queryWrapper)

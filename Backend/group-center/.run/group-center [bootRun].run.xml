@@ -3,7 +3,7 @@
     <ExternalSystemSettings>
       <option name="env">
         <map>
-          <entry key="FILE_ENV_PATH" value="./Debug/FileEnv.toml" />
+          <entry key="FILE_ENV_PATH" value="./Config/Program/FileEnv.toml" />
         </map>
       </option>
       <option name="executionName" />
