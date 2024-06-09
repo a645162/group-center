@@ -14,12 +14,21 @@ class GpuTaskNotify(
     var machineConfig: MachineConfig?
 ) {
     private fun generateTaskMessage(): String {
+        var finishTimeString: String = ""
+
         val firstLine = when (gpuTaskInfo.messageType) {
             "create" -> {
                 "[GPU${gpuTaskInfo.taskGpuId}]启动->\n"
             }
 
             "finish" -> {
+                if (gpuTaskInfo.taskFinishTime > 0) {
+                    finishTimeString =
+                        DateTime.getDateTimeStrByPythonTimeStamp(
+                            gpuTaskInfo.taskFinishTime
+                        ) + "\n"
+                }
+
                 "[GPU${gpuTaskInfo.taskGpuId}]完成!!\n"
             }
 
@@ -99,8 +108,9 @@ class GpuTaskNotify(
         }
 
         var otherTaskMessage = gpuTaskInfo.allTaskMessage.trim()
+        val otherTaskCount = otherTaskMessage.split("\n").size
         if (otherTaskMessage.isNotEmpty()) {
-            otherTaskMessage = "其他任务:\n${otherTaskMessage}"
+            otherTaskMessage = "其他任务(${otherTaskCount}个):\n${otherTaskMessage}"
         } else {
             otherTaskMessage = "暂无其他任务!"
         }
@@ -117,14 +127,15 @@ class GpuTaskNotify(
 
                         + "\n"
 
-                        + "运行时长:${gpuTaskInfo.taskRunningTimeString} "
-                        + "显存:${FloatValue.round(gpuTaskInfo.taskGpuMemoryGb)}GB\n"
-
-                        + "最大显存${FloatValue.round(gpuTaskInfo.taskGpuMemoryMaxGb)}GB\n"
+                        + "运行时长:${gpuTaskInfo.taskRunningTimeString}\n"
+                        + "启动时间:${DateTime.getDateTimeStrByPythonTimeStamp(gpuTaskInfo.taskStartTime)}\n"
+                        + finishTimeString
 
                         + "\n"
+
+                        + "当前显存:${FloatValue.round(gpuTaskInfo.taskGpuMemoryGb)}GB "
+                        + "最大显存${FloatValue.round(gpuTaskInfo.taskGpuMemoryMaxGb)}GB\n"
                         + pythonAndCudaVersion
-                        + "启动时间:${DateTime.getDateTimeStrByPythonTimeStamp(gpuTaskInfo.taskStartTime)}\n"
 
                         + "\n"
 

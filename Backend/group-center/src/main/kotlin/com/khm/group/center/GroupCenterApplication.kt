@@ -5,17 +5,17 @@ import com.khm.group.center.config.feature.GroupUserConfigParser
 import com.khm.group.center.config.feature.MachineConfigParser
 import com.khm.group.center.config.feature.ShowConfig
 import com.khm.group.center.message.MessageCenter
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import com.khm.group.center.utils.program.Slf4jKt
+import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-
+@Slf4jKt
 @SpringBootApplication
 class GroupCenterApplication {
 
-    final var logger: Logger = LoggerFactory.getLogger(javaClass)
+    // final var logger: Logger = LoggerFactory.getLogger(javaClass)
 
     init {
         logger.info("GroupCenterApplication init")

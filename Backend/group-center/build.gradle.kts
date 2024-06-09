@@ -44,10 +44,15 @@ repositories {
 }
 
 dependencies {
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-gradle-plugin
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
@@ -103,6 +108,7 @@ dependencies {
 
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Dev Tools
+    // Lombok for Java
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
     compileOnly("org.projectlombok:lombok:1.18.32")
     ///////////////////////////////////////////////////////////////////////////////////////////

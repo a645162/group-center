@@ -50,6 +50,7 @@ class GpuTaskInfo {
 
     // 运行时间
     var taskStartTime: Long = 0
+    var taskFinishTime: Long = 0
     var taskRunningTimeString: String = ""
     var taskRunningTimeInSeconds: Int = 0
 
