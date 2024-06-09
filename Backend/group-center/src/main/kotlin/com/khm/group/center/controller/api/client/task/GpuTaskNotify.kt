@@ -23,10 +23,13 @@ class GpuTaskNotify(
 
             "finish" -> {
                 if (gpuTaskInfo.taskFinishTime > 0) {
-                    finishTimeString =
-                        DateTime.getDateTimeStrByPythonTimeStamp(
-                            gpuTaskInfo.taskFinishTime
-                        ) + "\n"
+                    finishTimeString = (
+                            "结束时间:" +
+                                    DateTime.getDateTimeStrByPythonTimeStamp(
+                                        gpuTaskInfo.taskFinishTime
+                                    )
+                                    + "\n"
+                            )
                 }
 
                 "[GPU${gpuTaskInfo.taskGpuId}]完成!!\n"
@@ -110,7 +113,7 @@ class GpuTaskNotify(
         var otherTaskMessage = gpuTaskInfo.allTaskMessage.trim()
         val otherTaskCount = otherTaskMessage.split("\n").size
         if (otherTaskMessage.isNotEmpty()) {
-            otherTaskMessage = "其他任务(${otherTaskCount}个):\n${otherTaskMessage}"
+            otherTaskMessage = "当前GPU任务(${otherTaskCount}个):\n${otherTaskMessage}"
         } else {
             otherTaskMessage = "暂无其他任务!"
         }
