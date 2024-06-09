@@ -69,8 +69,9 @@ class GpuTaskInfoModel {
     var taskStartTime: Long = 0
     var taskFinishTime: Long = 0
 
-    var taskStartTimeObj: Date? = null
-    var taskFinishTimeObj: Date? = null
+    // Default is Now
+    var taskStartTimeObj: Date = Date()
+    var taskFinishTimeObj: Date = Date()
 
     var taskRunningTimeString: String = ""
     var taskRunningTimeInSeconds: Int = 0
