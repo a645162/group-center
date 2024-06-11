@@ -21,7 +21,7 @@ class ConfigEnvironment {
         var CLIENT_ENV_CONFIG_PATH: String = ""
 
         // 10min
-        var SilentModeWaitTime: Long = 1000 * 60 * 10
+        var SilentModeWaitTime: Long = 1000 * 60 * 5
 
         fun getEnvStr(key: String, defaultValue: String = ""): String {
             val uppercaseKey = key.trim().uppercase()
