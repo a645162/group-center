@@ -1,12 +1,13 @@
 package com.khm.group.center.message
 
+import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.config.GroupUserConfig
 import com.khm.group.center.message.webhook.lark.LarkBot
 import com.khm.group.center.message.webhook.lark.LarkGroupBot
 import com.khm.group.center.message.webhook.wecom.WeComGroupBot
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 
 class MessageSender(private val messageItem: MessageItem) {
@@ -14,25 +15,25 @@ class MessageSender(private val messageItem: MessageItem) {
     private val userConfig: GroupUserConfig? =
         GroupUserConfig.getUserByName(messageItem.targetUser)
 
-    fun sendMessage() {
+    suspend fun sendMessage() = coroutineScope {
         if (!messageItem.machineConfig.webhook.haveValidWebHookService()) {
             println("No any valid webhook server.")
-            return
+            return@coroutineScope
         }
 
         if (messageItem.machineConfig.webhook.weComServer.enable) {
-            sendByWeWork()
+            launch {
+                sendByWeWork()
+            }
         }
         if (messageItem.machineConfig.webhook.larkServer.enable) {
-            runBlocking {
-                kotlin.run {
-                    sendByLark()
-                }
+            launch {
+                sendByLark()
             }
         }
     }
 
-    private fun sendByWeWork() {
+    private suspend fun sendByWeWork() = coroutineScope {
         val groupKey =
             messageItem.machineConfig.webhook.weComServer.groupBotKey
         val url = WeComGroupBot.getWebhookUrl(groupKey)
@@ -50,11 +51,18 @@ class MessageSender(private val messageItem: MessageItem) {
                 mentionedMobileList.add(userMobilePhone)
         }
 
+        println("Try to async send WeCom text with silent mode for ${userConfig?.nameEng}")
+        while (messageItem.machineConfig.webhook.silentMode.isSilentMode()) {
+            // Delay
+            delay(ConfigEnvironment.SilentModeWaitTime)
+        }
+
         WeComGroupBot.directSendTextWithUrl(
             url, messageItem.content,
             mentionedIdList,
             mentionedMobileList
         )
+        println("Sent WeCom text with silent mode for ${userConfig?.nameEng}")
     }
 
     private suspend fun sendByLark() = coroutineScope {

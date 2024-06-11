@@ -12,7 +12,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 
 class LarkGroupBot(val botId: String, var botKey: String = "") {
-    var webhookUrl: String = "https://open.feishu.cn/open-apis/bot/v2/hook/"
+    private var webhookUrl: String = "https://open.feishu.cn/open-apis/bot/v2/hook/"
 
     init {
         if (botId.startsWith(webhookUrl)) {
@@ -72,13 +72,13 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
         text: String,
         silentModeConfig: SilentModeConfig
     ) {
-        println("Try to async send lark text with silent mode for $botId")
+        println("Try to async send lark group bot text with silent mode for $botId")
         while (silentModeConfig.isSilentMode()) {
             // Delay
             delay(ConfigEnvironment.SilentModeWaitTime)
         }
         sendText(text)
-        println("Sent lark text with silent mode for $botId")
+        println("Sent lark group bot text with silent mode for $botId")
     }
 
     companion object {

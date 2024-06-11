@@ -44,13 +44,17 @@ class MessageCenter : CoroutineScope {
         // println("Sending message: $message")
 
         // Night Silent Mode
-//        while (message.machineConfig.silentMode.isSilentMode()) {
+//        while (message.machineConfig.webhook.silentMode.isSilentMode()) {
 //            // Delay
-//            delay(1000 * 60 * 10) // 10 min
+//            delay(ConfigEnvironment.SilentModeWaitTime)
 //        }
 
         val msgSender = MessageSender(message)
-        msgSender.sendMessage()
+        runBlocking {
+            launch {
+                msgSender.sendMessage()
+            }
+        }
     }
 
     fun enqueueMessage(message: MessageItem) {
