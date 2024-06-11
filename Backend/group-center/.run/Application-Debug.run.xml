@@ -3,7 +3,7 @@
     <envs>
       <env name="SPRING_PROFILES_ACTIVE" value="debug" />
     </envs>
-    <module name="group-center.main" />
+    <module name="com.khm.group.group-center.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.khm.group.center.GroupCenterApplication" />
     <method v="2">
       <option name="Make" enabled="true" />
