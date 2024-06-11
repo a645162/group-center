@@ -57,13 +57,13 @@ class LarkBot(val userId: String) {
         text: String,
         silentModeConfig: SilentModeConfig
     ) {
-        println("Try to async send text with silent mode for $userId")
+        println("Try to async send lark text with silent mode for $userId")
         while (silentModeConfig.isSilentMode()) {
             // Delay
             delay(ConfigEnvironment.SilentModeWaitTime)
         }
         sendText(text)
-        println("Sent text with silent mode for $userId")
+        println("Sent lark text with silent mode for $userId")
     }
 
     companion object {

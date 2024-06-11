@@ -4,6 +4,7 @@ import com.khm.group.center.datatype.config.GroupUserConfig
 import com.khm.group.center.message.webhook.lark.LarkBot
 import com.khm.group.center.message.webhook.lark.LarkGroupBot
 import com.khm.group.center.message.webhook.wecom.WeComGroupBot
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -23,7 +24,11 @@ class MessageSender(private val messageItem: MessageItem) {
             sendByWeWork()
         }
         if (messageItem.machineConfig.webhook.larkServer.enable) {
-            sendByLark()
+            runBlocking {
+                kotlin.run {
+                    sendByLark()
+                }
+            }
         }
     }
 
@@ -52,7 +57,7 @@ class MessageSender(private val messageItem: MessageItem) {
         )
     }
 
-    private fun sendByLark() {
+    private suspend fun sendByLark() = coroutineScope {
         val machineName = messageItem.machineConfig.name
         val machineUrl = "http://" + messageItem.machineConfig.host
 
@@ -78,14 +83,11 @@ class MessageSender(private val messageItem: MessageItem) {
                                     + machineUrl
                             )
 
-                    runBlocking<Unit> {
-                        launch {
-                            larkBotObj.sendTextWithSilentMode(
-                                text, userConfig.webhook.silentMode
-                            )
-                        }
+                    launch {
+                        larkBotObj.sendTextWithSilentMode(
+                            text, userConfig.webhook.silentMode
+                        )
                     }
-
                 }
             }
         }
@@ -97,12 +99,10 @@ class MessageSender(private val messageItem: MessageItem) {
                         + machineUrl
                 )
 
-        runBlocking<Unit> {
-            launch {
-                larkGroupBotObj.sendTextWithSilentMode(
-                    groupBotText, messageItem.machineConfig.webhook.silentMode
-                )
-            }
+        launch {
+            larkGroupBotObj.sendTextWithSilentMode(
+                groupBotText, messageItem.machineConfig.webhook.silentMode
+            )
         }
     }
 }

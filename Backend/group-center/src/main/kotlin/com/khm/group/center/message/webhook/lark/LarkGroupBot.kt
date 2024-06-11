@@ -72,13 +72,13 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
         text: String,
         silentModeConfig: SilentModeConfig
     ) {
-        println("Try to async send text with silent mode for $botId")
+        println("Try to async send lark text with silent mode for $botId")
         while (silentModeConfig.isSilentMode()) {
             // Delay
             delay(ConfigEnvironment.SilentModeWaitTime)
         }
         sendText(text)
-        println("Sent text with silent mode for $botId")
+        println("Sent lark text with silent mode for $botId")
     }
 
     companion object {
