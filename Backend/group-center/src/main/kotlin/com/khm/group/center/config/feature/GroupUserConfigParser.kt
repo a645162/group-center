@@ -35,6 +35,13 @@ class GroupUserConfigParser {
             val userList = mutableListOf<GroupUserConfig>()
 
             @Serializable
+            data class SilentMode(
+                val enable: Boolean,
+                val startTime: String,
+                val endTime: String
+            )
+
+            @Serializable
             data class WeCom(
                 val userId: String,
                 val userMobilePhone: String
@@ -48,6 +55,7 @@ class GroupUserConfigParser {
 
             @Serializable
             data class Webhook(
+                val silentMode: SilentMode,
                 val lark: Lark,
                 val weCom: WeCom
             )
@@ -86,6 +94,14 @@ class GroupUserConfigParser {
                 newUserObj.nameEng = currentOriUser.nameEng
                 newUserObj.keywords = currentOriUser.keywords
                 newUserObj.year = currentOriUser.year
+
+                newUserObj.webhook.silentMode.startTime =
+                    currentOriUser.webhook.silentMode.startTime
+                newUserObj.webhook.silentMode.endTime =
+                    currentOriUser.webhook.silentMode.endTime
+                newUserObj.webhook.silentMode.parse()
+                newUserObj.webhook.silentMode.enable =
+                    currentOriUser.webhook.silentMode.enable
 
                 newUserObj.webhook.lark.userId =
                     currentOriUser.webhook.lark.userId

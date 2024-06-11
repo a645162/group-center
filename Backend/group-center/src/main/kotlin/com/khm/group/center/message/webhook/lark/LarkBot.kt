@@ -9,6 +9,8 @@ import com.lark.oapi.service.im.v1.model.CreateMessageReq
 import com.lark.oapi.service.im.v1.model.CreateMessageReqBody
 
 import com.khm.group.center.config.env.ConfigEnvironment
+import com.khm.group.center.datatype.config.feature.SilentModeConfig
+import kotlinx.coroutines.delay
 
 class LarkBot(val userId: String) {
     data class Content(
@@ -49,6 +51,17 @@ class LarkBot(val userId: String) {
 
         // 业务数据处理
         println(Jsons.DEFAULT.toJson(resp.data))
+    }
+
+    suspend fun sendTextWithSilentMode(
+        text: String,
+        silentModeConfig: SilentModeConfig
+    ) {
+        while (silentModeConfig.isSilentMode()) {
+            // Delay
+            delay(ConfigEnvironment.SilentModeWaitTime)
+        }
+        sendText(text)
     }
 
     companion object {

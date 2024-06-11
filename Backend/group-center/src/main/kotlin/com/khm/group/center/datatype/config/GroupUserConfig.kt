@@ -1,6 +1,6 @@
 package com.khm.group.center.datatype.config
 
-import com.khm.group.center.datatype.config.webhook.AllWebHook
+import com.khm.group.center.datatype.config.webhook.AllWebHookUser
 
 
 class GroupUserConfig {
@@ -9,7 +9,7 @@ class GroupUserConfig {
     var keywords: List<String> = listOf()
     var year: Int = 2024
 
-    var webhook = AllWebHook()
+    var webhook = AllWebHookUser()
 
     companion object {
         var userList: List<GroupUserConfig> = listOf()

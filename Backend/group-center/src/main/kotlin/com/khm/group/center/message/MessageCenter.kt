@@ -36,7 +36,7 @@ class MessageCenter : CoroutineScope {
     }
 
     private suspend fun sendMessage(message: MessageItem) {
-        if (!message.machineConfig.haveValidWebHookService()) {
+        if (!message.machineConfig.webhook.haveValidWebHookService()) {
             println("No any valid webhook server.")
             return
         }
@@ -44,10 +44,10 @@ class MessageCenter : CoroutineScope {
         // println("Sending message: $message")
 
         // Night Silent Mode
-        while (message.machineConfig.silentMode.isSilentMode()) {
-            // Delay
-            delay(1000 * 60 * 10) // 10 min
-        }
+//        while (message.machineConfig.silentMode.isSilentMode()) {
+//            // Delay
+//            delay(1000 * 60 * 10) // 10 min
+//        }
 
         val msgSender = MessageSender(message)
         msgSender.sendMessage()

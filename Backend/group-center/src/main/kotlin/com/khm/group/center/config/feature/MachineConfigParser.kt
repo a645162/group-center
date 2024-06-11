@@ -96,17 +96,17 @@ class MachineConfigParser {
                 newMachineObj.host = currentOriMachine.host
                 newMachineObj.password = currentOriMachine.password
 
-                newMachineObj.silentMode.startTime = currentOriMachine.webhook.silentMode.startTime
-                newMachineObj.silentMode.endTime = currentOriMachine.webhook.silentMode.endTime
-                newMachineObj.silentMode.parse()
-                newMachineObj.silentMode.enable = currentOriMachine.webhook.silentMode.enable
+                newMachineObj.webhook.silentMode.startTime = currentOriMachine.webhook.silentMode.startTime
+                newMachineObj.webhook.silentMode.endTime = currentOriMachine.webhook.silentMode.endTime
+                newMachineObj.webhook.silentMode.parse()
+                newMachineObj.webhook.silentMode.enable = currentOriMachine.webhook.silentMode.enable
 
-                newMachineObj.weComServer.enable = currentOriMachine.webhook.weCom.enable
-                newMachineObj.weComServer.groupBotKey = currentOriMachine.webhook.weCom.groupBotKey
+                newMachineObj.webhook.weComServer.enable = currentOriMachine.webhook.weCom.enable
+                newMachineObj.webhook.weComServer.groupBotKey = currentOriMachine.webhook.weCom.groupBotKey
 
-                newMachineObj.larkServer.enable = currentOriMachine.webhook.lark.enable
-                newMachineObj.larkServer.groupBotId = currentOriMachine.webhook.lark.groupBotId
-                newMachineObj.larkServer.groupBotKey = currentOriMachine.webhook.lark.groupBotKey
+                newMachineObj.webhook.larkServer.enable = currentOriMachine.webhook.lark.enable
+                newMachineObj.webhook.larkServer.groupBotId = currentOriMachine.webhook.lark.groupBotId
+                newMachineObj.webhook.larkServer.groupBotKey = currentOriMachine.webhook.lark.groupBotKey
 
                 machineList.add(newMachineObj)
             }

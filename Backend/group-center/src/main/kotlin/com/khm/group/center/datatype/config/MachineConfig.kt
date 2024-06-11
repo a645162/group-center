@@ -1,6 +1,7 @@
 package com.khm.group.center.datatype.config
 
 import com.khm.group.center.datatype.config.feature.SilentModeConfig
+import com.khm.group.center.datatype.config.webhook.AllWebHookServer
 import com.khm.group.center.datatype.config.webhook.BaseWebHookServer
 import com.khm.group.center.datatype.config.webhook.LarkServer
 import com.khm.group.center.datatype.config.webhook.WeComServer
@@ -13,15 +14,7 @@ class MachineConfig {
 
     var password: String = ""
 
-    val silentMode: SilentModeConfig = SilentModeConfig()
-
-    val weComServer = WeComServer()
-    val larkServer = LarkServer()
-
-    private var webhookServerList: List<BaseWebHookServer> = listOf(
-        weComServer,
-        larkServer
-    )
+    var webhook: AllWebHookServer = AllWebHookServer()
 
     companion object {
         var machineList: List<MachineConfig> = listOf()
@@ -37,15 +30,5 @@ class MachineConfig {
 
             return null
         }
-    }
-
-    fun haveValidWebHookService(): Boolean {
-        for (webhookServer in webhookServerList) {
-            if (webhookServer.enable) {
-                return true
-            }
-        }
-
-        return false
     }
 }

@@ -4,6 +4,8 @@ import com.khm.group.center.datatype.config.GroupUserConfig
 import com.khm.group.center.message.webhook.lark.LarkBot
 import com.khm.group.center.message.webhook.lark.LarkGroupBot
 import com.khm.group.center.message.webhook.wecom.WeComGroupBot
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 class MessageSender(private val messageItem: MessageItem) {
@@ -12,21 +14,22 @@ class MessageSender(private val messageItem: MessageItem) {
         GroupUserConfig.getUserByName(messageItem.targetUser)
 
     fun sendMessage() {
-        if (!messageItem.machineConfig.haveValidWebHookService()) {
+        if (!messageItem.machineConfig.webhook.haveValidWebHookService()) {
             println("No any valid webhook server.")
             return
         }
 
-        if (messageItem.machineConfig.weComServer.enable) {
+        if (messageItem.machineConfig.webhook.weComServer.enable) {
             sendByWeWork()
         }
-        if (messageItem.machineConfig.larkServer.enable) {
+        if (messageItem.machineConfig.webhook.larkServer.enable) {
             sendByLark()
         }
     }
 
     private fun sendByWeWork() {
-        val groupKey = messageItem.machineConfig.weComServer.groupBotKey
+        val groupKey =
+            messageItem.machineConfig.webhook.weComServer.groupBotKey
         val url = WeComGroupBot.getWebhookUrl(groupKey)
 
         val mentionedIdList = ArrayList<String>()
@@ -53,8 +56,8 @@ class MessageSender(private val messageItem: MessageItem) {
         val machineName = messageItem.machineConfig.name
         val machineUrl = "http://" + messageItem.machineConfig.host
 
-        val groupBotId = messageItem.machineConfig.larkServer.groupBotId
-        val groupBotKey = messageItem.machineConfig.larkServer.groupBotKey
+        val groupBotId = messageItem.machineConfig.webhook.larkServer.groupBotId
+        val groupBotKey = messageItem.machineConfig.webhook.larkServer.groupBotKey
 
         val larkGroupBotObj = LarkGroupBot(groupBotId, groupBotKey)
 
@@ -68,22 +71,38 @@ class MessageSender(private val messageItem: MessageItem) {
 
                 if (LarkBot.isAppIdSecretValid()) {
                     val larkBotObj = LarkBot(userConfig.webhook.lark.userId)
+                    val text = (
+                            messageItem.content.trim()
+                                    + "\n\n"
+                                    + "${machineName}:\n"
+                                    + machineUrl
+                            )
 
-                    larkBotObj.sendText(
-                        messageItem.content.trim()
-                                + "\n\n"
-                                + "${machineName}:\n"
-                                + machineUrl
-                    )
+                    runBlocking<Unit> {
+                        launch {
+                            larkBotObj.sendTextWithSilentMode(
+                                text, userConfig.webhook.silentMode
+                            )
+                        }
+                    }
+
                 }
             }
         }
         val finalText = atText + messageItem.content
 
-        larkGroupBotObj.sendText(
-            finalText
-                    + "\n\n"
-                    + machineUrl
-        )
+        val groupBotText = (
+                finalText
+                        + "\n\n"
+                        + machineUrl
+                )
+
+        runBlocking<Unit> {
+            launch {
+                larkGroupBotObj.sendTextWithSilentMode(
+                    groupBotText, messageItem.machineConfig.webhook.silentMode
+                )
+            }
+        }
     }
 }

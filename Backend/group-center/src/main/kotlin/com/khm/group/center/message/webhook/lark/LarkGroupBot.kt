@@ -1,6 +1,9 @@
 package com.khm.group.center.message.webhook.lark
 
 import com.alibaba.fastjson2.JSON
+import com.khm.group.center.config.env.ConfigEnvironment
+import com.khm.group.center.datatype.config.feature.SilentModeConfig
+import kotlinx.coroutines.delay
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -63,6 +66,17 @@ class LarkGroupBot(botId: String, var botKey: String = "") {
             println("Error: $e")
             return
         }
+    }
+
+    suspend fun sendTextWithSilentMode(
+        text: String,
+        silentModeConfig: SilentModeConfig
+    ) {
+        while (silentModeConfig.isSilentMode()) {
+            // Delay
+            delay(ConfigEnvironment.SilentModeWaitTime)
+        }
+        sendText(text)
     }
 
     companion object {

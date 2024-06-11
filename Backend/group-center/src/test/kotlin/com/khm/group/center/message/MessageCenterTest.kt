@@ -12,8 +12,8 @@ class MessageCenterTest {
 
         val machineConfig = MachineConfig()
         machineConfig.nameEng = "3090"
-        machineConfig.weComServer.enable = true
-        machineConfig.weComServer.groupBotKey = ""
+        machineConfig.webhook.weComServer.enable = true
+        machineConfig.webhook.weComServer.groupBotKey = ""
 
         val messageItem = MessageItem(
             content = "Test Content",
