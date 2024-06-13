@@ -43,12 +43,14 @@ class GroupUserConfigParser {
 
             @Serializable
             data class WeCom(
+                val enable: Boolean,
                 val userId: String,
                 val userMobilePhone: String
             )
 
             @Serializable
             data class Lark(
+                val enable: Boolean,
                 val userId: String,
                 val userMobilePhone: String
             )
@@ -107,11 +109,15 @@ class GroupUserConfigParser {
                     currentOriUser.webhook.lark.userId
                 newUserObj.webhook.lark.userMobilePhone =
                     currentOriUser.webhook.lark.userMobilePhone
+                newUserObj.webhook.lark.enable =
+                    currentOriUser.webhook.lark.enable
 
                 newUserObj.webhook.weCom.userId =
                     currentOriUser.webhook.weCom.userId
                 newUserObj.webhook.weCom.userMobilePhone =
                     currentOriUser.webhook.weCom.userMobilePhone
+                newUserObj.webhook.weCom.enable =
+                    currentOriUser.webhook.weCom.enable
 
                 userList.add(newUserObj)
             }
