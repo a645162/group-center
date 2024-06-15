@@ -20,18 +20,27 @@ springdoc:
   api-docs:
     path: /v3/api-docs
   group-configs:
-    - group: 'API'
-      paths-to-match: '/**'
-      packages-to-scan: com.khm.group.center.controller.api
-    - group: 'Admin'
-      paths-to-match: '/**'
-      packages-to-scan: com.khm.group.center.controller.admin
     - group: 'Program'
       paths-to-match: '/**'
       packages-to-scan: com.khm.group.center.controller.program
     - group: 'Auth'
       paths-to-match: '/**'
       packages-to-scan: com.khm.group.center.controller.auth
+
+    - group: 'API'
+      paths-to-match: '/**'
+      packages-to-scan: com.khm.group.center.controller.api
+    - group: 'API-Client'
+      paths-to-match: '/**'
+      packages-to-scan: com.khm.group.center.controller.api.client
+    - group: 'API-Web'
+      paths-to-match: '/**'
+      packages-to-scan: com.khm.group.center.controller.api.web
+
+    - group: 'Admin'
+      paths-to-match: '/**'
+      packages-to-scan: com.khm.group.center.controller.admin
+
 
 # Knife4j
 # http://localhost:8088/doc.html

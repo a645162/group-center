@@ -5,10 +5,14 @@ import com.khm.group.center.datatype.response.ClientResponse
 import com.khm.group.center.db.mapper.client.GpuTaskInfoMapper
 import com.khm.group.center.db.model.client.GpuTaskInfoModel
 import io.swagger.v3.oas.annotations.Operation
+import org.jobrunr.scheduling.BackgroundJob
+import org.jobrunr.scheduling.cron.Cron
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
+import java.time.Instant
+import java.time.ZoneOffset
 import java.util.*
 
 @RestController
@@ -37,6 +41,21 @@ class DashboardController {
         calendar.time = currentTime
         calendar.add(Calendar.MONTH, -1)
         return calendar.time
+    }
+
+    @RequestMapping("/web/dashboard/usage/test", method = [RequestMethod.GET])
+    fun test(): String {
+        BackgroundJob.enqueue({
+            println("Current Time: ${Instant.now()}")
+        })
+//        BackgroundJob.schedule(Instant.now()) {
+//            // Print Current Time(Formated)
+//            println("Current Time: ${Instant.now()}")
+//        }
+//        BackgroundJob.schedule<EmailService>(Instant.now(), x -> x.sendNewlyRegisteredEmail());
+//        BackgroundJob.scheduleRecurrently(Cron.every15seconds()) { println("Easy!") }
+        println("ok")
+        return "ok"
     }
 
     @Operation(summary = "更新面板")

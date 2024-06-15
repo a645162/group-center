@@ -78,7 +78,16 @@ dependencies {
     runtimeOnly("com.mysql:mysql-connector-j:8.3.0")
 //    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     // https://mvnrepository.com/artifact/com.oceanbase/oceanbase-client
-    runtimeOnly("com.oceanbase:oceanbase-client:2.4.9")
+    // runtimeOnly("com.oceanbase:oceanbase-client:2.4.9")
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // Task
+    // https://mvnrepository.com/artifact/org.jobrunr/jobrunr
+    implementation("org.jobrunr:jobrunr:7.2.0")
+    // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-kotlin-1.7-support
+    implementation("org.jobrunr:jobrunr-kotlin-1.7-support:7.2.0")
+    // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-spring-boot-starter
+    implementation("org.jobrunr:jobrunr-spring-boot-starter:5.3.3")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Crypto
@@ -117,6 +126,10 @@ dependencies {
     // Lombok for Java
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
     compileOnly("org.projectlombok:lombok:1.18.32")
+
+    // Docker
+    // runtimeOnly("org.springframework.boot:spring-boot-docker-compose")
+
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Document
     // https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-core
