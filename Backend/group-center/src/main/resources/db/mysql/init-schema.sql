@@ -32,6 +32,7 @@ CREATE TABLE group_center.gpu_task_info
     task_finish_time_obj         TIMESTAMP    NOT NULL,
     task_running_time_string     VARCHAR(255) NOT NULL,
     task_running_time_in_seconds INT          NOT NULL,
+    project_directory            VARCHAR(255) NOT NULL,
     project_name                 VARCHAR(255) NOT NULL,
     screen_session_name          VARCHAR(255) NOT NULL,
     py_file_name                 VARCHAR(255) NOT NULL,

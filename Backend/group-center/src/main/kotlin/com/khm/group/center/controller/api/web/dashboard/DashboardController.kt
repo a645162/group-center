@@ -6,13 +6,11 @@ import com.khm.group.center.db.mapper.client.GpuTaskInfoMapper
 import com.khm.group.center.db.model.client.GpuTaskInfoModel
 import io.swagger.v3.oas.annotations.Operation
 import org.jobrunr.scheduling.BackgroundJob
-import org.jobrunr.scheduling.cron.Cron
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
-import java.time.ZoneOffset
 import java.util.*
 
 @RestController

@@ -58,6 +58,7 @@ class GpuTaskInfo {
     var taskRunningTimeString: String = ""
     var taskRunningTimeInSeconds: Int = 0
 
+    var projectDirectory: String = ""
     var projectName: String = ""
     var screenSessionName: String = ""
     var pyFileName: String = ""

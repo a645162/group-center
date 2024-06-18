@@ -76,6 +76,7 @@ class GpuTaskInfoModel {
     var taskRunningTimeString: String = ""
     var taskRunningTimeInSeconds: Int = 0
 
+    var projectDirectory: String = ""
     var projectName: String = ""
     var screenSessionName: String = ""
     var pyFileName: String = ""
@@ -147,6 +148,7 @@ class GpuTaskInfoModel {
         this.taskRunningTimeString = gpuTaskInfo.taskRunningTimeString
         this.taskRunningTimeInSeconds = gpuTaskInfo.taskRunningTimeInSeconds
 
+        this.projectDirectory = gpuTaskInfo.projectDirectory
         this.projectName = gpuTaskInfo.projectName
         this.screenSessionName = gpuTaskInfo.screenSessionName
         this.pyFileName = gpuTaskInfo.pyFileName
