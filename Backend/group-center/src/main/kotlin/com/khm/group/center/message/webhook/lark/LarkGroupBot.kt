@@ -38,7 +38,7 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
         val text: String
     )
 
-    fun sendText(content: String) {
+    fun sendText(content: String): Boolean {
         val finalContent = content.trim()
 
         val timestamp = LarkGroupBotKey.getLarkTimestamp()
@@ -59,12 +59,18 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
                 .build()
 
             client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) throw IOException("Unexpected code $response")
+                if (!response.isSuccessful) {
+                    println("Failed to send lark group bot text for $botId")
+                    return false
+                }
                 println(response.body?.string())
             }
+
+            return true
         } catch (e: Exception) {
+            println("Failed to send lark group bot text for $botId")
             println("Error: $e")
-            return
+            return false
         }
     }
 

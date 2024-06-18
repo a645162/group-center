@@ -17,40 +17,47 @@ class LarkBot(val userId: String) {
         val text: String
     )
 
-    fun sendText(text: String) {
-        // 构建client
-        val client = Client.newBuilder(
-            ConfigEnvironment.LARK_BOT_APP_ID,
-            ConfigEnvironment.LARK_BOT_APP_SECRET
-        ).build()
+    fun sendText(text: String): Boolean {
+        try {
+            // 构建client
+            val client = Client.newBuilder(
+                ConfigEnvironment.LARK_BOT_APP_ID,
+                ConfigEnvironment.LARK_BOT_APP_SECRET
+            ).build()
 
-        val content = Content(text)
-        val jsonContent = JSON.toJSONString(content)
+            val content = Content(text)
+            val jsonContent = JSON.toJSONString(content)
 
-        // 创建请求对象
-        val req = CreateMessageReq.newBuilder()
-            .receiveIdType("user_id")
-            .createMessageReqBody(
-                CreateMessageReqBody.newBuilder()
-                    .receiveId(userId)
-                    .msgType("text")
-                    .content(jsonContent)
-                    .uuid(UUID.randomUUID().toString())
-                    .build()
-            )
-            .build()
+            // 创建请求对象
+            val req = CreateMessageReq.newBuilder()
+                .receiveIdType("user_id")
+                .createMessageReqBody(
+                    CreateMessageReqBody.newBuilder()
+                        .receiveId(userId)
+                        .msgType("text")
+                        .content(jsonContent)
+                        .uuid(UUID.randomUUID().toString())
+                        .build()
+                )
+                .build()
 
-        // 发起请求
-        val resp = client.im().message().create(req)
+            // 发起请求
+            val resp = client.im().message().create(req)
 
-        // 处理服务端错误
-        if (!resp.success()) {
-            println(String.format("code:%s,msg:%s,reqId:%s", resp.code, resp.msg, resp.requestId))
-            return
+            // 处理服务端错误
+            if (!resp.success()) {
+                println(String.format("code:%s,msg:%s,reqId:%s", resp.code, resp.msg, resp.requestId))
+                return false
+            }
+
+            // 业务数据处理
+            println(Jsons.DEFAULT.toJson(resp.data))
+            return true
+        } catch (e: Exception) {
+            println("Failed to send lark personal bot text for $userId")
+            println("Error: $e")
+            return false
         }
-
-        // 业务数据处理
-        println(Jsons.DEFAULT.toJson(resp.data))
     }
 
     suspend fun sendTextWithSilentMode(
