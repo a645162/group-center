@@ -63,14 +63,16 @@ class LarkBot(val userId: String) {
     suspend fun sendTextWithSilentMode(
         text: String,
         silentModeConfig: SilentModeConfig
-    ) {
+    ): Boolean {
         println("Try to async send lark personal bot text with silent mode for $userId")
         while (silentModeConfig.isSilentMode()) {
             // Delay
             delay(ConfigEnvironment.SilentModeWaitTime)
         }
-        sendText(text)
+        val isSuccess = sendText(text)
         println("Sent lark personal bot text with silent mode for $userId")
+
+        return isSuccess
     }
 
     companion object {
