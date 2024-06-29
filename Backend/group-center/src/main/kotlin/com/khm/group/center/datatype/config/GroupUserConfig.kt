@@ -8,7 +8,6 @@ class GroupUserConfig {
     var name: String = ""
     var nameEng: String = ""
     var keywords: List<String> = listOf()
-    var password: String = ""
     var year: Int = 2024
 
     var linuxUser: LinuxUser = LinuxUser()
