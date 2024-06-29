@@ -1,5 +1,6 @@
 package com.khm.group.center.datatype.config
 
+import com.khm.group.center.datatype.config.info.LinuxUser
 import com.khm.group.center.datatype.config.webhook.AllWebHookUser
 
 
@@ -7,7 +8,10 @@ class GroupUserConfig {
     var name: String = ""
     var nameEng: String = ""
     var keywords: List<String> = listOf()
+    var password: String = ""
     var year: Int = 2024
+
+    var linuxUser: LinuxUser = LinuxUser()
 
     var webhook = AllWebHookUser()
 
