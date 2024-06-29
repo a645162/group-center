@@ -63,11 +63,19 @@ class GroupUserConfigParser {
             )
 
             @Serializable
+            data class LinuxUser(
+                val uid: Int,
+                val gid: Int
+            )
+
+            @Serializable
             data class User(
                 val name: String,
                 val nameEng: String,
                 val keywords: List<String>,
+                val password: String,
                 val year: Int,
+                val linuxUser: LinuxUser,
                 val webhook: Webhook
             )
 
@@ -95,7 +103,11 @@ class GroupUserConfigParser {
                 newUserObj.name = currentOriUser.name
                 newUserObj.nameEng = currentOriUser.nameEng
                 newUserObj.keywords = currentOriUser.keywords
+                newUserObj.password = currentOriUser.password
                 newUserObj.year = currentOriUser.year
+
+                newUserObj.linuxUser.uid = currentOriUser.linuxUser.uid
+                newUserObj.linuxUser.gid = currentOriUser.linuxUser.gid
 
                 newUserObj.webhook.silentMode.startTime =
                     currentOriUser.webhook.silentMode.startTime
