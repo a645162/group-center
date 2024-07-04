@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 class MachineListController {
 
     @Operation(summary = "客户端获取服务器列表")
-    @RequestMapping("/api/client/config/user_list", method = [RequestMethod.GET])
+    @RequestMapping("/api/client/config/machine_list", method = [RequestMethod.GET])
     fun machineBaseList(): List<MachineBaseConfig> {
         val machineBaseList = mutableListOf<MachineBaseConfig>()
 
