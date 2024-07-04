@@ -16,7 +16,8 @@ class MachineListController {
         val machineBaseList = mutableListOf<MachineBaseConfig>()
 
         for (machineInfo in MachineConfig.machineList) {
-            val machineBaseObject = machineInfo as MachineBaseConfig
+            val machineBaseObject: MachineBaseConfig =
+                (machineInfo as MachineBaseConfig).copy()
             machineBaseList.add(machineBaseObject)
         }
 
