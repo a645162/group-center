@@ -2,13 +2,19 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 //import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+
 plugins {
-    id("org.springframework.boot") version "3.2.4"
-    id("io.spring.dependency-management") version "1.1.4"
-    kotlin("jvm") version "1.9.23"
-    kotlin("plugin.spring") version "1.9.23"
+    val springBootVersion = "3.3.1"
+
+    id("org.springframework.boot") version springBootVersion
+    id("io.spring.dependency-management") version "1.1.6"
+
+    kotlin("jvm") version "2.0.0"
+    kotlin("plugin.spring") version "2.0.0"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
 }
+
+val springBootVersion = "3.3.1"
 
 group = "com.khm.group"
 version = "0.0.1-SNAPSHOT"
@@ -59,7 +65,7 @@ dependencies {
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
-    implementation("org.springframework.boot:spring-boot-starter-web:3.3.0")
+    implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     implementation("com.alibaba.fastjson2:fastjson2-extension-spring6:2.0.51")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +81,7 @@ dependencies {
 
     // Database Driver
     // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
-    runtimeOnly("com.mysql:mysql-connector-j:8.3.0")
+    runtimeOnly("com.mysql:mysql-connector-j:9.0.0")
 //    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     // https://mvnrepository.com/artifact/com.oceanbase/oceanbase-client
     // runtimeOnly("com.oceanbase:oceanbase-client:2.4.9")
@@ -110,7 +116,7 @@ dependencies {
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
 //    implementation("com.alibaba.fastjson2:fastjson2:2.0.51")
-    implementation("com.alibaba.fastjson2:fastjson2-kotlin:2.0.50")
+    implementation("com.alibaba.fastjson2:fastjson2-kotlin:2.0.51")
 
     // Config File
     implementation("com.akuleshov7:ktoml-core:0.5.1")
@@ -149,11 +155,12 @@ dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Operations and Maintenance
     // Spring Boot Actuator
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools
-    implementation("org.springframework.boot:spring-boot-devtools:3.3.0")
+    implementation("org.springframework.boot:spring-boot-devtools:${springBootVersion}")
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-gradle-plugin
-    implementation("org.springframework.boot:spring-boot-gradle-plugin:3.3.0")
+    implementation("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3")
