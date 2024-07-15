@@ -20,6 +20,8 @@ class ConfigEnvironment {
 
         var CLIENT_ENV_CONFIG_PATH: String = ""
 
+        var USER_FILE_SAVE_PATH: String = ""
+
         // 10min
         var SilentModeWaitTime: Long = 1000 * 60 * 5
 
@@ -124,6 +126,11 @@ class ConfigEnvironment {
             CLIENT_ENV_CONFIG_PATH = getEnvStr(
                 "CLIENT_ENV_CONFIG_PATH",
                 "./Config/Client/ClientEnv.toml"
+            )
+
+            USER_FILE_SAVE_PATH = getEnvStr(
+                "USER_FILE_SAVE_PATH",
+                "./Config/UserFiles"
             )
         }
     }
