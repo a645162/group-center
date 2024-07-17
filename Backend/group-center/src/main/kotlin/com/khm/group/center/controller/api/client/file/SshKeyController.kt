@@ -1,22 +1,29 @@
 package com.khm.group.center.controller.api.client.file
 
-import java.io.File
-
-import io.swagger.v3.oas.annotations.Operation
-
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RequestPart
-import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.multipart.MultipartFile
-
 import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.config.GroupUserConfig
+import io.swagger.v3.oas.annotations.Operation
+import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
+import java.io.File
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
 
 @RestController
 class SshKeyController {
+
+    fun checkUserNameEngIsValid(userNameEng: String): Boolean {
+        return (
+                GroupUserConfig.getUserByNameEng(userNameEng) != null
+                        || userNameEng == "root"
+                )
+    }
 
     @Operation(summary = "用户上传SSH秘钥文件")
     @RequestMapping(
@@ -32,24 +39,64 @@ class SshKeyController {
             val fileName =
                 file.originalFilename ?: return ResponseEntity.badRequest().body("Filename is null.")
 
-            GroupUserConfig.getUserByNameEng(userNameEng) ?: return ResponseEntity.badRequest().body("User not found.")
+            if (!checkUserNameEngIsValid(userNameEng)) {
+                return ResponseEntity.badRequest().body("User not found.")
+            }
 
-            println("User Name: $userNameEng")
-
-            println("File Name: $fileName")
-            println("File Size: ${file.size}")
-
-            // print file content
             val fileContent = file.bytes.toString(Charsets.UTF_8)
 //            println("File Content: $fileContent")
 
             if (fileName == "authorized_keys") {
                 receiveAuthorizedKeys(userNameEng, fileContent)
+            } else if (fileName == "ssh_key_pair.zip") {
+                val userFileDirPath = getUserFileDirectory(userNameEng)
+                val filePath = "$userFileDirPath/$fileName"
+                val dest = File(filePath)
+
+                file.transferTo(dest)
+            } else {
+                return ResponseEntity.badRequest().body("Invalid file name.")
             }
 
             return ResponseEntity.ok("File ($fileName) uploaded successfully.")
         } catch (e: Exception) {
             return ResponseEntity.badRequest().body("Failed to upload file: ${e.message}")
+        }
+    }
+
+    @RequestMapping(path = ["/api/client/file/ssh_key/{filename:.+}"], method = [RequestMethod.GET])
+    @Throws(IOException::class)
+    fun getFile(
+        @PathVariable filename: String,
+        userNameEng: String,
+        response: HttpServletResponse
+    ) {
+        if (!checkUserNameEngIsValid(userNameEng)) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND)
+            return
+        }
+
+        val userFileDirPath = getUserFileDirectory(userNameEng)
+        val file = File("$userFileDirPath/$filename")
+        val path: Path = Paths.get(file.absolutePath)
+
+        if (Files.exists(path)) {
+            if (file.isDirectory) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN)
+                return
+            }
+
+            response.setHeader("Content-Disposition", "attachment; filename=" + file.name)
+            response.setContentLength(file.length().toInt())
+            response.contentType = "application/octet-stream"
+
+            Files.newInputStream(path).use { inputStream ->
+                response.outputStream.use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+        } else {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND)
         }
     }
 
@@ -63,8 +110,6 @@ class SshKeyController {
             userFileDir.mkdirs()
         }
 
-        println("UserFileDirectory:$userFileDir")
-
         return userFileDirPath
     }
 
@@ -75,11 +120,11 @@ class SshKeyController {
 
         // Check Old File is existing
         val file = File(authorizedKeysFilePath)
-        if (file.exists()) {
-            val oldFileContent = file.readText()
-            val oldAuthorizedKeysFile = AuthorizedKeysFile(oldFileContent)
-            authorizedKeysFile.combine(oldAuthorizedKeysFile)
-        }
+//        if (file.exists()) {
+//            val oldFileContent = file.readText()
+//            val oldAuthorizedKeysFile = AuthorizedKeysFile(oldFileContent)
+//            authorizedKeysFile.combine(oldAuthorizedKeysFile)
+//        }
 
         // Write to file
         file.writeText(authorizedKeysFile.build())

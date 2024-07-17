@@ -29,8 +29,8 @@ class AuthorizedKeysFile(var authorizedKeys: String) {
                         }
                         comment += "\n" + newCommentSpilt[newCommentIndex]
                     }
-
-                    authorizedKeysList[currentObjIndex].comment = comment
+                    // println("combine comment: $comment")
+                    authorizedKeysList[currentObjIndex].comment = comment.trim()
                 }
 
                 return
