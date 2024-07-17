@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class Slf4jKt{
-    companion object{
+annotation class Slf4jKt {
+    companion object {
         val <reified T> T.logger: Logger
             inline get() = LoggerFactory.getLogger(T::class.java)
     }
