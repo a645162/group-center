@@ -2,6 +2,7 @@
   <configuration default="false" name="Application-Dev" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <envs>
       <env name="SPRING_PROFILES_ACTIVE" value="dev" />
+      <env name="FILE_ENV_PATH" value="./Config/Program/FileEnv.toml" />
     </envs>
     <module name="group-center.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.khm.group.center.GroupCenterApplication" />

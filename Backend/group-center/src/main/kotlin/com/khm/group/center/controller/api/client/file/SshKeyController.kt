@@ -2,6 +2,8 @@ package com.khm.group.center.controller.api.client.file
 
 import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.config.GroupUserConfig
+import com.khm.group.center.utils.program.Slf4jKt
+import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import io.swagger.v3.oas.annotations.Operation
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.MediaType
@@ -14,7 +16,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
-
+@Slf4jKt
 @RestController
 class SshKeyController {
 
@@ -43,17 +45,16 @@ class SshKeyController {
                 return ResponseEntity.badRequest().body("User not found.")
             }
 
-            val fileContent = file.bytes.toString(Charsets.UTF_8)
-//            println("File Content: $fileContent")
-
+            logger.info("Receive User($userNameEng) FileName($fileName)")
             if (fileName == "authorized_keys") {
+                val fileContent = file.bytes.toString(Charsets.UTF_8)
                 receiveAuthorizedKeys(userNameEng, fileContent)
             } else if (fileName == "ssh_key_pair.zip") {
                 val userFileDirPath = getUserFileDirectory(userNameEng)
-                val filePath = "$userFileDirPath/$fileName"
-                val dest = File(filePath)
+                val destFilePath = "$userFileDirPath/$fileName"
+                val destPaths = Paths.get(destFilePath).toAbsolutePath()
 
-                file.transferTo(dest)
+                file.transferTo(destPaths)
             } else {
                 return ResponseEntity.badRequest().body("Invalid file name.")
             }
