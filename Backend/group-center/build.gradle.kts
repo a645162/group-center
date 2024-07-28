@@ -1,10 +1,11 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 //import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 
 plugins {
-    val springBootVersion = "3.3.1"
+    val springBootVersion = "3.3.2"
 
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.6"
@@ -12,15 +13,46 @@ plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.spring") version "2.0.0"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
+
+    id("com.github.ben-manes.versions") version "0.51.0"
 }
 
-val springBootVersion = "3.3.1"
+val kotlinVersion = "2.0.0"
+
+val springBootVersion = "3.3.2"
+val myBatisVersion = "3.0.3"
 
 group = "com.khm.group"
 version = "0.0.1-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
+}
+
+fun isNonStable(version: String): Boolean {
+    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any {
+        version.uppercase().contains(it)
+    }
+    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+    val isStable = stableKeyword || regex.matches(version)
+    return isStable.not()
+}
+
+allprojects {
+    apply<com.github.benmanes.gradle.versions.VersionsPlugin>()
+
+    tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
+        // configure the task, for example wrt. resolution strategies
+
+        checkForGradleUpdate = true
+        outputFormatter = "json"
+        outputDir = "build/dependencyUpdates"
+        reportfileName = "report"
+
+        rejectVersionIf {
+            isNonStable(candidate.version)
+        }
+    }
 }
 
 // https://developer.aliyun.com/mirror/
@@ -55,26 +87,27 @@ repositories {
 dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Kotlin
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}")
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-gradle-plugin
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.0")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
+    // https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
-    implementation("com.alibaba.fastjson2:fastjson2-extension-spring6:2.0.51")
+    implementation("com.alibaba.fastjson2:fastjson2-extension-spring6:2.0.52")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Database
     // https://mvnrepository.com/artifact/com.alibaba/druid-spring-boot-starter
-    implementation("com.alibaba:druid-spring-boot-starter:1.2.22")
+    implementation("com.alibaba:druid-spring-boot-starter:1.2.23")
 
-    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3")
-    implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.6")
+    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${myBatisVersion}")
+    implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.7")
 
     // https://mvnrepository.com/artifact/com.gitee.sunchenbin.mybatis.actable/mybatis-enhance-actable
 //    implementation("com.gitee.sunchenbin.mybatis.actable:mybatis-enhance-actable:1.5.0.RELEASE")
@@ -89,7 +122,7 @@ dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Task
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr
-    implementation("org.jobrunr:jobrunr:7.2.0")
+    implementation("org.jobrunr:jobrunr:7.2.2")
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-kotlin-1.7-support
     implementation("org.jobrunr:jobrunr-kotlin-1.7-support:7.2.0")
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-spring-boot-starter
@@ -102,27 +135,27 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.tencent.kona/kona-crypto
     // https://github.com/Tencent/TencentKonaSMSuite
-    implementation("com.tencent.kona:kona-crypto:1.0.11")
+    implementation("com.tencent.kona:kona-crypto:1.0.13")
 
     // https://mvnrepository.com/artifact/commons-codec/commons-codec
-    implementation("commons-codec:commons-codec:1.17.0")
+    implementation("commons-codec:commons-codec:1.17.1")
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Message WebHook
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
-    implementation("com.larksuite.oapi:oapi-sdk:2.2.8")
+    implementation("com.larksuite.oapi:oapi-sdk:2.3.0")
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
-//    implementation("com.alibaba.fastjson2:fastjson2:2.0.51")
-    implementation("com.alibaba.fastjson2:fastjson2-kotlin:2.0.51")
+//    implementation("com.alibaba.fastjson2:fastjson2:2.0.52")
+    implementation("com.alibaba.fastjson2:fastjson2-kotlin:2.0.52")
 
     // Config File
     implementation("com.akuleshov7:ktoml-core:0.5.1")
     implementation("com.akuleshov7:ktoml-file:0.5.1")
 
-    implementation("com.charleskorn.kaml:kaml:0.59.0")
+    implementation("com.charleskorn.kaml:kaml:0.60.0")
 
     // File Encoding
     implementation("com.github.albfernandez:juniversalchardet:2.5.0")
@@ -131,7 +164,7 @@ dependencies {
     // Dev Tools
     // Lombok for Java
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    compileOnly("org.projectlombok:lombok:1.18.32")
+    compileOnly("org.projectlombok:lombok:1.18.34")
 
     // Docker
     // runtimeOnly("org.springframework.boot:spring-boot-docker-compose")
@@ -162,8 +195,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 
     // Test
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
+    testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:${myBatisVersion}")
 }
 
 // Output Program Version
