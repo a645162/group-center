@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+  group_center:
+    image: group_center
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 15090:15090
+    networks:
+      network_name:
+        aliases:
+          - GROUP_CENTER_URL
+    restart: always
+    container_name: GroupCenterJdk21
+    depends_on:
+      - db
+    volumes:
+      - ./Config:/usr/local/group-center/Config
+      - ./group-center/src/main/resources/application-docker.yml:/usr/local/group-center/application.yml
+      - ./Data/Log:/usr/local/group-center/logs
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://MYSQL_URL:3306/group_center?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+  db:
+    image: mysql:9
+    ports:
+      - 3306:3306
+    networks:
+      network_name:
+        aliases:
+          - MYSQL_URL
+    restart: always
+    container_name: GroupCenterMySQL
+    privileged: true
+    volumes:
+      - ./Data/Db/MySQL:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: group_center
+      MYSQL_ROOT_PASSWORD: 123456
+
+networks:
+  network_name:
+    driver: bridge
