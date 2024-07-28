@@ -45,7 +45,7 @@ allprojects {
         // configure the task, for example wrt. resolution strategies
 
         checkForGradleUpdate = true
-        outputFormatter = "json"
+        outputFormatter = "txt"
         outputDir = "build/dependencyUpdates"
         reportfileName = "report"
 

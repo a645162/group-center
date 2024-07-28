@@ -1,3 +1,5 @@
+*.jar
+
 /logs/
 HELP.md
 .gradle

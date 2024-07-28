@@ -1,5 +1,8 @@
 rootProject.name = "group-center"
 
+// https://www.cnblogs.com/bluestorm/p/14761482.html
+// https://blog.csdn.net/weixin_47879762/article/details/132979766
+
 pluginManagement {
     repositories {
         // 改为阿里云的镜像地址
