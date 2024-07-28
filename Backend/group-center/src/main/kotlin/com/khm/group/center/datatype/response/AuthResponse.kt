@@ -8,5 +8,6 @@ class AuthResponse {
     var haveError: Boolean = false
     var result: String = ""
     var accessKey: String = ""
+    var ipAddress: String = ""
     var serverVersion = ProgramInfo.getVersion()
 }

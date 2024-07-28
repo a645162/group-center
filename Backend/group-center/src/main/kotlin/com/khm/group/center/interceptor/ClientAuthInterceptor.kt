@@ -68,6 +68,7 @@ class ClientAuthInterceptor : HandlerInterceptor {
         errorResponse.isAuthenticated = false
         errorResponse.isSucceed = false
         errorResponse.haveError = true
+        errorResponse.ipAddress = ipAddress
 
         val jsonString = JSON.toJSONString(errorResponse)
         response.status = HttpServletResponse.SC_UNAUTHORIZED

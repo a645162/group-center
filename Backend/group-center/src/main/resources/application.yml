@@ -14,9 +14,11 @@ spring:
 
   sql:
     init:
-      schema-locations: classpath:db/mysql/init-schema.sql
+      encoding: UTF-8
+      schema-locations: classpath*:db/mysql/init-schema.sql
+      continue-on-error: false
       mode: always
-#      data-locations: classpath:db/mysql/init-data.sql
+#      data-locations: classpath*:db/mysql/init-data.sql
 
 logging:
   file:

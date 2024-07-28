@@ -20,6 +20,7 @@ class MonitorClientAuthController {
         val ipAddress = Ip.getControllerRemoteIp()
         val machineConfig = MachineConfig.getMachineByNameEng(userName)
         val response = AuthResponse()
+        response.ipAddress = ipAddress
 
         if (machineConfig == null) {
             response.isAuthenticated = false

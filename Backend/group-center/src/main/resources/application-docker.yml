@@ -10,7 +10,10 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
   sql:
     init:
-      schema-locations: classpath:db/mysql/init-schema.sql
+      encoding: UTF-8
+      schema-locations: classpath*:db/mysql/init-schema.sql
+      continue-on-error: false
+      mode: always
 
 logging:
   file:
