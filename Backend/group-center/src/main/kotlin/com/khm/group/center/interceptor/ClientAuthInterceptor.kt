@@ -2,6 +2,7 @@ package com.khm.group.center.interceptor
 
 import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONObject
+import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.response.AuthResponse
 import com.khm.group.center.security.program.ClientAccessKey
 import com.khm.group.center.security.program.ClientIpWhiteList
@@ -17,15 +18,19 @@ class ClientAuthInterceptor : HandlerInterceptor {
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         val ipAddress = request.remoteAddr
         // println("Auth Interceptor Client IP: $ipAddress")
-        if (
-            ipAddress == "127.0.0.1" ||
-            ipAddress == "0:0:0:0:0:0:0:1"
-        ) {
-            // Local Host
-            return true
-        }
-        if (ClientIpWhiteList.checkIpIsInWhiteList(ipAddress)) {
-            return true
+
+        if (ConfigEnvironment.MACHINE_AUTH_REMEMBER_IP) {
+            // Machine Auth Remember IP
+            if (
+                ipAddress == "127.0.0.1" ||
+                ipAddress == "0:0:0:0:0:0:0:1"
+            ) {
+                // Local Host
+                return true
+            }
+            if (ClientIpWhiteList.checkIpIsInWhiteList(ipAddress)) {
+                return true
+            }
         }
 
         var errorText = "Unknown Auth Error."

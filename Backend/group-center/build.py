@@ -5,14 +5,16 @@ target_path = "./group-center-docker.jar"
 jar_dir = "./build/libs"
 
 
-def do_command(command: str):
+def do_command(command: str) -> bool:
     # Check is Windows
     if os.name == "nt":
         while "/" in command:
             command = command.replace("/", "\\")
 
     print(f"Running command: {command}")
-    os.system(command)
+    ret = os.system(command)
+
+    return ret == 0
 
 
 def get_jar_path() -> str:
@@ -34,7 +36,9 @@ def main():
 
     os.mkdir(jar_dir)
 
-    do_command("./gradlew bootJar")
+    if not do_command("./gradlew bootJar"):
+        print("Build failed!!!")
+        exit(1)
 
     jar_path = get_jar_path()
     if jar_path == "":

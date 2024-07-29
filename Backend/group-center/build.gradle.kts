@@ -129,7 +129,10 @@ dependencies {
     implementation("org.jobrunr:jobrunr-spring-boot-starter:5.3.3")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
-    // Crypto
+    // Security and Crypto
+
+    // implementation("org.springframework.boot:spring-boot-starter-security:${springBootVersion}")
+
     // https://mvnrepository.com/artifact/com.auth0/java-jwt
 //    implementation("com.auth0:java-jwt:4.4.0")
 
@@ -189,6 +192,8 @@ dependencies {
     // Operations and Maintenance
     // Spring Boot Actuator
     implementation("org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}")
+    implementation("org.springframework.boot:spring-boot-actuator-autoconfigure:${springBootVersion}")
+
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools
     implementation("org.springframework.boot:spring-boot-devtools:${springBootVersion}")
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-gradle-plugin

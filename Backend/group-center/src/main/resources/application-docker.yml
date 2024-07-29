@@ -2,6 +2,10 @@ server:
   port: 15090
 
 spring:
+  #  security:
+  #    user:
+  #      name: admin
+  #      password: 123456
   datasource:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
@@ -12,7 +16,7 @@ spring:
     init:
       encoding: UTF-8
       schema-locations: classpath*:db/mysql/init-schema.sql
-      continue-on-error: false
+      continue-on-error: true
       mode: always
 
 logging:

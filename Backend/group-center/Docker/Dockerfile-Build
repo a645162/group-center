@@ -1,0 +1,18 @@
+# https://hub.docker.com/r/alibabadragonwell/dragonwell
+#FROM alibabadragonwell/dragonwell:21-ubuntu
+#FROM alibabadragonwell/dragonwell:21-anolis
+
+FROM dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-anolis
+
+# https://github-wiki-see.page/m/dragonwell-project/dragonwell21/wiki/Use-Dragonwell-21-docker-images
+# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21
+# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-anolis
+# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-standard-ga-anolis
+# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21.0.1.0.1.12-standard-ga-anolis
+
+MAINTAINER Haomin Kong
+
+ENV BASE_PATH="/usr/local/group-center"
+ENV RUN_IN_DOCKER=True
+
+WORKDIR "$BASE_PATH"

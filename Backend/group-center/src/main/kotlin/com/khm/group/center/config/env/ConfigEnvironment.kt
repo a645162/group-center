@@ -15,6 +15,9 @@ class ConfigEnvironment {
 
         var PASSWORD_JWT: String = ""
 
+        var MACHINE_AUTH_REMEMBER_IP: Boolean = false
+        var RUN_IN_DOCKER: Boolean = false
+
         var LARK_BOT_APP_ID: String = ""
         var LARK_BOT_APP_SECRET: String = ""
 
@@ -42,6 +45,15 @@ class ConfigEnvironment {
             try {
                 return strValue.toInt()
             } catch (e: NumberFormatException) {
+                return defaultValue
+            }
+        }
+
+        fun getEnvBool(key: String, defaultValue: Boolean = false): Boolean {
+            val envString = getEnvStr(key, "True")
+            try {
+                return envString.trim().uppercase() == "TRUE"
+            } catch (e: Exception) {
                 return defaultValue
             }
         }
@@ -132,6 +144,15 @@ class ConfigEnvironment {
                 "USER_FILE_SAVE_PATH",
                 "./Config/UserFiles"
             )
+
+            RUN_IN_DOCKER = getEnvBool(
+                "RUN_IN_DOCKER",
+                false
+            )
+            MACHINE_AUTH_REMEMBER_IP = getEnvBool(
+                "MACHINE_AUTH_REMEMBER_IP",
+                true
+            ) && (!RUN_IN_DOCKER)
         }
     }
 

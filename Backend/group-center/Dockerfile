@@ -1,13 +1,26 @@
-FROM alibabadragonwell/dragonwell:21-ubuntu
+# https://hub.docker.com/r/alibabadragonwell/dragonwell
+#FROM alibabadragonwell/dragonwell:21-ubuntu
+#FROM alibabadragonwell/dragonwell:21-anolis
+
+FROM dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-anolis
+
+# https://github-wiki-see.page/m/dragonwell-project/dragonwell21/wiki/Use-Dragonwell-21-docker-images
+# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21
+# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-anolis
+# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-standard-ga-anolis
+# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21.0.1.0.1.12-standard-ga-anolis
+
 MAINTAINER Haomin Kong
 
-RUN cp -a /etc/apt/sources.list /etc/apt/sources.list.bak \
-    && sed -i "s@http://.*archive.ubuntu.com@http://mirrors.huaweicloud.com@g" /etc/apt/sources.list \
-    && sed -i "s@http://.*security.ubuntu.com@http://mirrors.huaweicloud.com@g" /etc/apt/sources.list \
-    && apt update \
-    && apt upgrade -y \
-    && apt install -y net-tools \
-    && apt clean
+# Install Software
+RUN    yum update -y \
+    && yum install -y tzdata net-tools \
+    && yum clean all
+
+# Set the timezone
+ENV TZ=Asia/Shanghai
+RUN    ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
+    && echo ${TZ} > /etc/timezone
 
 LABEL AUTHOR="Haomin Kong" VERSION=1.0.0
 
@@ -25,14 +38,19 @@ COPY Scripts/ $BASE_PATH/Scripts/
 
 # Copy Files
 COPY group-center-docker.jar $BASE_PATH/group-center-docker.jar
+COPY src/main/resources/application-docker.yml $BASE_PATH/application.yml
 COPY docker.start.sh $BASE_PATH/docker.start.sh
 
 RUN    sed -i 's/\r$//' $BASE_PATH/*.sh \
     && sed -i 's/\r$//' $BASE_PATH/Scripts/*.sh \
-    && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-    && echo Haomin Kong >> /docker_author \
-    && echo "Asia/Shanghai" > /etc/timezone \
     && chmod +x "$BASE_PATH/docker.start.sh"
+
+HEALTHCHECK \
+    --interval=10s \
+    --timeout=3s \
+    --start-period=30s \
+    --retries=1 \
+    CMD /bin/netstat -anpt|grep 15090
 
 ENTRYPOINT ["/usr/local/group-center/docker.start.sh"]
 
