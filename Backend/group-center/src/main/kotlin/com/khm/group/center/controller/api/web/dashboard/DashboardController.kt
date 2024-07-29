@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper
 import com.khm.group.center.datatype.response.ClientResponse
 import com.khm.group.center.db.mapper.client.GpuTaskInfoMapper
 import com.khm.group.center.db.model.client.GpuTaskInfoModel
+import com.khm.group.center.db.query.GpuTaskQuery
+import com.khm.group.center.db.query.TimePeriod
 import io.swagger.v3.oas.annotations.Operation
 import org.jobrunr.scheduling.BackgroundJob
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,29 +19,7 @@ import java.util.*
 class DashboardController {
 
     @Autowired
-    lateinit var gpuTaskInfoMapper: GpuTaskInfoMapper
-
-    fun queryRecentOneMonthTasks(): List<GpuTaskInfoModel> {
-        // 获取当前时间
-        val currentTime = Date()
-        // 计算一个月前的时间
-        val oneMonthAgo = getOneMonthAgoDate(currentTime).time / 1000
-
-        // 创建查询条件
-        val queryWrapper = QueryWrapper<GpuTaskInfoModel>()
-        // 查询 taskStartTime >= oneMonthAgo 的记录
-        queryWrapper.ge("task_start_time", oneMonthAgo)
-
-        // 执行查询
-        return gpuTaskInfoMapper.selectList(queryWrapper)
-    }
-
-    private fun getOneMonthAgoDate(currentTime: Date): Date {
-        val calendar = Calendar.getInstance()
-        calendar.time = currentTime
-        calendar.add(Calendar.MONTH, -1)
-        return calendar.time
-    }
+    lateinit var gpuTaskQuery: GpuTaskQuery
 
     @RequestMapping("/web/dashboard/usage/test", method = [RequestMethod.GET])
     fun test(): String {
@@ -60,7 +40,7 @@ class DashboardController {
     @RequestMapping("/web/dashboard/usage/update", method = [RequestMethod.GET])
     fun gpuTaskInfo(): ClientResponse {
 
-        val re = queryRecentOneMonthTasks()
+        val re = gpuTaskQuery.queryTasks(TimePeriod.ONE_WEEK)
 
         val result = ClientResponse()
         result.result = "success"

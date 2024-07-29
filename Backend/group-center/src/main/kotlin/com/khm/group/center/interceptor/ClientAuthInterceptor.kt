@@ -36,6 +36,7 @@ class ClientAuthInterceptor : HandlerInterceptor {
         /*
         // May cause IO Stream was used by Interceptor
         // So that Controller may not get the InputStream
+        // https://blog.csdn.net/a704397849/article/details/97267572
         if (request.method == "POST") {
             val json = request.inputStream.bufferedReader().use { it.readText() }
             val jsonObject = JSON.parseObject(json) as JSONObject

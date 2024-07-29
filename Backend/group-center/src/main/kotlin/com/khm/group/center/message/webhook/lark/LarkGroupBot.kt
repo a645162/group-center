@@ -63,7 +63,7 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
                     println("Failed to send lark group bot text for $botId")
                     return false
                 }
-                println(response.body?.string())
+                println(response.body.string())
             }
 
             return true

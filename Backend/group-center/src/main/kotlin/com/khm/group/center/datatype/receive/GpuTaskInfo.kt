@@ -7,8 +7,6 @@ class GpuTaskInfo {
     var serverName: String = ""
     var serverNameEng: String = ""
 
-    var accessKey: String = ""
-
     var taskId: String = ""
 
     var messageType: String = ""
