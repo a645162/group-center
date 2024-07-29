@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation
 import com.khm.group.center.datatype.receive.MachineUserMessage
 import com.khm.group.center.datatype.response.ClientResponse
 import com.khm.group.center.message.webhook.lark.LarkBot
+import jakarta.validation.Valid
 import kotlinx.coroutines.*
 
 @RestController
@@ -20,12 +21,11 @@ class UserMessageController {
 
     @Operation(summary = "机器上的用户自定义消息")
     @RequestMapping("/api/client/user/message", method = [RequestMethod.POST])
-    fun machineUserMessage(@RequestBody machineUserMessage: MachineUserMessage): ClientResponse {
+    fun machineUserMessage(@Valid @RequestBody machineUserMessage: MachineUserMessage): ClientResponse {
         val responseObj = ClientResponse()
         responseObj.result = "error"
         responseObj.isSucceed = false
         responseObj.isAuthenticated = true
-
 
         var userObj =
             GroupUserConfig.getUserByNameEng(machineUserMessage.userName)

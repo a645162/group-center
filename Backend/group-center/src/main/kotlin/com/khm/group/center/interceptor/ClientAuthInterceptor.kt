@@ -33,8 +33,9 @@ class ClientAuthInterceptor : HandlerInterceptor {
             }
         }
 
-        var errorText = "Unknown Auth Error."
-
+        /*
+        // May cause IO Stream was used by Interceptor
+        // So that Controller may not get the InputStream
         if (request.method == "POST") {
             val json = request.inputStream.bufferedReader().use { it.readText() }
             val jsonObject = JSON.parseObject(json) as JSONObject
@@ -52,21 +53,23 @@ class ClientAuthInterceptor : HandlerInterceptor {
             } else {
                 "AccessKey does not exist in the JSON payload."
             }
-        } else if (request.method == "GET") {
-            val accessKeyValue = request.getParameter("accessKey")
+        }*/
 
-            errorText = if (accessKeyValue != null) {
-                val accessKeyObj = ClientAccessKey(accessKeyValue)
-                if (accessKeyObj.isValid()) {
-                    ClientIpWhiteList.addIpToWhiteList(ipAddress)
-                    return true
-                } else {
-                    "AccessKey is not valid."
-                }
+        val accessKeyValue = request.getParameter("accessKey")
+
+        val errorText = if (accessKeyValue != null) {
+            val accessKeyObj = ClientAccessKey(accessKeyValue)
+            if (accessKeyObj.isValid()) {
+                ClientIpWhiteList.addIpToWhiteList(ipAddress)
+                return true
             } else {
-                "AccessKey does not exist in the GET request."
+                "AccessKey is not valid."
             }
+        } else {
+            "AccessKey does not exist in the GET request."
         }
+
+        // println("Auth Interceptor Client IP: $ipAddress, Error: $errorText")
 
         val errorResponse = AuthResponse()
         errorResponse.result = errorText

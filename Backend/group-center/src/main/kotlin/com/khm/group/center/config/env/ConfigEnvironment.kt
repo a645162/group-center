@@ -15,7 +15,7 @@ class ConfigEnvironment {
 
         var PASSWORD_JWT: String = ""
 
-        var MACHINE_AUTH_REMEMBER_IP: Boolean = false
+        var MACHINE_AUTH_REMEMBER_IP: Boolean = true
         var RUN_IN_DOCKER: Boolean = false
 
         var LARK_BOT_APP_ID: String = ""
@@ -50,11 +50,14 @@ class ConfigEnvironment {
         }
 
         fun getEnvBool(key: String, defaultValue: Boolean = false): Boolean {
-            val envString = getEnvStr(key, "True")
-            try {
-                return envString.trim().uppercase() == "TRUE"
+            val envString = getEnvStr(key, "")
+
+            if (envString.isEmpty()) return defaultValue
+
+            return try {
+                envString.trim().uppercase() == "TRUE"
             } catch (e: Exception) {
-                return defaultValue
+                defaultValue
             }
         }
 
@@ -147,12 +150,22 @@ class ConfigEnvironment {
 
             RUN_IN_DOCKER = getEnvBool(
                 "RUN_IN_DOCKER",
-                false
+                RUN_IN_DOCKER
             )
+            if (RUN_IN_DOCKER) {
+                println("Run in Docker")
+            } else {
+                println("Run in Machine")
+            }
             MACHINE_AUTH_REMEMBER_IP = getEnvBool(
                 "MACHINE_AUTH_REMEMBER_IP",
-                true
+                MACHINE_AUTH_REMEMBER_IP
             ) && (!RUN_IN_DOCKER)
+            if (MACHINE_AUTH_REMEMBER_IP) {
+                println("Machine Auth Remember IP is Enabled")
+            } else {
+                println("Machine Auth Remember IP is Disabled")
+            }
         }
     }
 
