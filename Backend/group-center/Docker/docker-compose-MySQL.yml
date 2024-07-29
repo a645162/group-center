@@ -3,7 +3,7 @@ services:
     image: mysql:9
     ports:
       - 3306:3306
-    networks: bridge
+    network_mode: bridge
     restart: always
     container_name: GroupCenterMySQLSingle
     privileged: true

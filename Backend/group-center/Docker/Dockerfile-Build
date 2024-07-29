@@ -10,9 +10,15 @@ FROM dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-an
 # dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-standard-ga-anolis
 # dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21.0.1.0.1.12-standard-ga-anolis
 
-MAINTAINER Haomin Kong
+# MAINTAINER Haomin Kong
+LABEL maintainer="Haomin Kong"
 
 ENV BASE_PATH="/usr/local/group-center"
 ENV RUN_IN_DOCKER=True
 
 WORKDIR "$BASE_PATH"
+
+RUN    yum update -y \
+    && yum install -y git python3 python3-pip
+
+ENTRYPOINT ["python3", "/usr/local/group-center/build.py"]

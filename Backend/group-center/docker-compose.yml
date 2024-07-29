@@ -18,25 +18,19 @@ services:
         condition: service_healthy
     links:
       - db
-#    healthcheck:
-#      test: "/bin/netstat -anpt|grep 15090"
-#      interval: 10s
-#      start_period: 30s
-#      timeout: 3s
-#      retries: 1
     volumes:
       - ./Config:/usr/local/group-center/Config
       # - ./src/main/resources/application-docker.yml:/usr/local/group-center/application.yml
       - ./Data/Log:/usr/local/group-center/logs
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/group_center?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_HOST: db:3306
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 123456
 
   db:
     image: mysql:9
     ports:
-      - 3306:3306
+      - 15096:3306
     networks:
       group-center-network:
         aliases:

@@ -10,7 +10,8 @@ FROM dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-an
 # dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-standard-ga-anolis
 # dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21.0.1.0.1.12-standard-ga-anolis
 
-MAINTAINER Haomin Kong
+# MAINTAINER Haomin Kong
+LABEL maintainer="Haomin Kong"
 
 # Install Software
 RUN    yum update -y \

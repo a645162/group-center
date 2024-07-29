@@ -3,6 +3,14 @@ import shutil
 
 target_path = "./group-center-docker.jar"
 jar_dir = "./build/libs"
+cache_dir_list = ["./build", "./.gradle"]
+
+target_path = os.path.abspath(target_path)
+jar_dir = os.path.abspath(jar_dir)
+cache_dir_list = [
+    os.path.abspath(path)
+    for path in cache_dir_list
+]
 
 
 def do_command(command: str) -> bool:
@@ -29,14 +37,18 @@ def get_jar_path() -> str:
 
 
 def main():
-    if os.path.exists(target_path):
-        os.remove(target_path)
     if os.path.exists(jar_dir):
         shutil.rmtree(jar_dir)
+    for cache_dir in cache_dir_list:
+        if os.path.exists(cache_dir):
+            shutil.rmtree(cache_dir)
 
-    os.mkdir(jar_dir)
+    os.makedirs(jar_dir)
 
-    if not do_command("./gradlew bootJar"):
+    if os.name != "nt":
+        do_command("chmod +x ./gradlew")
+
+    if not do_command("./gradlew --info bootJar"):
         print("Build failed!!!")
         exit(1)
 
@@ -44,6 +56,10 @@ def main():
     if jar_path == "":
         print("Jar not found")
         return
+
+    # Remove Old
+    if os.path.exists(target_path):
+        os.remove(target_path)
 
     # Copy to ./group-center-docker.jar
     shutil.copy(jar_path, target_path)
