@@ -158,7 +158,7 @@ dependencies {
     implementation("com.akuleshov7:ktoml-core:0.5.1")
     implementation("com.akuleshov7:ktoml-file:0.5.1")
 
-    implementation("com.charleskorn.kaml:kaml:0.60.0")
+    implementation("com.charleskorn.kaml:kaml:0.61.0")
 
     // File Encoding
     implementation("com.github.albfernandez:juniversalchardet:2.5.0")

@@ -27,6 +27,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 123456
 
+  # Here should be the same as SPRING_DATASOURCE_HOST
   db:
     image: mysql:9
     ports:
@@ -46,6 +47,7 @@ services:
       retries: 10
     volumes:
       - ./Data/Db/MySQL:/var/lib/mysql
+      - ./Data/Db/Backup:/usr/local/backup
     environment:
       MYSQL_DATABASE: group_center
       MYSQL_ROOT_PASSWORD: 123456

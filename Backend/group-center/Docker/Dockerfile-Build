@@ -21,4 +21,4 @@ WORKDIR "$BASE_PATH"
 RUN    yum update -y \
     && yum install -y git python3 python3-pip
 
-ENTRYPOINT ["python3", "/usr/local/group-center/build.py"]
+ENTRYPOINT ["python3", "/usr/local/group-center/build.py", "--clean-cache"]

@@ -1,5 +1,6 @@
 import os
 import shutil
+import argparse
 
 target_path = "./group-center-docker.jar"
 jar_dir = "./build/libs"
@@ -11,6 +12,18 @@ cache_dir_list = [
     os.path.abspath(path)
     for path in cache_dir_list
 ]
+
+
+def get_options():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--clean-cache",
+        help="Clean Cache directory",
+        action="store_true"
+    )
+
+    return parser.parse_args()
 
 
 def do_command(command: str) -> bool:
@@ -37,11 +50,16 @@ def get_jar_path() -> str:
 
 
 def main():
+    opt = get_options()
+
     if os.path.exists(jar_dir):
         shutil.rmtree(jar_dir)
-    for cache_dir in cache_dir_list:
-        if os.path.exists(cache_dir):
-            shutil.rmtree(cache_dir)
+
+    if opt.clean_cache:
+        print("Cleaning Cache")
+        for cache_dir in cache_dir_list:
+            if os.path.exists(cache_dir):
+                shutil.rmtree(cache_dir)
 
     os.makedirs(jar_dir)
 
@@ -51,6 +69,12 @@ def main():
     if not do_command("./gradlew --info bootJar"):
         print("Build failed!!!")
         exit(1)
+
+    if opt.clean_cache:
+        print("Cleaning Cache")
+        for cache_dir in cache_dir_list:
+            if os.path.exists(cache_dir):
+                shutil.rmtree(cache_dir)
 
     jar_path = get_jar_path()
     if jar_path == "":
