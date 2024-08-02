@@ -9,15 +9,4 @@ class GpuTaskAnalyse {
     @Autowired
     lateinit var gpuTaskQuery: GpuTaskQuery
 
-    /*
-    * 机器视角
-    * 机器使用时间占比
-    *
-    * */
-
-    /*
-    * 单个用户视角
-    * 每个机器的使用时间占比(每个机器/总时间)
-    * */
-
 }

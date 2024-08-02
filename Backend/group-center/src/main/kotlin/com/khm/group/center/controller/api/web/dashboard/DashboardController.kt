@@ -1,11 +1,8 @@
 package com.khm.group.center.controller.api.web.dashboard
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper
 import com.khm.group.center.datatype.response.ClientResponse
-import com.khm.group.center.db.mapper.client.GpuTaskInfoMapper
-import com.khm.group.center.db.model.client.GpuTaskInfoModel
 import com.khm.group.center.db.query.GpuTaskQuery
-import com.khm.group.center.db.query.TimePeriod
+import com.khm.group.center.utils.time.TimePeriod
 import io.swagger.v3.oas.annotations.Operation
 import org.jobrunr.scheduling.BackgroundJob
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
-import java.util.*
 
 @RestController
 class DashboardController {

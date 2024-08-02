@@ -1,6 +1,5 @@
-package com.khm.group.center.db.query
+package com.khm.group.center.utils.time
 
-import com.khm.group.center.utils.time.TimeAgo
 import java.util.*
 
 enum class TimePeriod {
@@ -36,5 +35,9 @@ enum class TimePeriod {
             THREE_YEAR -> TimeAgo.getThreeYearAgoDate(finalCurrentTime)
             ALL -> Date(0)
         }
+    }
+
+    fun getAgoTimestamp(currentTime: Date?): Long {
+        return getAgoTime(currentTime).time
     }
 }
