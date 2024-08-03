@@ -1,6 +1,7 @@
 package com.khm.group.center.utils.time
 
 import java.util.*
+import kotlin.time.times
 
 enum class TimePeriod {
     ONE_WEEK,
@@ -39,5 +40,22 @@ enum class TimePeriod {
 
     fun getAgoTimestamp(currentTime: Date?): Long {
         return getAgoTime(currentTime).time
+    }
+
+    fun getHours(): Int {
+        val timePeriod = this
+
+        return when (timePeriod) {
+            ONE_WEEK -> 24 * 7
+            ONE_MONTH -> 24 * 30
+            SIX_MONTH -> 24 * 30 * 6
+            ONE_YEAR -> 24 * 365
+            THREE_YEAR -> 24 * 365 * 3
+            ALL -> 0
+        }
+    }
+
+    fun getMinutes(): Long {
+        return (getHours() as Long) * 60
     }
 }
