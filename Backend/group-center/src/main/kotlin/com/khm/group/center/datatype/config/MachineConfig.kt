@@ -1,11 +1,25 @@
 package com.khm.group.center.datatype.config
 
 import com.khm.group.center.datatype.config.webhook.AllWebHookServer
+import com.khm.group.center.datatype.response.FrontEndMachine
 
 class MachineConfig : MachineBaseConfig() {
+    var apiUrl: String = ""
+    var apiKeyWords: List<String> = listOf()
+
     var password: String = ""
 
     var webhook: AllWebHookServer = AllWebHookServer()
+
+    fun toFrontEndMachine(): FrontEndMachine {
+        val frontEndMachine = FrontEndMachine(
+            machineName = name,
+            machineUrl = apiUrl,
+            urlKeywords = apiKeyWords
+        )
+
+        return frontEndMachine
+    }
 
     companion object {
         var machineList: List<MachineConfig> = listOf()
