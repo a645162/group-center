@@ -17,13 +17,14 @@ plugins {
     id("com.github.ben-manes.versions") version "0.51.0"
 }
 
-val kotlinVersion = "2.0.0"
+val kotlinVersion = "2.0.20-RC"
+val kotlinVersionPrevious = "2.0.10-RC2"
 
 val springBootVersion = "3.3.2"
 val myBatisVersion = "3.0.3"
 
 group = "com.khm.group"
-version = "1.0.0-SNAPSHOT"
+version = "1.0.1-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -87,9 +88,11 @@ repositories {
 dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Kotlin
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib
     implementation("org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}")
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-gradle-plugin
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
     // https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC")
@@ -122,7 +125,7 @@ dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Task
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr
-    implementation("org.jobrunr:jobrunr:7.2.2")
+    implementation("org.jobrunr:jobrunr:7.2.3")
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-kotlin-1.7-support
     implementation("org.jobrunr:jobrunr-kotlin-1.7-support:7.2.0")
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-spring-boot-starter
@@ -155,8 +158,8 @@ dependencies {
     implementation("com.alibaba.fastjson2:fastjson2-kotlin:2.0.52")
 
     // Config File
-    implementation("com.akuleshov7:ktoml-core:0.5.1")
-    implementation("com.akuleshov7:ktoml-file:0.5.1")
+    implementation("com.akuleshov7:ktoml-core:0.5.2")
+    implementation("com.akuleshov7:ktoml-file:0.5.2")
 
     implementation("com.charleskorn.kaml:kaml:0.61.0")
 
