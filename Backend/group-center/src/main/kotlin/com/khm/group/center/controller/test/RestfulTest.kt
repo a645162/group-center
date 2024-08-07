@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RestController
 class RestfulTest {
 
     @Operation(summary = "Get Test")
-    @RequestMapping("/test/get", method = [RequestMethod.GET])
+    @RequestMapping("/test", method = [RequestMethod.GET])
     fun getTest(): String {
         return "Get Test"
     }
 
     @Operation(summary = "Post Test")
-    @RequestMapping("/test/post", method = [RequestMethod.POST])
+    @RequestMapping("/test", method = [RequestMethod.POST])
     fun postTest(@RequestBody body: MyRequestBody): String {
         return "Post Test: ${body.property1}, ${body.property2}"
     }

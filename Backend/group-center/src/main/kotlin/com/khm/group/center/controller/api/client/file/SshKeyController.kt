@@ -33,7 +33,7 @@ class SshKeyController {
         method = [RequestMethod.POST],
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
     )
-    fun sshFileUpload(
+    fun postSshFileUpload(
         @RequestPart("file") file: MultipartFile,
         userNameEng: String
     ): ResponseEntity<String> {
@@ -67,7 +67,7 @@ class SshKeyController {
 
     @RequestMapping(path = ["/api/client/file/ssh_key/{filename:.+}"], method = [RequestMethod.GET])
     @Throws(IOException::class)
-    fun getFile(
+    fun getSshKeyFile(
         @PathVariable filename: String,
         userNameEng: String,
         response: HttpServletResponse

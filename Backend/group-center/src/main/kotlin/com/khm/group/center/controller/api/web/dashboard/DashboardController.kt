@@ -17,26 +17,21 @@ class DashboardController {
     @Autowired
     lateinit var gpuTaskQuery: GpuTaskQuery
 
-    @RequestMapping("/web/dashboard/usage/test", method = [RequestMethod.GET])
-    fun test(): String {
-        BackgroundJob.enqueue({
-            println("Current Time: ${Instant.now()}")
-        })
+    @Operation(summary = "更新面板")
+    @RequestMapping("/web/dashboard/usage/update", method = [RequestMethod.GET])
+    fun gpuTaskInfo(): ClientResponse {
+
+        val re = gpuTaskQuery.queryTasks(TimePeriod.ONE_WEEK)
+
+        //        BackgroundJob.enqueue({
+//            println("Current Time: ${Instant.now()}")
+//        })
 //        BackgroundJob.schedule(Instant.now()) {
 //            // Print Current Time(Formated)
 //            println("Current Time: ${Instant.now()}")
 //        }
 //        BackgroundJob.schedule<EmailService>(Instant.now(), x -> x.sendNewlyRegisteredEmail());
 //        BackgroundJob.scheduleRecurrently(Cron.every15seconds()) { println("Easy!") }
-        println("ok")
-        return "ok"
-    }
-
-    @Operation(summary = "更新面板")
-    @RequestMapping("/web/dashboard/usage/update", method = [RequestMethod.GET])
-    fun gpuTaskInfo(): ClientResponse {
-
-        val re = gpuTaskQuery.queryTasks(TimePeriod.ONE_WEEK)
 
         val result = ClientResponse()
         result.result = "success"

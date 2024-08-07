@@ -42,7 +42,7 @@ class GpuTaskController {
 
     @Operation(summary = "GPU任务变动")
     @RequestMapping("/api/client/gpu_task/info", method = [RequestMethod.POST])
-    fun gpuTaskInfo(@RequestBody gpuTaskInfo: GpuTaskInfo): ClientResponse {
+    fun postGpuTaskInfo(@RequestBody gpuTaskInfo: GpuTaskInfo): ClientResponse {
         newGpuTaskInfo(gpuTaskInfo)
 
         // Notify
