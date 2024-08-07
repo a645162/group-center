@@ -29,11 +29,11 @@ class ProjectSummary(
     override fun equals(other: Any?): Boolean {
         // Check other is ProjectSummary
         if (other is ProjectSummary)
-            return projectName == (other as ProjectSummary).projectName
+            return projectName == other.projectName
 
         // Check other is TaskSummary
         if (other is TaskSummary)
-            return projectName == (other as TaskSummary).projectName
+            return projectName == other.projectName
 
         return false
     }

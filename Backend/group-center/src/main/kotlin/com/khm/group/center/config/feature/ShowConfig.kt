@@ -29,6 +29,7 @@ class ShowConfig {
                 println("Machine: ${machine.name}")
                 println("  NameEng: ${machine.nameEng}")
                 println("  Host: ${machine.host}")
+                println("  Position: ${machine.position}")
             }
 
             println()

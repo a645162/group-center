@@ -70,6 +70,8 @@ class MachineConfigParser {
 
                 val password: String,
 
+                val position: String,
+
                 val webhook: Webhook
             )
 
@@ -100,6 +102,8 @@ class MachineConfigParser {
                 newMachineObj.apiUrl = currentOriMachine.apiUrl
                 newMachineObj.apiKeyWords = currentOriMachine.apiKeyWords
                 newMachineObj.password = currentOriMachine.password
+
+                newMachineObj.position = currentOriMachine.position
 
                 newMachineObj.webhook.silentMode.startTime = currentOriMachine.webhook.silentMode.startTime
                 newMachineObj.webhook.silentMode.endTime = currentOriMachine.webhook.silentMode.endTime

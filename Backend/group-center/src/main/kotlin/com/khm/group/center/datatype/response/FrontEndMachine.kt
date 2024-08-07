@@ -4,4 +4,5 @@ data class FrontEndMachine(
     val machineName: String,
     val machineUrl: String,
     val urlKeywords: List<String>,
+    val position: String,
 )

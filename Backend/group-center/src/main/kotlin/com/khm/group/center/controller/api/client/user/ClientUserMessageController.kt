@@ -17,7 +17,7 @@ import jakarta.validation.Valid
 import kotlinx.coroutines.*
 
 @RestController
-class UserMessageController {
+class ClientUserMessageController {
 
     @Operation(summary = "机器上的用户自定义消息")
     @RequestMapping("/api/client/user/message", method = [RequestMethod.POST])

@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+say_hello() {
+    echo "Hello, Docker!"
+    echo "===================="
+    echo "Group Center Application"
+    echo "Author: Haomin Kong"
+    echo "===================="
+    echo "https://github.com/a645162/group-center"
+    echo "===================="
+    echo "Project Start: 2024-06"
+    echo "Latest Update: 2024-08"
+    echo "===================="
+}
+
 # Function to check if an environment variable is declared
 is_env_declared() {
     local var_name=$1
@@ -13,6 +26,7 @@ is_env_declared() {
 }
 
 check_env(){
+  echo "Start to check Environment Variables"
   if is_env_declared "SPRING_DATASOURCE_URL"; then
       echo "Environment Variable SPRING_DATASOURCE_URL is declared."
   else
@@ -35,9 +49,16 @@ check_env(){
   else
       export SPRING_DATASOURCE_PASSWORD="123456"
   fi
+  echo "End to check Environment Variables"
 }
 
+# Print Hello Message
+say_hello
+
+# Check Environment Variables
 check_env
 
+# Start Application
+echo "Start .jar Application"
 cd "${BASE_PATH}" || exit
 java -jar "${BASE_PATH}/group-center-docker.jar" --spring.config.location=file:application.yml

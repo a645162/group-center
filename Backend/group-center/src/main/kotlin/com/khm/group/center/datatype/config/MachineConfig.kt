@@ -9,13 +9,16 @@ class MachineConfig : MachineBaseConfig() {
 
     var password: String = ""
 
+    var position: String = ""
+
     var webhook: AllWebHookServer = AllWebHookServer()
 
     fun toFrontEndMachine(): FrontEndMachine {
         val frontEndMachine = FrontEndMachine(
             machineName = name,
             machineUrl = apiUrl,
-            urlKeywords = apiKeyWords
+            urlKeywords = apiKeyWords,
+            position = position
         )
 
         return frontEndMachine
