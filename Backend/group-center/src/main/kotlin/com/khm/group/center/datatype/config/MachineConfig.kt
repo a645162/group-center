@@ -11,6 +11,8 @@ class MachineConfig : MachineBaseConfig() {
 
     var position: String = ""
 
+    var isGpu: Boolean = false
+
     var webhook: AllWebHookServer = AllWebHookServer()
 
     fun toFrontEndMachine(): FrontEndMachine {
@@ -18,7 +20,8 @@ class MachineConfig : MachineBaseConfig() {
             machineName = name,
             machineUrl = apiUrl,
             urlKeywords = apiKeyWords,
-            position = position
+            position = position,
+            isGpu = isGpu
         )
 
         return frontEndMachine

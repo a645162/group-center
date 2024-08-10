@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 class FrontEndMachineListController {
 
     @Operation(summary = "Web前端获取GPU列表")
-    @RequestMapping("/web/open/front_end/machineList", method = [RequestMethod.GET])
+    @RequestMapping("/web/open/front_end/publicMachineList", method = [RequestMethod.GET])
     fun getMachineList(): List<FrontEndMachine> {
         val machineList = mutableListOf<FrontEndMachine>()
 

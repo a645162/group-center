@@ -5,4 +5,5 @@ data class FrontEndMachine(
     val machineUrl: String,
     val urlKeywords: List<String>,
     val position: String,
+    val isGpu: Boolean
 )

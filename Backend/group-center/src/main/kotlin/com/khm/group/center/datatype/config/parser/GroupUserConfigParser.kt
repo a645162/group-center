@@ -1,4 +1,4 @@
-package com.khm.group.center.config.feature
+package com.khm.group.center.datatype.config.parser
 
 import com.charleskorn.kaml.Yaml
 import com.khm.group.center.config.env.ConfigEnvironment

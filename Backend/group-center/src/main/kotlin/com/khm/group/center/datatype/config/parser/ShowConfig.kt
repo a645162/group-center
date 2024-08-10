@@ -1,4 +1,4 @@
-package com.khm.group.center.config.feature
+package com.khm.group.center.datatype.config.parser
 
 import com.khm.group.center.datatype.config.GroupUserConfig
 import com.khm.group.center.datatype.config.MachineConfig
@@ -30,6 +30,7 @@ class ShowConfig {
                 println("  NameEng: ${machine.nameEng}")
                 println("  Host: ${machine.host}")
                 println("  Position: ${machine.position}")
+                println("  isGpu: ${machine.isGpu}")
             }
 
             println()

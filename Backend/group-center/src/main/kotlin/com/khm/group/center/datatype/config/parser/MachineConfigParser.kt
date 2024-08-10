@@ -1,4 +1,4 @@
-package com.khm.group.center.config.feature
+package com.khm.group.center.datatype.config.parser
 
 import com.charleskorn.kaml.Yaml
 import com.khm.group.center.config.env.ConfigEnvironment
@@ -72,6 +72,8 @@ class MachineConfigParser {
 
                 val position: String,
 
+                val isGpu: Boolean,
+
                 val webhook: Webhook
             )
 
@@ -104,6 +106,7 @@ class MachineConfigParser {
                 newMachineObj.password = currentOriMachine.password
 
                 newMachineObj.position = currentOriMachine.position
+                newMachineObj.isGpu = currentOriMachine.isGpu
 
                 newMachineObj.webhook.silentMode.startTime = currentOriMachine.webhook.silentMode.startTime
                 newMachineObj.webhook.silentMode.endTime = currentOriMachine.webhook.silentMode.endTime
