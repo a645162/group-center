@@ -8,6 +8,8 @@ import kotlinx.serialization.Serializable
 
 class MachineConfigParser {
     companion object {
+        private const val MIN_VERSION = 200
+
         fun readMachineYamlFile() {
             val dirPath = ConfigEnvironment.getEnvStr(
                 "CONFIG_MACHINE_DIR_PATH"
@@ -24,7 +26,8 @@ class MachineConfigParser {
             if (path.isEmpty()) {
                 return
             }
-            val machineList = parseMachineYamlInDir(path)
+            val yamlText=ProgramFile.readFile(path)
+            val machineList = parseMachineYaml(yamlText)
             MachineConfig.machineList = machineList
         }
 

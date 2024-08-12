@@ -37,6 +37,11 @@ class ConfigEnvironment {
             return System.getenv(uppercaseKey) ?: defaultValue
         }
 
+        fun getEnvPath(key: String, defaultValue: String = ""): String {
+            return getEnvStr(key, defaultValue)
+                .replace("\"", "")
+        }
+
         fun getEnvInt(key: String, defaultValue: Int = 0): Int {
             val strValue = getEnvStr(key)
 

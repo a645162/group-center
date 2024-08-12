@@ -8,6 +8,8 @@ import kotlinx.serialization.Serializable
 
 class GroupUserConfigParser {
     companion object {
+        private const val MIN_VERSION = 200
+
         fun readUserYamlFile() {
             val dirPath = ConfigEnvironment.getEnvStr(
                 "CONFIG_USER_DIR_PATH"
@@ -24,10 +26,8 @@ class GroupUserConfigParser {
             if (path.isEmpty()) {
                 return
             }
-            val userList = parseUserYaml(path)
-            if (path.isEmpty()) {
-                return
-            }
+            val yamlText=ProgramFile.readFile(path)
+            val userList = parseUserYaml(yamlText)
             GroupUserConfig.userList = userList
         }
 

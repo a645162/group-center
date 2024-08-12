@@ -1,6 +1,7 @@
 package com.khm.group.center
 
 import com.khm.group.center.config.env.ConfigEnvironment
+import com.khm.group.center.datatype.config.dashboard.DashBoardSiteConfig
 import com.khm.group.center.datatype.config.parser.GroupUserConfigParser
 import com.khm.group.center.datatype.config.parser.MachineConfigParser
 import com.khm.group.center.datatype.config.parser.ShowConfig
@@ -31,6 +32,8 @@ class GroupCenterApplication {
             ConfigEnvironment.initializeConfigEnvironment()
             GroupUserConfigParser.readUserYamlFile()
             MachineConfigParser.readMachineYamlFile()
+            DashBoardSiteConfig.readDashboardSiteYamlFile()
+
             ShowConfig.showConfig()
 
             // 初始化 消息中心
