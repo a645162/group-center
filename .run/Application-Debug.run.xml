@@ -4,7 +4,7 @@
       <env name="SPRING_PROFILES_ACTIVE" value="debug" />
       <env name="FILE_ENV_PATH" value="./Config/Program/FileEnv.toml" />
     </envs>
-    <module name="group-center.main" />
+    <module name="com.khm.group.group-center.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.khm.group.center.GroupCenterApplication" />
     <method v="2">
       <option name="Make" enabled="true" />

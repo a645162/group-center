@@ -25,6 +25,7 @@ class DashBoardSiteConfig {
             val className: String,
             val classIconUrl: String,
             val position: String,
+            val index: Int,
 
             val sites: List<DataDashBoardSite>
         )
