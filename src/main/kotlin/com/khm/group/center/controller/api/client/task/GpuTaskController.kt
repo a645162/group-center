@@ -54,8 +54,10 @@ class GpuTaskController {
         )
 
         if (
-            !gpuTaskInfo.isDebugMode
-            || gpuTaskInfo.multiDeviceLocalRank < 1
+            !gpuTaskInfo.isDebugMode || (
+                    gpuTaskInfo.multiDeviceWorldSize > 1 &&
+                            gpuTaskInfo.multiDeviceLocalRank == 0
+                    )
         ) {
             gpuTaskNotify.sendTaskMessage()
         }

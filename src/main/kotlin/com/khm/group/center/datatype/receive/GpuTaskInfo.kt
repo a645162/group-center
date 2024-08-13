@@ -44,6 +44,7 @@ class GpuTaskInfo {
     var isMultiGpu: Boolean = false
     var multiDeviceLocalRank: Int = 0
     var multiDeviceWorldSize: Int = 0
+    var topPythonPid: Int = -1
 
     var cudaRoot: String = ""
     var cudaVersion: String = ""

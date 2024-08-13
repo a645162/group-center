@@ -58,6 +58,7 @@ class GpuTaskInfoModel {
     var isMultiGpu: Boolean = false
     var multiDeviceLocalRank: Int = 0
     var multiDeviceWorldSize: Int = 0
+    var topPythonPid: Int = -1
 
     var cudaRoot: String = ""
     var cudaVersion: String = ""
@@ -137,6 +138,7 @@ class GpuTaskInfoModel {
         this.isMultiGpu = gpuTaskInfo.isMultiGpu
         this.multiDeviceLocalRank = gpuTaskInfo.multiDeviceLocalRank
         this.multiDeviceWorldSize = gpuTaskInfo.multiDeviceWorldSize
+        this.topPythonPid = gpuTaskInfo.topPythonPid
 
         this.cudaRoot = gpuTaskInfo.cudaRoot
         this.cudaVersion = gpuTaskInfo.cudaVersion

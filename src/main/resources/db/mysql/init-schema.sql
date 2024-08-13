@@ -23,6 +23,7 @@ CREATE TABLE group_center.gpu_task_info
     is_multi_gpu                 BOOLEAN      NOT NULL,
     multi_device_local_rank      INT          NOT NULL,
     multi_device_world_size      INT          NOT NULL,
+    top_python_pid               INT          NOT NULL,
     cuda_root                    VARCHAR(255) NOT NULL,
     cuda_version                 VARCHAR(255) NOT NULL,
     is_debug_mode                BOOLEAN      NOT NULL,
