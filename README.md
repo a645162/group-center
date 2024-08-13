@@ -5,22 +5,48 @@
 - [Group Center Backend(本项目)](https://github.com/a645162/group-center)
 - [Group Center Client](https://github.com/a645162/group-center-client)
 - [Group Center Dashboard](https://github.com/a645162/group-center-dashboard)
-- [nvi-notify](https://github.com/a645162/nvi-notify)
+- [Group Center Agent(nvi-notify)](https://github.com/a645162/nvi-notify)
+
+### 旧版项目
+
 - [web-gpu-dashboard](https://github.com/a645162/web-gpu-dashboard)
 
 ### Group Center Backend
 
 Group Center的核心项目，基于`Spring Boot`的后端，支持GPU任务信息记录，以及消息推送。
 
+#### 支持的功能
+
+- GPU信息记录
+- WebHook消息推送
+- 用户信息分发
+- 配置文件分发
+- SSH密钥上传与下载
+
 ### Group Center Client
 
 注意：需要配合`group-center`使用
+
+#### 支持的功能
+
+- 用户自定义消息推送
+- SSH密钥备份与恢复
+- Linux用户管理(需要服务器配置用户)
+- 与GroupCenter通信(用于二次开发)
 
 ### Group Center Dashboard
 
 注意：需要配合`group-center`以及`nvi-notify`使用
 
-### nvi-notify
+#### 支持的功能
+
+- 网址导航
+- GPU看板
+  - GPU使用情况
+  - GPU任务情况
+- 硬盘情况看板
+
+### nvi-notify(Group Center Agent)
 
 NVIDIA GPU服务器监控通知工具，主要用于监控NVIDIA GPU服务器的GPU使用情况，并通过企业微信(WeCom)进行通知。
 
@@ -30,15 +56,26 @@ NVIDIA GPU服务器监控通知工具，主要用于监控NVIDIA GPU服务器的
 
 注意:本项目依赖于`group-center-client`，`requirements.txt`中已经给出具体版本需求。
 
+#### 支持的功能
+
+- GPU使用情况监控
+- GPU任务情况监控
+- GPU信息推送至`group-center`
+- RESTful API
+
 ### web-gpu-dashboard
 
 旧版GPU看板，主要支持查看多台服务器上的GPU状况，以及任务情况。
 
 注意：需要配合`nvi-notify`使用
 
-## Group Center Backend
+#### 支持的功能
 
-### 支持功能
+- 查看GPU信息
+- 查看GPU任务信息
+- 查看内存信息
+
+## Group Center Backend
 
 ### 语言及构建工具
 
