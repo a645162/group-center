@@ -11,6 +11,8 @@
 
 - [web-gpu-dashboard](https://github.com/a645162/web-gpu-dashboard)
 
+### Group Center 系列项目介绍
+
 ### Group Center Backend
 
 Group Center的核心项目，基于`Spring Boot`的后端，支持GPU任务信息记录，以及消息推送。
@@ -23,6 +25,14 @@ Group Center的核心项目，基于`Spring Boot`的后端，支持GPU任务信�
 - 配置文件分发
 - SSH密钥上传与下载
 
+#### 主要技术栈
+
+- Kotlin
+- Spring Boot
+- MyBatis Plus
+- MySQL
+- Gradle
+
 ### Group Center Client
 
 注意：需要配合`group-center`使用
@@ -32,7 +42,12 @@ Group Center的核心项目，基于`Spring Boot`的后端，支持GPU任务信�
 - 用户自定义消息推送
 - SSH密钥备份与恢复
 - Linux用户管理(需要服务器配置用户)
-- 与GroupCenter通信(用于二次开发)
+- 与`group-center`通信(用于二次开发)
+
+#### 主要技术栈
+
+- Python 3
+- requests
 
 ### Group Center Dashboard
 
@@ -45,6 +60,15 @@ Group Center的核心项目，基于`Spring Boot`的后端，支持GPU任务信�
   - GPU使用情况
   - GPU任务情况
 - 硬盘情况看板
+
+#### 主要技术栈
+
+- TypeScript
+- React
+- Ant Design
+- Zustand
+- UmiJS
+- Axios
 
 ### nvi-notify(Group Center Agent)
 
@@ -63,6 +87,11 @@ NVIDIA GPU服务器监控通知工具，主要用于监控NVIDIA GPU服务器的
 - GPU信息推送至`group-center`
 - RESTful API
 
+#### 主要技术栈
+
+- Python 3
+- flask
+
 ### web-gpu-dashboard
 
 旧版GPU看板，主要支持查看多台服务器上的GPU状况，以及任务情况。
@@ -74,6 +103,14 @@ NVIDIA GPU服务器监控通知工具，主要用于监控NVIDIA GPU服务器的
 - 查看GPU信息
 - 查看GPU任务信息
 - 查看内存信息
+
+#### 主要技术栈
+
+- TypeScript
+- VUE3
+- Element Plus
+- Pinia
+- Axios
 
 ## Group Center Backend
 
