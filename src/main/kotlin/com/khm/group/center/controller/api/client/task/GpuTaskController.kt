@@ -54,7 +54,7 @@ class GpuTaskController {
         )
 
         if (
-            !gpuTaskInfo.isDebugMode || (
+            !gpuTaskInfo.isDebugMode && (
                     gpuTaskInfo.multiDeviceWorldSize > 1 &&
                             gpuTaskInfo.multiDeviceLocalRank == 0
                     )

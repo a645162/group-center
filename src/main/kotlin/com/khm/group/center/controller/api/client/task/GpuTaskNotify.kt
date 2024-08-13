@@ -119,7 +119,7 @@ class GpuTaskNotify(
             }
 
         val multiGpuStr = if (gpuTaskInfo.multiDeviceWorldSize > 1) {
-            "\n${gpuTaskInfo.multiDeviceWorldSize}卡任务"
+            "\n${gpuTaskInfo.multiDeviceWorldSize}卡任务\n"
         } else {
             ""
         }
