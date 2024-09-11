@@ -25,6 +25,8 @@ jobs:
         run: |
           python --version
           pip --version
+          python version.py
+          echo "PROGRAM_VERSION=${python version.py}" >> $GITHUB_ENV
 
       - name: Build .jar file
         run: python build_with_docker.py
@@ -83,7 +85,9 @@ jobs:
           push: true
           tags: |
             ${{ github.repository }}:${{ env.IMAGE_TAG }},
+            ${{ github.repository }}:${{ env.PROGRAM_VERSION }},
             ${{ env.ACR_REGISTRY }}/${{ github.repository }}:${{ env.IMAGE_TAG }},
+            ${{ env.ACR_REGISTRY }}/${{ github.repository }}:${{ env.PROGRAM_VERSION }},
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
