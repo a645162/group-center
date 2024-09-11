@@ -25,7 +25,7 @@ val springBootVersion = "3.3.3"
 val myBatisVersion = "3.0.3"
 
 group = "com.khm.group"
-version = "1.0.1-SNAPSHOT"
+version = "1.0.2-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21

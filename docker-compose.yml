@@ -1,9 +1,11 @@
 services:
   group_center:
-    image: group_center
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: registry.cn-shanghai.aliyuncs.com/a645162/group-center:latest
+    #    image: a645162/group-center:latest
+    #    image: group_center
+    #    build:
+    #      context: .
+    #      dockerfile: Dockerfile
     ports:
       - 15090:15090
       - 15092:15092
