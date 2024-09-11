@@ -13,6 +13,23 @@ FROM dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-an
 # MAINTAINER Haomin Kong
 LABEL maintainer="Haomin Kong"
 
+# https://mirrors.nwafu.edu.cn/help/local-repository/anolis/
+#RUN sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+#        -e 's|^#http://mirrors.openanolis.cn/|https://mirrors.nwafu.edu.cn/|g' \
+#        -i.bak \
+#        /etc/yum.repos.d/AnolisOS-AppStream.repo \
+#        /etc/yum.repos.d/AnolisOS-DDE.repo \
+#        /etc/yum.repos.d/AnolisOS-HighAvailability.repo \
+#        /etc/yum.repos.d/AnolisOS-PowerTools.repo \
+#        /etc/yum.repos.d/AnolisOS-BaseOS.repo \
+#        /etc/yum.repos.d/AnolisOS-Plus.repo \
+#    && sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+#        -e 's|^#https://mirrors.openanolis.cn/|https://mirrors.nwafu.edu.cn/|g' \
+#        -i.bak \
+#        /etc/yum.repos.d/AnolisOS-Debuginfo.repo \
+#        /etc/yum.repos.d/AnolisOS-Source.repo \
+#    && yum makecache
+
 # Install Software
 RUN    yum update -y \
     && yum install -y tzdata net-tools \

@@ -70,16 +70,12 @@ def main():
         print("Build failed!!!")
         exit(1)
 
-    if opt.clean_cache:
-        print("Cleaning Cache")
-        for cache_dir in cache_dir_list:
-            if os.path.exists(cache_dir):
-                shutil.rmtree(cache_dir)
-
     jar_path = get_jar_path()
     if jar_path == "":
         print("Jar not found")
         return
+    else:
+        print(f"Jar Path: {jar_path}")
 
     # Remove Old
     if os.path.exists(target_path):
@@ -87,6 +83,12 @@ def main():
 
     # Copy to ./group-center-docker.jar
     shutil.copy(jar_path, target_path)
+
+    if opt.clean_cache:
+        print("Cleaning Cache")
+        for cache_dir in cache_dir_list:
+            if os.path.exists(cache_dir):
+                shutil.rmtree(cache_dir)
 
 
 if __name__ == '__main__':
