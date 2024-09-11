@@ -5,22 +5,23 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 
 plugins {
-    val springBootVersion = "3.3.2"
+    val kotlinVersion = "2.0.20"
+    val springBootVersion = "3.3.3"
 
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.6"
 
-    kotlin("jvm") version "2.0.0"
-    kotlin("plugin.spring") version "2.0.0"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
+    kotlin("jvm") version kotlinVersion
+    kotlin("plugin.spring") version kotlinVersion
+    id("org.jetbrains.kotlin.plugin.serialization") version kotlinVersion
 
     id("com.github.ben-manes.versions") version "0.51.0"
 }
 
-val kotlinVersion = "2.0.20-RC"
-val kotlinVersionPrevious = "2.0.10-RC2"
+val kotlinVersion = "2.0.20"
+val kotlinVersionPrevious = "2.0.0"
 
-val springBootVersion = "3.3.2"
+val springBootVersion = "3.3.3"
 val myBatisVersion = "3.0.3"
 
 group = "com.khm.group"
@@ -147,10 +148,10 @@ dependencies {
     implementation("commons-codec:commons-codec:1.17.1")
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Message WebHook
-    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
-    implementation("com.larksuite.oapi:oapi-sdk:2.3.0")
+    implementation("com.larksuite.oapi:oapi-sdk:2.3.4")
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2

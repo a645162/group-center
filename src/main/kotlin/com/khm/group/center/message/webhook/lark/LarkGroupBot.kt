@@ -9,7 +9,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.IOException
 
 class LarkGroupBot(val botId: String, var botKey: String = "") {
     private var webhookUrl: String = "https://open.feishu.cn/open-apis/bot/v2/hook/"
@@ -63,7 +62,7 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
                     println("Failed to send lark group bot text for $botId")
                     return false
                 }
-                println(response.body.string())
+                // println(response.body?.string())
             }
 
             return true
