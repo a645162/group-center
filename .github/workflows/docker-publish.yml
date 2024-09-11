@@ -25,8 +25,14 @@ jobs:
         run: |
           python --version
           pip --version
+
+      - name: Set up Program Version
+        run: |
           python version.py
-          echo "PROGRAM_VERSION=${python version.py}" >> $GITHUB_ENV
+          PROGRAM_VERSION=$(python version.py)
+          echo "PROGRAM_VERSION=${PROGRAM_VERSION}" >> $GITHUB_ENV
+      - name: Echo Program Version
+        run: echo "'${{ env.PROGRAM_VERSION }}' will be used as the version of the program."
 
       - name: Build .jar file
         run: python build_with_docker.py
