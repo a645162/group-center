@@ -29,6 +29,9 @@ jobs:
       - name: Build .jar file
         run: python build_with_docker.py
 
+      - name: Check is Build Success
+        run: ls group-center-docker.jar
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker BuildX
