@@ -6,7 +6,7 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     val kotlinVersion = "2.0.21"
-    val springBootVersion = "3.3.4"
+    val springBootVersion = "3.3.5"
 
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.6"
@@ -21,13 +21,13 @@ plugins {
 val kotlinVersion = "2.0.21"
 val kotlinVersionPrevious = "2.0.20"
 
-val springBootVersion = "3.3.4"
+val springBootVersion = "3.3.5"
 val myBatisVersion = "3.0.3"
 
 val fastjsonVersion = "2.0.53"
 
 group = "com.khm.group"
-version = "1.0.3-SNAPSHOT"
+version = "1.1.0-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -100,7 +100,7 @@ dependencies {
     // https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.1")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
@@ -113,7 +113,7 @@ dependencies {
     implementation("com.alibaba:druid-spring-boot-starter:1.2.23")
 
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${myBatisVersion}")
-    implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.8")
+    implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.9")
 
     // https://mvnrepository.com/artifact/com.gitee.sunchenbin.mybatis.actable/mybatis-enhance-actable
 //    implementation("com.gitee.sunchenbin.mybatis.actable:mybatis-enhance-actable:1.5.0.RELEASE")
@@ -144,7 +144,7 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.tencent.kona/kona-crypto
     // https://github.com/Tencent/TencentKonaSMSuite
-    implementation("com.tencent.kona:kona-crypto:1.0.14")
+    implementation("com.tencent.kona:kona-crypto:1.0.15")
 
     // https://mvnrepository.com/artifact/commons-codec/commons-codec
     implementation("commons-codec:commons-codec:1.17.1")
@@ -153,7 +153,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
-    implementation("com.larksuite.oapi:oapi-sdk:2.3.6")
+    implementation("com.larksuite.oapi:oapi-sdk:2.3.7")
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2

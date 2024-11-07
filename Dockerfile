@@ -30,17 +30,23 @@ LABEL maintainer="Haomin Kong"
 #        /etc/yum.repos.d/AnolisOS-Source.repo \
 #    && yum makecache
 
+# https://mirrors.hust.edu.cn/docs/anolis/
+RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu.cn|g" \
+        /etc/yum.repos.d/*.repo \
+    && yum makecache \
+    && yum update -y \
+    && yum clean all
+
 # Install Software
-RUN    yum update -y \
-    && yum install -y tzdata net-tools \
+RUN yum install -y tzdata net-tools \
     && yum clean all
 
 # Set the timezone
 ENV TZ=Asia/Shanghai
-RUN    ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo ${TZ} > /etc/timezone
 
-LABEL AUTHOR="Haomin Kong" VERSION=1.0.0
+LABEL AUTHOR="Haomin Kong" VERSION=1.1.0
 
 ENV BASE_PATH="/usr/local/group-center"
 ENV RUN_IN_DOCKER=True
@@ -59,7 +65,7 @@ COPY group-center-docker.jar $BASE_PATH/group-center-docker.jar
 COPY src/main/resources/application-docker.yml $BASE_PATH/application.yml
 COPY docker.start.sh $BASE_PATH/docker.start.sh
 
-RUN    sed -i 's/\r$//' $BASE_PATH/*.sh \
+RUN sed -i 's/\r$//' $BASE_PATH/*.sh \
     && sed -i 's/\r$//' $BASE_PATH/Scripts/*.sh \
     && chmod +x "$BASE_PATH/docker.start.sh"
 
