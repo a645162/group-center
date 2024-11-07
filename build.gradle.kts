@@ -27,7 +27,7 @@ val myBatisVersion = "3.0.3"
 val fastjsonVersion = "2.0.53"
 
 group = "com.khm.group"
-version = "1.0.3-SNAPSHOT"
+version = "1.1.0-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -164,7 +164,7 @@ dependencies {
     implementation("com.akuleshov7:ktoml-core:0.5.2")
     implementation("com.akuleshov7:ktoml-file:0.5.2")
 
-    implementation("com.charleskorn.kaml:kaml:0.62.2")
+    implementation("com.charleskorn.kaml:kaml:0.61.0")
 
     // File Encoding
     implementation("com.github.albfernandez:juniversalchardet:2.5.0")
