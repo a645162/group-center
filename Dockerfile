@@ -37,6 +37,10 @@ RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu
     && yum update -y \
     && yum clean all
 
+## Update Software
+#RUN yum update -y \
+#    && yum clean all
+
 # Install Software
 RUN yum install -y tzdata net-tools \
     && yum clean all
