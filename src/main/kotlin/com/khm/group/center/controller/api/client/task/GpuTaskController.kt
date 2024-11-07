@@ -48,16 +48,23 @@ class GpuTaskController {
         // Notify
         val machineConfig = MachineConfig.getMachineByNameEng(gpuTaskInfo.serverNameEng)
 
+        println(
+            "Receive task from nvi-notify" +
+                    " ${gpuTaskInfo.taskType}" +
+                    " Project:${gpuTaskInfo.projectName}" +
+                    " User:${gpuTaskInfo.taskUser}"
+        )
+
         val gpuTaskNotify = GpuTaskNotify(
             gpuTaskInfo = gpuTaskInfo,
             machineConfig = machineConfig
         )
 
+        val isMultiCard = gpuTaskInfo.multiDeviceWorldSize > 1
+
         if (
-            !gpuTaskInfo.isDebugMode && (
-                    gpuTaskInfo.multiDeviceWorldSize > 1 &&
-                            gpuTaskInfo.multiDeviceLocalRank == 0
-                    )
+            !gpuTaskInfo.isDebugMode &&
+            (!isMultiCard || gpuTaskInfo.multiDeviceLocalRank == 0)
         ) {
             gpuTaskNotify.sendTaskMessage()
         }
