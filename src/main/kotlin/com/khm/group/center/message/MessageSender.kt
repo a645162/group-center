@@ -76,6 +76,7 @@ class MessageSender(private val messageItem: MessageItem) {
 
         var atText = ""
         if (userConfig != null) {
+            // User Personal Bot
             val userId = userConfig.webhook.lark.userId
             if (userId.isEmpty()) {
                 atText = userConfig.name
@@ -85,9 +86,9 @@ class MessageSender(private val messageItem: MessageItem) {
                 if (LarkBot.isAppIdSecretValid()) {
                     val larkBotObj = LarkBot(userConfig.webhook.lark.userId)
                     val text = (
-                            messageItem.content.trim()
-                                    + "\n\n"
-                                    + "${machineName}:\n"
+                            "[${machineName}]"
+                                    + messageItem.content.trim()
+                                    + "\n"
                                     + machineUrl
                             )
 
@@ -101,10 +102,9 @@ class MessageSender(private val messageItem: MessageItem) {
         }
         val finalText = atText + messageItem.content
 
+        // Lark Group Bot
         val groupBotText = (
                 finalText
-                        + "\n\n"
-                        + machineUrl
                 )
 
         launch {
