@@ -6,7 +6,7 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     val kotlinVersion = "2.0.21"
-    val springBootVersion = "3.3.5"
+    val springBootVersion = "3.4.0"
 
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.6"
@@ -21,7 +21,7 @@ plugins {
 val kotlinVersion = "2.0.21"
 val kotlinVersionPrevious = "2.0.20"
 
-val springBootVersion = "3.3.5"
+val springBootVersion = "3.4.0"
 val myBatisVersion = "3.0.3"
 
 val fastjsonVersion = "2.0.53"
@@ -66,9 +66,20 @@ allprojects {
         maven { url = uri("https://maven.aliyun.com/repository/central") }
         maven { url = uri("https://maven.aliyun.com/repository/public") }
         maven { url = uri("https://maven.aliyun.com/repository/spring") }
+        maven{ url = uri("https://maven.aliyun.com/repository/jcenter") }
+        maven{ url = uri("https://maven.aliyun.com/repository/google") }
+
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+
+        // MyBatis-Plus Snapshot
+        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
 
         mavenLocal()
         mavenCentral()
+
+        gradlePluginPortal()
+
+        google()
     }
 }
 
@@ -76,6 +87,8 @@ repositories {
     maven { url = uri("https://maven.aliyun.com/repository/central") }
     maven { url = uri("https://maven.aliyun.com/repository/public") }
     maven { url = uri("https://maven.aliyun.com/repository/spring") }
+    maven{ url = uri("https://maven.aliyun.com/repository/jcenter") }
+    maven{ url = uri("https://maven.aliyun.com/repository/google") }
 
     maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
 
@@ -86,6 +99,8 @@ repositories {
     mavenCentral()
 
     gradlePluginPortal()
+
+    google()
 }
 
 dependencies {
@@ -128,7 +143,7 @@ dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Task
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr
-    implementation("org.jobrunr:jobrunr:7.3.1")
+    implementation("org.jobrunr:jobrunr:7.3.2")
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-kotlin-1.7-support
     implementation("org.jobrunr:jobrunr-kotlin-1.7-support:7.2.0")
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-spring-boot-starter
@@ -153,7 +168,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
-    implementation("com.larksuite.oapi:oapi-sdk:2.3.7")
+    implementation("com.larksuite.oapi:oapi-sdk:2.4.0")
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
@@ -164,7 +179,7 @@ dependencies {
     implementation("com.akuleshov7:ktoml-core:0.5.2")
     implementation("com.akuleshov7:ktoml-file:0.5.2")
 
-    implementation("com.charleskorn.kaml:kaml:0.61.0")
+    implementation("com.charleskorn.kaml:kaml:0.62.2")
 
     // File Encoding
     implementation("com.github.albfernandez:juniversalchardet:2.5.0")
