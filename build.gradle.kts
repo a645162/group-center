@@ -5,7 +5,7 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 
 plugins {
-    val kotlinVersion = "2.0.21"
+    val kotlinVersion = "2.1.0"
     val springBootVersion = "3.4.0"
 
     id("org.springframework.boot") version springBootVersion
@@ -18,11 +18,11 @@ plugins {
     id("com.github.ben-manes.versions") version "0.51.0"
 }
 
-val kotlinVersion = "2.0.21"
+val kotlinVersion = "2.1.0"
 val kotlinVersionPrevious = "2.0.20"
 
 val springBootVersion = "3.4.0"
-val myBatisVersion = "3.0.3"
+val myBatisVersion = "3.0.4"
 
 val fastjsonVersion = "2.0.53"
 
@@ -115,7 +115,7 @@ dependencies {
     // https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
@@ -125,7 +125,7 @@ dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Database
     // https://mvnrepository.com/artifact/com.alibaba/druid-spring-boot-starter
-    implementation("com.alibaba:druid-spring-boot-starter:1.2.23")
+    implementation("com.alibaba:druid-spring-boot-starter:1.2.24")
 
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${myBatisVersion}")
     implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.9")
@@ -188,7 +188,7 @@ dependencies {
     // Dev Tools
     // Lombok for Java
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    compileOnly("org.projectlombok:lombok:1.18.34")
+    compileOnly("org.projectlombok:lombok:1.18.36")
 
     // Docker
     // runtimeOnly("org.springframework.boot:spring-boot-docker-compose")
