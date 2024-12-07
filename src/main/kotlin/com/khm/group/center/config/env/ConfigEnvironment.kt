@@ -18,6 +18,8 @@ class ConfigEnvironment {
         var MACHINE_AUTH_REMEMBER_IP: Boolean = true
         var RUN_IN_DOCKER: Boolean = false
 
+        var GROUP_BOT_AT_ENABLE: Boolean = false
+
         var LARK_BOT_APP_ID: String = ""
         var LARK_BOT_APP_SECRET: String = ""
 
@@ -60,7 +62,9 @@ class ConfigEnvironment {
             if (envString.isEmpty()) return defaultValue
 
             return try {
-                envString.trim().uppercase() == "TRUE"
+                val upper_string = envString.trim().uppercase()
+
+                (upper_string == "TRUE" || upper_string == "1")
             } catch (e: Exception) {
                 defaultValue
             }
@@ -171,6 +175,11 @@ class ConfigEnvironment {
             } else {
                 println("Machine Auth Remember IP is Disabled")
             }
+
+            GROUP_BOT_AT_ENABLE = getEnvBool(
+                "GROUP_BOT_AT_ENABLE",
+                GROUP_BOT_AT_ENABLE
+            )
         }
     }
 

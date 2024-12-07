@@ -27,7 +27,7 @@ val myBatisVersion = "3.0.4"
 val fastjsonVersion = "2.0.53"
 
 group = "com.khm.group"
-version = "1.1.1-SNAPSHOT"
+version = "1.1.2-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -168,7 +168,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
-    implementation("com.larksuite.oapi:oapi-sdk:2.4.0")
+    implementation("com.larksuite.oapi:oapi-sdk:2.4.4")
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2

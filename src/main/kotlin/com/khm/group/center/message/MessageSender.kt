@@ -78,10 +78,10 @@ class MessageSender(private val messageItem: MessageItem) {
         if (userConfig != null) {
             // User Personal Bot
             val userId = userConfig.webhook.lark.userId
-            if (userId.isEmpty()) {
-                atText = userConfig.name
-            } else {
-                atText = LarkGroupBot.getAtUserHtml(userId)
+
+            if (!userId.isEmpty()) {
+                if (ConfigEnvironment.GROUP_BOT_AT_ENABLE)
+                    atText = LarkGroupBot.getAtUserHtml(userId)
 
                 if (LarkBot.isAppIdSecretValid()) {
                     val larkBotObj = LarkBot(userConfig.webhook.lark.userId)
@@ -92,6 +92,7 @@ class MessageSender(private val messageItem: MessageItem) {
                                     + machineUrl
                             )
 
+                    // Send Personal Bot
                     launch {
                         larkBotObj.sendTextWithSilentMode(
                             text, userConfig.webhook.silentMode
@@ -99,13 +100,17 @@ class MessageSender(private val messageItem: MessageItem) {
                     }
                 }
             }
+
+            atText = atText.trim()
+            if (atText.isEmpty()) {
+                atText = userConfig.name
+            }
         }
+
         val finalText = atText + messageItem.content
 
         // Lark Group Bot
-        val groupBotText = (
-                finalText
-                )
+        val groupBotText = finalText
 
         launch {
             larkGroupBotObj.sendTextWithSilentMode(
