@@ -8,7 +8,8 @@ data class MessageItem(
     val targetUser: String,
     val machineConfig: MachineConfig,
     val sendToPersonBot: Boolean = true,
-    val sendToGroupBot: Boolean = true
+    val sendToGroupBot: Boolean = true,
+    val groupAt: String = "",
 ) {
     val createTime = DateTime.getCurrentDateTimeStr()
 

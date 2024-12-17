@@ -106,11 +106,28 @@ class MessageSender(private val messageItem: MessageItem) {
                 }
             }
 
-            atText = atText.trim()
-            if (atText.isEmpty()) {
-                atText = userConfig.name
+        }
+
+        atText = atText.trim()
+
+        if (messageItem.groupAt.isNotEmpty()) {
+            val atName = messageItem.groupAt.trim()
+
+            if (atName.uppercase() == "ALL") {
+                atText = LarkGroupBot.getAtUserHtml("all")
+            } else {
+                val atUserConfig = GroupUserConfig.getUserByName(atName)
+                if (atUserConfig != null) {
+                    atText += LarkGroupBot.getAtUserHtml(atUserConfig.webhook.lark.userId)
+                }
             }
         }
+
+        if (userConfig != null && atText.isBlank()) {
+            atText = userConfig.name
+        }
+
+        atText = atText.trim()
 
         val finalText = atText + messageItem.content
 

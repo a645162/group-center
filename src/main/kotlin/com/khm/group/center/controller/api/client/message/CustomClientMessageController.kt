@@ -47,7 +47,8 @@ class CustomClientMessageController {
             targetUser = "",
             machineConfig = machineConfig,
             sendToPersonBot = false,
-            sendToGroupBot = true
+            sendToGroupBot = true,
+            groupAt = machineMessage.at
         )
         MessageCenter.addNewMessage(messageItem)
 

@@ -5,4 +5,6 @@ class MachineMessage {
     var serverNameEng: String = ""
 
     var content: String = ""
+
+    var at: String = ""
 }
