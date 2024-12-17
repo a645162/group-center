@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 
 class MessageSender(private val messageItem: MessageItem) {
 
+    // Get User Config Object by User Name
     private val userConfig: GroupUserConfig? =
         GroupUserConfig.getUserByName(messageItem.targetUser)
 
@@ -34,6 +35,10 @@ class MessageSender(private val messageItem: MessageItem) {
     }
 
     private suspend fun sendByWeWork() = coroutineScope {
+        if (!messageItem.sendToGroupBot) {
+            return@coroutineScope
+        }
+
         val groupKey =
             messageItem.machineConfig.webhook.weComServer.groupBotKey
         val url = WeComGroupBot.getWebhookUrl(groupKey)
@@ -75,7 +80,7 @@ class MessageSender(private val messageItem: MessageItem) {
         val larkGroupBotObj = LarkGroupBot(groupBotId, groupBotKey)
 
         var atText = ""
-        if (userConfig != null) {
+        if (messageItem.sendToPersonBot && userConfig != null) {
             // User Personal Bot
             val userId = userConfig.webhook.lark.userId
 
@@ -112,10 +117,12 @@ class MessageSender(private val messageItem: MessageItem) {
         // Lark Group Bot
         val groupBotText = finalText
 
-        launch {
-            larkGroupBotObj.sendTextWithSilentMode(
-                groupBotText, messageItem.machineConfig.webhook.silentMode
-            )
+        if (messageItem.sendToGroupBot) {
+            launch {
+                larkGroupBotObj.sendTextWithSilentMode(
+                    groupBotText, messageItem.machineConfig.webhook.silentMode
+                )
+            }
         }
     }
 }

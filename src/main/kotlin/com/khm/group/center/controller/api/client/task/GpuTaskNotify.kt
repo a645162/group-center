@@ -1,7 +1,7 @@
 package com.khm.group.center.controller.api.client.task
 
 import com.khm.group.center.datatype.config.MachineConfig
-import com.khm.group.center.datatype.receive.GpuTaskInfo
+import com.khm.group.center.datatype.receive.task.GpuTaskInfo
 import com.khm.group.center.message.MessageCenter
 import com.khm.group.center.message.MessageItem
 import com.khm.group.center.datatype.utils.datetime.DateTime
@@ -68,7 +68,7 @@ class GpuTaskNotify(
             }
 
         val multiGpuStr = if (gpuTaskInfo.multiDeviceWorldSize > 1) {
-            "\n${gpuTaskInfo.multiDeviceWorldSize}卡任务\n\n"
+            "\n${gpuTaskInfo.multiDeviceWorldSize}卡任务\n"
         } else {
             ""
         }
@@ -114,7 +114,9 @@ class GpuTaskNotify(
         val messageItem = MessageItem(
             content = finalText,
             targetUser = gpuTaskInfo.taskUser,
-            machineConfig = machineConfig!!
+            machineConfig = machineConfig!!,
+            sendToPersonBot = true,
+            sendToGroupBot = false
         )
         MessageCenter.addNewMessage(messageItem)
     }

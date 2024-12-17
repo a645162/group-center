@@ -21,7 +21,7 @@ class DashboardController {
     @RequestMapping("/web/dashboard/usage/update", method = [RequestMethod.GET])
     fun gpuTaskInfo(): ClientResponse {
 
-        val re = gpuTaskQuery.queryTasks(TimePeriod.ONE_WEEK)
+        gpuTaskQuery.queryTasks(TimePeriod.ONE_WEEK)
 
         //        BackgroundJob.enqueue({
 //            println("Current Time: ${Instant.now()}")
