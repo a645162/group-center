@@ -1,4 +1,4 @@
-package com.khm.group.center.controller.api.client.user
+package com.khm.group.center.controller.api.client.message
 
 
 import com.khm.group.center.datatype.config.GroupUserConfig
@@ -24,7 +24,7 @@ import kotlinx.coroutines.*
 class CustomClientMessageController {
 
     @Operation(summary = "机器自定义消息")
-    @RequestMapping("/api/client/user/message", method = [RequestMethod.POST])
+    @RequestMapping("/api/client/machine/message", method = [RequestMethod.POST])
     fun machineMessage(@Valid @RequestBody machineMessage: MachineMessage): ClientResponse {
         val responseObj = ClientResponse()
         responseObj.result = "error"
