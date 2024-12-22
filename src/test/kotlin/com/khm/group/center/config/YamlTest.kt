@@ -16,7 +16,7 @@ class YamlTest {
     }
 
     fun parseYamlText(text: String) {
-        val yamlRoot = Yaml.default.parseToYamlNode(text)
+        Yaml.default.parseToYamlNode(text)
 
         println()
     }

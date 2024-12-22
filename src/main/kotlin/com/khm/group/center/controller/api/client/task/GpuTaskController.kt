@@ -5,7 +5,7 @@ import com.khm.group.center.datatype.config.MachineConfig
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.web.bind.annotation.*
 
-import com.khm.group.center.datatype.receive.GpuTaskInfo
+import com.khm.group.center.datatype.receive.task.GpuTaskInfo
 import com.khm.group.center.datatype.response.ClientResponse
 import com.khm.group.center.db.mapper.client.GpuTaskInfoMapper
 import com.khm.group.center.db.model.client.GpuTaskInfoModel

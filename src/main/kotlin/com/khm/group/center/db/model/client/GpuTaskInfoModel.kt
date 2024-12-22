@@ -3,7 +3,7 @@ package com.khm.group.center.db.model.client
 import com.baomidou.mybatisplus.annotation.IdType
 import com.baomidou.mybatisplus.annotation.TableId
 import com.baomidou.mybatisplus.annotation.TableName
-import com.khm.group.center.datatype.receive.GpuTaskInfo
+import com.khm.group.center.datatype.receive.task.GpuTaskInfo
 import java.util.*
 
 

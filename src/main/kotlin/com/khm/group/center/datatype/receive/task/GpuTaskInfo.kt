@@ -1,5 +1,4 @@
-package com.khm.group.center.datatype.receive
-
+package com.khm.group.center.datatype.receive.task
 
 class GpuTaskInfo {
 

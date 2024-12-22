@@ -1,7 +1,6 @@
 package com.khm.group.center.interceptor
 
 import com.alibaba.fastjson2.JSON
-import com.alibaba.fastjson2.JSONObject
 import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.response.AuthResponse
 import com.khm.group.center.security.program.ClientAccessKey
@@ -28,6 +27,12 @@ class ClientAuthInterceptor : HandlerInterceptor {
                 // Local Host
                 return true
             }
+
+            if (ipAddress.startsWith("172.")) {
+                // May run in docker!!!
+                return false
+            }
+
             if (ClientIpWhiteList.checkIpIsInWhiteList(ipAddress)) {
                 return true
             }

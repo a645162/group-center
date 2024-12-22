@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 
 class MessageSender(private val messageItem: MessageItem) {
 
+    // Get User Config Object by User Name
     private val userConfig: GroupUserConfig? =
         GroupUserConfig.getUserByName(messageItem.targetUser)
 
@@ -34,6 +35,10 @@ class MessageSender(private val messageItem: MessageItem) {
     }
 
     private suspend fun sendByWeWork() = coroutineScope {
+        if (!messageItem.sendToGroupBot) {
+            return@coroutineScope
+        }
+
         val groupKey =
             messageItem.machineConfig.webhook.weComServer.groupBotKey
         val url = WeComGroupBot.getWebhookUrl(groupKey)
@@ -75,7 +80,7 @@ class MessageSender(private val messageItem: MessageItem) {
         val larkGroupBotObj = LarkGroupBot(groupBotId, groupBotKey)
 
         var atText = ""
-        if (userConfig != null) {
+        if (messageItem.sendToPersonBot && userConfig != null) {
             // User Personal Bot
             val userId = userConfig.webhook.lark.userId
 
@@ -101,21 +106,40 @@ class MessageSender(private val messageItem: MessageItem) {
                 }
             }
 
-            atText = atText.trim()
-            if (atText.isEmpty()) {
-                atText = userConfig.name
+        }
+
+        atText = atText.trim()
+
+        if (messageItem.groupAt.isNotEmpty()) {
+            val atName = messageItem.groupAt.trim()
+
+            if (atName.uppercase() == "ALL") {
+                atText = LarkGroupBot.getAtUserHtml("all")
+            } else {
+                val atUserConfig = GroupUserConfig.getUserByName(atName)
+                if (atUserConfig != null) {
+                    atText += LarkGroupBot.getAtUserHtml(atUserConfig.webhook.lark.userId)
+                }
             }
         }
+
+        if (userConfig != null && atText.isBlank()) {
+            atText = userConfig.name
+        }
+
+        atText = atText.trim()
 
         val finalText = atText + messageItem.content
 
         // Lark Group Bot
         val groupBotText = finalText
 
-        launch {
-            larkGroupBotObj.sendTextWithSilentMode(
-                groupBotText, messageItem.machineConfig.webhook.silentMode
-            )
+        if (messageItem.sendToGroupBot) {
+            launch {
+                larkGroupBotObj.sendTextWithSilentMode(
+                    groupBotText, messageItem.machineConfig.webhook.silentMode
+                )
+            }
         }
     }
 }
