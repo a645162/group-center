@@ -6,10 +6,10 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     val kotlinVersion = "2.1.0"
-    val springBootVersion = "3.4.0"
+    val springBootVersion = "3.4.1"
 
     id("org.springframework.boot") version springBootVersion
-    id("io.spring.dependency-management") version "1.1.6"
+    id("io.spring.dependency-management") version "1.1.7"
 
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
@@ -21,13 +21,13 @@ plugins {
 val kotlinVersion = "2.1.0"
 val kotlinVersionPrevious = "2.0.20"
 
-val springBootVersion = "3.4.0"
+val springBootVersion = "3.4.1"
 val myBatisVersion = "3.0.4"
 
 val fastjsonVersion = "2.0.53"
 
 group = "com.khm.group"
-version = "1.2.0-SNAPSHOT"
+version = "1.2.2-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -113,7 +113,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
     // https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2")
 
@@ -168,7 +168,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
-    implementation("com.larksuite.oapi:oapi-sdk:2.4.4")
+    implementation("com.larksuite.oapi:oapi-sdk:2.4.6")
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
@@ -179,7 +179,7 @@ dependencies {
     implementation("com.akuleshov7:ktoml-core:0.5.2")
     implementation("com.akuleshov7:ktoml-file:0.5.2")
 
-    implementation("com.charleskorn.kaml:kaml:0.62.2")
+    implementation("com.charleskorn.kaml:kaml:0.67.0")
 
     // File Encoding
     implementation("com.github.albfernandez:juniversalchardet:2.5.0")
@@ -226,7 +226,12 @@ dependencies {
 }
 
 // Output Program Version
-tasks.create<WriteProperties>("writeVersionProperties") {
+//tasks.create<WriteProperties>("writeVersionProperties") {
+//    group = "export"
+//    property("version", project.version.toString())
+//    destinationFile = file("src/main/resources/settings/version.properties")
+//}
+tasks.register<WriteProperties>("writeVersionProperties") {
     group = "export"
     property("version", project.version.toString())
     destinationFile = file("src/main/resources/settings/version.properties")
