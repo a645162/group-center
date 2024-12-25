@@ -116,7 +116,8 @@ class GpuTaskNotify(
             targetUser = gpuTaskInfo.taskUser,
             machineConfig = machineConfig!!,
             sendToPersonBot = true,
-            sendToGroupBot = false
+            sendToGroupBot = true,
+            groupAt = "",
         )
         MessageCenter.addNewMessage(messageItem)
     }
