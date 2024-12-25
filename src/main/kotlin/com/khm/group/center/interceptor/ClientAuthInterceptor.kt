@@ -18,7 +18,23 @@ class ClientAuthInterceptor : HandlerInterceptor {
         val ipAddress = request.remoteAddr
         // println("Auth Interceptor Client IP: $ipAddress")
 
-        if (ConfigEnvironment.MACHINE_AUTH_REMEMBER_IP) {
+        fun checkIsInBlocklist(): Boolean {
+            // Docker
+            if (ipAddress.startsWith("172.")) {
+                // May run in docker!!!
+                return true
+            }
+
+            // Podman
+            if (ipAddress.startsWith("10.8")) {
+                // May run in podman!!!
+                return true
+            }
+
+            return false
+        }
+
+        if (ConfigEnvironment.MACHINE_AUTH_REMEMBER_IP && !checkIsInBlocklist()) {
             // Machine Auth Remember IP
             if (
                 ipAddress == "127.0.0.1" ||
@@ -26,11 +42,6 @@ class ClientAuthInterceptor : HandlerInterceptor {
             ) {
                 // Local Host
                 return true
-            }
-
-            if (ipAddress.startsWith("172.")) {
-                // May run in docker!!!
-                return false
             }
 
             if (ClientIpWhiteList.checkIpIsInWhiteList(ipAddress)) {
