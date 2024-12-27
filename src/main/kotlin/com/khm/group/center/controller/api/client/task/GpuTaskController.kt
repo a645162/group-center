@@ -27,7 +27,7 @@ class GpuTaskController {
     private fun getMultiGpuTaskInfoModel(gpuTaskInfo: GpuTaskInfo): List<GpuTaskInfoModel> {
         val queryWrapper = QueryWrapper<GpuTaskInfoModel>()
 
-        if (gpuTaskInfo.topPythonPid == -1) {
+        if (gpuTaskInfo.topPythonPid > 0) {
             return listOf()
         }
 
