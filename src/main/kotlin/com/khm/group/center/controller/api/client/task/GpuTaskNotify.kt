@@ -30,13 +30,10 @@ class GpuTaskNotify(
             gpuIdList.add(gpuTaskInfoModel.taskGpuId)
         }
 
-        // Remove repeated
-        gpuIdList.distinct()
-
         // Sort
         gpuIdList.sort()
 
-        return gpuIdList.joinToString(",")
+        return gpuIdList.distinct().joinToString(",")
     }
 
     private fun generateTaskMessage(): String {
