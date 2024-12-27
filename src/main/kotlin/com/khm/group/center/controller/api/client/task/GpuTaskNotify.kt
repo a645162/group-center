@@ -30,6 +30,9 @@ class GpuTaskNotify(
             gpuIdList.add(gpuTaskInfoModel.taskGpuId)
         }
 
+        // Remove repeated
+        gpuIdList.distinct()
+
         // Sort
         gpuIdList.sort()
 
@@ -48,7 +51,7 @@ class GpuTaskNotify(
                         gpuTaskInfo.taskStartTime
                     )
 
-                "[GPU${gpuTaskInfo.taskGpuId}]启动->\n"
+                "[GPU${gpuIdString}]启动->\n"
             }
 
             "finish" -> {
