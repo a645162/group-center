@@ -24,6 +24,25 @@ class GpuTaskController {
         return gpuTaskInfoMapper.selectOne(queryWrapper)
     }
 
+    private fun getMultiGpuTaskInfoModel(gpuTaskInfo: GpuTaskInfo): List<GpuTaskInfoModel> {
+        val queryWrapper = QueryWrapper<GpuTaskInfoModel>()
+
+        queryWrapper
+            // Parent PID
+            .eq("top_python_pid", gpuTaskInfo.topPythonPid)
+            // World Size should be the same
+            .eq("multi_device_world_size", gpuTaskInfo.multiDeviceWorldSize)
+            // User should be the same
+            .eq("task_user", gpuTaskInfo.taskUser)
+            // Machine should be the same
+            .eq("server_name_eng", gpuTaskInfo.serverNameEng)
+            // Project should be the same
+            .eq("project_name", gpuTaskInfo.projectName)
+            .eq("project_directory", gpuTaskInfo.projectDirectory)
+
+        return gpuTaskInfoMapper.selectList(queryWrapper)
+    }
+
     private fun newGpuTaskInfo(gpuTaskInfo: GpuTaskInfo) {
         if (gpuTaskInfo.taskId.isEmpty()) {
             return
@@ -55,9 +74,17 @@ class GpuTaskController {
                     " User:${gpuTaskInfo.taskUser}"
         )
 
+        val multiGpuTaskInfoModel =
+            if (gpuTaskInfo.multiDeviceWorldSize > 1) {
+                getMultiGpuTaskInfoModel(gpuTaskInfo)
+            } else {
+                null
+            }
+
         val gpuTaskNotify = GpuTaskNotify(
             gpuTaskInfo = gpuTaskInfo,
-            machineConfig = machineConfig
+            machineConfig = machineConfig,
+            multiGpuTaskInfoModel = multiGpuTaskInfoModel
         )
 
         val isMultiCard = gpuTaskInfo.multiDeviceWorldSize > 1

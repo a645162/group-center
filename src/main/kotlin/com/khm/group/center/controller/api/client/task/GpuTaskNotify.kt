@@ -6,15 +6,40 @@ import com.khm.group.center.message.MessageCenter
 import com.khm.group.center.message.MessageItem
 import com.khm.group.center.datatype.utils.datetime.DateTime
 import com.khm.group.center.datatype.utils.common.FloatValue
+import com.khm.group.center.db.model.client.GpuTaskInfoModel
 import com.khm.group.center.utils.file.FileSize
 
 
 class GpuTaskNotify(
     var gpuTaskInfo: GpuTaskInfo,
-    var machineConfig: MachineConfig?
+    var machineConfig: MachineConfig?,
+    var multiGpuTaskInfoModel: List<GpuTaskInfoModel>?
 ) {
+    private fun getGpuId(): String {
+        if (
+            gpuTaskInfo.multiDeviceWorldSize < 2 ||
+            multiGpuTaskInfoModel == null ||
+            multiGpuTaskInfoModel!!.isEmpty()
+        ) {
+            return "${gpuTaskInfo.taskGpuId}"
+        }
+
+        val gpuIdList = mutableListOf<Int>()
+
+        for (gpuTaskInfoModel in multiGpuTaskInfoModel!!) {
+            gpuIdList.add(gpuTaskInfoModel.taskGpuId)
+        }
+
+        // Sort
+        gpuIdList.sort()
+
+        return gpuIdList.joinToString(",")
+    }
+
     private fun generateTaskMessage(): String {
         var timeString = ""
+
+        val gpuIdString = getGpuId()
 
         val firstLine = when (gpuTaskInfo.messageType) {
             "create" -> {
@@ -34,7 +59,7 @@ class GpuTaskNotify(
                         )
                 }
 
-                "[GPU${gpuTaskInfo.taskGpuId}]完成!!!\n"
+                "[GPU${gpuIdString}]完成!!!\n"
             }
 
             else -> {
@@ -68,7 +93,7 @@ class GpuTaskNotify(
             }
 
         val multiGpuStr = if (gpuTaskInfo.multiDeviceWorldSize > 1) {
-            "\n${gpuTaskInfo.multiDeviceWorldSize}卡任务\n"
+            "\n${gpuTaskInfo.multiDeviceWorldSize}卡任务(${gpuIdString})\n"
         } else {
             ""
         }
