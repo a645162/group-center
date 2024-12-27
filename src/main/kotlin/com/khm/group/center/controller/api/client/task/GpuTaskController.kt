@@ -9,6 +9,9 @@ import com.khm.group.center.datatype.receive.task.GpuTaskInfo
 import com.khm.group.center.datatype.response.ClientResponse
 import com.khm.group.center.db.mapper.client.GpuTaskInfoMapper
 import com.khm.group.center.db.model.client.GpuTaskInfoModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.springframework.beans.factory.annotation.Autowired
 
 
@@ -18,36 +21,31 @@ class GpuTaskController {
     @Autowired
     lateinit var gpuTaskInfoMapper: GpuTaskInfoMapper
 
-    private fun getGpuTaskInfoByTaskId(taskId: String): GpuTaskInfoModel? {
-        val queryWrapper = QueryWrapper<GpuTaskInfoModel>()
-        queryWrapper.eq("task_id", taskId)
-        return gpuTaskInfoMapper.selectOne(queryWrapper)
-    }
+    @Operation(summary = "GPU任务变动")
+    @RequestMapping("/api/client/gpu_task/info", method = [RequestMethod.POST])
+    fun postGpuTaskInfo(@RequestBody gpuTaskInfo: GpuTaskInfo): ClientResponse {
+        newTaskInfoUpdateDb(gpuTaskInfo)
 
-    private fun getMultiGpuTaskInfoModel(gpuTaskInfo: GpuTaskInfo): List<GpuTaskInfoModel> {
-        val queryWrapper = QueryWrapper<GpuTaskInfoModel>()
+        println(
+            "Receive task from nvi-notify" +
+                    " ${gpuTaskInfo.taskType}" +
+                    " Project:${gpuTaskInfo.projectName}" +
+                    " User:${gpuTaskInfo.taskUser}"
+        )
 
-        if (gpuTaskInfo.topPythonPid > 0) {
-            return listOf()
+        // Notify in a separate coroutine
+        CoroutineScope(Dispatchers.IO).launch {
+            newTaskNotify(gpuTaskInfo)
         }
 
-        queryWrapper
-            // Parent PID
-            .eq("top_python_pid", gpuTaskInfo.topPythonPid)
-            // World Size should be the same
-            .eq("multi_device_world_size", gpuTaskInfo.multiDeviceWorldSize)
-            // User should be the same
-            .eq("task_user", gpuTaskInfo.taskUser)
-            // Machine should be the same
-            .eq("server_name_eng", gpuTaskInfo.serverNameEng)
-            // Project should be the same
-            .eq("project_name", gpuTaskInfo.projectName)
-            .eq("project_directory", gpuTaskInfo.projectDirectory)
-
-        return gpuTaskInfoMapper.selectList(queryWrapper)
+        val responseObj = ClientResponse()
+        responseObj.result = "success"
+        responseObj.isSucceed = true
+        responseObj.isAuthenticated = true
+        return responseObj
     }
 
-    private fun newGpuTaskInfo(gpuTaskInfo: GpuTaskInfo) {
+    private fun newTaskInfoUpdateDb(gpuTaskInfo: GpuTaskInfo) {
         if (gpuTaskInfo.taskId.isEmpty()) {
             return
         }
@@ -63,20 +61,13 @@ class GpuTaskController {
         gpuTaskInfoMapper.insert(gpuTaskInfoModel)
     }
 
-    @Operation(summary = "GPU任务变动")
-    @RequestMapping("/api/client/gpu_task/info", method = [RequestMethod.POST])
-    fun postGpuTaskInfo(@RequestBody gpuTaskInfo: GpuTaskInfo): ClientResponse {
-        newGpuTaskInfo(gpuTaskInfo)
+    private fun newTaskNotify(gpuTaskInfo: GpuTaskInfo) {
+        if (gpuTaskInfo.multiDeviceWorldSize > 1 && gpuTaskInfo.multiDeviceLocalRank == 0) {
+            // Wait for all the task to be ready
+            Thread.sleep(10000)
+        }
 
-        // Notify
         val machineConfig = MachineConfig.getMachineByNameEng(gpuTaskInfo.serverNameEng)
-
-        println(
-            "Receive task from nvi-notify" +
-                    " ${gpuTaskInfo.taskType}" +
-                    " Project:${gpuTaskInfo.projectName}" +
-                    " User:${gpuTaskInfo.taskUser}"
-        )
 
         val multiGpuTaskInfoModel =
             if (gpuTaskInfo.multiDeviceWorldSize > 1) {
@@ -99,12 +90,35 @@ class GpuTaskController {
         ) {
             gpuTaskNotify.sendTaskMessage()
         }
+    }
 
-        val responseObj = ClientResponse()
-        responseObj.result = "success"
-        responseObj.isSucceed = true
-        responseObj.isAuthenticated = true
-        return responseObj
+    private fun getGpuTaskInfoByTaskId(taskId: String): GpuTaskInfoModel? {
+        val queryWrapper = QueryWrapper<GpuTaskInfoModel>()
+        queryWrapper.eq("task_id", taskId)
+        return gpuTaskInfoMapper.selectOne(queryWrapper)
+    }
+
+    private fun getMultiGpuTaskInfoModel(gpuTaskInfo: GpuTaskInfo): List<GpuTaskInfoModel> {
+        val queryWrapper = QueryWrapper<GpuTaskInfoModel>()
+
+        if (gpuTaskInfo.topPythonPid <= 1) {
+            return listOf()
+        }
+
+        queryWrapper
+            // Parent PID
+            .eq("top_python_pid", gpuTaskInfo.topPythonPid)
+            // World Size should be the same
+            .eq("multi_device_world_size", gpuTaskInfo.multiDeviceWorldSize)
+            // User should be the same
+            .eq("task_user", gpuTaskInfo.taskUser)
+            // Machine should be the same
+            .eq("server_name_eng", gpuTaskInfo.serverNameEng)
+            // Project should be the same
+            .eq("project_name", gpuTaskInfo.projectName)
+            .eq("project_directory", gpuTaskInfo.projectDirectory)
+
+        return gpuTaskInfoMapper.selectList(queryWrapper)
     }
 
 }
