@@ -16,24 +16,31 @@ class GpuTaskNotify(
     var multiGpuTaskInfoModel: List<GpuTaskInfoModel>?
 ) {
     private fun getGpuId(): String {
+        val defaultStr = "${gpuTaskInfo.taskGpuId}"
         if (
             gpuTaskInfo.multiDeviceWorldSize < 2 ||
             multiGpuTaskInfoModel == null ||
             multiGpuTaskInfoModel!!.isEmpty()
         ) {
-            return "${gpuTaskInfo.taskGpuId}"
+            return defaultStr
         }
 
-        val gpuIdList = mutableListOf<Int>()
+        var gpuIdList = mutableListOf<Int>()
 
         for (gpuTaskInfoModel in multiGpuTaskInfoModel!!) {
             gpuIdList.add(gpuTaskInfoModel.taskGpuId)
         }
 
+        gpuIdList = gpuIdList.distinct().toMutableList()
+
+        if (gpuIdList.size != gpuTaskInfo.multiDeviceWorldSize) {
+            return defaultStr
+        }
+
         // Sort
         gpuIdList.sort()
 
-        return gpuIdList.distinct().joinToString(",")
+        return gpuIdList.joinToString(",")
     }
 
     private fun generateTaskMessage(): String {
@@ -93,7 +100,13 @@ class GpuTaskNotify(
             }
 
         val multiGpuStr = if (gpuTaskInfo.multiDeviceWorldSize > 1) {
-            "\n${gpuTaskInfo.multiDeviceWorldSize}卡任务(${gpuIdString})\n"
+            var extraInfo = ""
+
+            if (gpuIdString != "${gpuTaskInfo.taskGpuId}") {
+                extraInfo += "(${gpuIdString})"
+            }
+
+            "\n${gpuTaskInfo.multiDeviceWorldSize}卡任务${extraInfo}\n"
         } else {
             ""
         }
