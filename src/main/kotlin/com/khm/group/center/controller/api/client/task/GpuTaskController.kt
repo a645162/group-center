@@ -12,6 +12,7 @@ import com.khm.group.center.db.model.client.GpuTaskInfoModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.jetbrains.kotlin.gradle.internal.types.checker.SimpleClassicTypeSystemContext.size
 import org.springframework.beans.factory.annotation.Autowired
 
 
@@ -62,27 +63,39 @@ class GpuTaskController {
     }
 
     private fun newTaskNotify(gpuTaskInfo: GpuTaskInfo) {
-        if (gpuTaskInfo.multiDeviceWorldSize > 1 && gpuTaskInfo.multiDeviceLocalRank == 0) {
-            // Wait for all the task to be ready
-            Thread.sleep(10000)
-        }
+
 
         val machineConfig = MachineConfig.getMachineByNameEng(gpuTaskInfo.serverNameEng)
 
-        val multiGpuTaskInfoModel =
-            if (gpuTaskInfo.multiDeviceWorldSize > 1) {
-                getMultiGpuTaskInfoModel(gpuTaskInfo)
-            } else {
-                null
+        val isMultiCard = gpuTaskInfo.multiDeviceWorldSize > 1
+
+        var multiGpuTaskInfoModel: List<GpuTaskInfoModel>? = null
+
+        if (isMultiCard && gpuTaskInfo.multiDeviceLocalRank == 0) {
+            var waitTimes = 0
+            val waitTimeThreshold = 10;
+
+            // Wait for all the task to be ready
+            while (
+                (multiGpuTaskInfoModel == null
+                        || multiGpuTaskInfoModel.size != gpuTaskInfo.multiDeviceWorldSize)
+                && waitTimes <= waitTimeThreshold
+            ) {
+                multiGpuTaskInfoModel = getMultiGpuTaskInfoModel(gpuTaskInfo)
+                if (multiGpuTaskInfoModel.size == gpuTaskInfo.multiDeviceWorldSize) {
+                    break
+                }
+
+                waitTimes++
+                Thread.sleep(1000)
             }
+        }
 
         val gpuTaskNotify = GpuTaskNotify(
             gpuTaskInfo = gpuTaskInfo,
             machineConfig = machineConfig,
             multiGpuTaskInfoModel = multiGpuTaskInfoModel
         )
-
-        val isMultiCard = gpuTaskInfo.multiDeviceWorldSize > 1
 
         if (
             !gpuTaskInfo.isDebugMode &&
