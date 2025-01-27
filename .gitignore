@@ -1,6 +1,9 @@
 *.jar
 /Data/
 
+*.7z
+*.zip
+
 /logs/
 HELP.md
 .gradle
