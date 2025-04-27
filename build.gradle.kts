@@ -5,8 +5,8 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 
 plugins {
-    val kotlinVersion = "2.1.10"
-    val springBootVersion = "3.4.3"
+    val kotlinVersion = "2.1.20"
+    val springBootVersion = "3.4.5"
 
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
@@ -18,16 +18,16 @@ plugins {
     id("com.github.ben-manes.versions") version "0.52.0"
 }
 
-val kotlinVersion = "2.1.10"
-val kotlinVersionPrevious = "2.1.0"
+val kotlinVersion = "2.1.20"
+// val kotlinVersionPrevious = "2.1.10"
 
-val springBootVersion = "3.4.3"
+val springBootVersion = "3.4.5"
 val myBatisVersion = "3.0.4"
 
-val fastjsonVersion = "2.0.56"
+val fastjsonVersion = "2.0.57"
 
 group = "com.khm.group"
-version = "1.2.5-SNAPSHOT"
+version = "1.2.6-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -113,9 +113,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
     // https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.3")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.0")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
@@ -128,7 +128,7 @@ dependencies {
     implementation("com.alibaba:druid-spring-boot-starter:1.2.24")
 
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${myBatisVersion}")
-    implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.10.1")
+    implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.11")
 
     // https://mvnrepository.com/artifact/com.gitee.sunchenbin.mybatis.actable/mybatis-enhance-actable
 //    implementation("com.gitee.sunchenbin.mybatis.actable:mybatis-enhance-actable:1.5.0.RELEASE")
@@ -143,7 +143,7 @@ dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Task
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr
-    implementation("org.jobrunr:jobrunr:7.4.1")
+    implementation("org.jobrunr:jobrunr:7.5.0")
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-kotlin-1.7-support
     implementation("org.jobrunr:jobrunr-kotlin-1.7-support:7.2.0")
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-spring-boot-starter
@@ -159,7 +159,7 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.tencent.kona/kona-crypto
     // https://github.com/Tencent/TencentKonaSMSuite
-    implementation("com.tencent.kona:kona-crypto:1.0.16")
+    implementation("com.tencent.kona:kona-crypto:1.0.17")
 
     // https://mvnrepository.com/artifact/commons-codec/commons-codec
     implementation("commons-codec:commons-codec:1.17.1")
@@ -168,7 +168,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
-    implementation("com.larksuite.oapi:oapi-sdk:2.4.11")
+    implementation("com.larksuite.oapi:oapi-sdk:2.4.14")
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
@@ -176,8 +176,8 @@ dependencies {
     implementation("com.alibaba.fastjson2:fastjson2-kotlin:${fastjsonVersion}")
 
     // Config File
-    implementation("com.akuleshov7:ktoml-core:0.5.2")
-    implementation("com.akuleshov7:ktoml-file:0.5.2")
+    implementation("com.akuleshov7:ktoml-core:0.6.0")
+    implementation("com.akuleshov7:ktoml-file:0.6.0")
 
     implementation("com.charleskorn.kaml:kaml:0.67.0")
 
@@ -188,7 +188,7 @@ dependencies {
     // Dev Tools
     // Lombok for Java
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    compileOnly("org.projectlombok:lombok:1.18.36")
+    compileOnly("org.projectlombok:lombok:1.18.38")
 
     // Docker
     // runtimeOnly("org.springframework.boot:spring-boot-docker-compose")
