@@ -5,7 +5,7 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 
 plugins {
-    val kotlinVersion = "2.1.20"
+    val kotlinVersion = "2.1.21"
     val springBootVersion = "3.4.5"
 
     id("org.springframework.boot") version springBootVersion
@@ -18,8 +18,8 @@ plugins {
     id("com.github.ben-manes.versions") version "0.52.0"
 }
 
-val kotlinVersion = "2.1.20"
-// val kotlinVersionPrevious = "2.1.10"
+val kotlinVersion = "2.1.21"
+// val kotlinVersionPrevious = "2.1.20"
 
 val springBootVersion = "3.4.5"
 val myBatisVersion = "3.0.4"
@@ -27,7 +27,7 @@ val myBatisVersion = "3.0.4"
 val fastjsonVersion = "2.0.57"
 
 group = "com.khm.group"
-version = "1.2.6-SNAPSHOT"
+version = "1.2.7-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -128,14 +128,14 @@ dependencies {
     implementation("com.alibaba:druid-spring-boot-starter:1.2.24")
 
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${myBatisVersion}")
-    implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.11")
+    implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.12")
 
     // https://mvnrepository.com/artifact/com.gitee.sunchenbin.mybatis.actable/mybatis-enhance-actable
 //    implementation("com.gitee.sunchenbin.mybatis.actable:mybatis-enhance-actable:1.5.0.RELEASE")
 
     // Database Driver
     // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
-    runtimeOnly("com.mysql:mysql-connector-j:9.2.0")
+    runtimeOnly("com.mysql:mysql-connector-j:9.3.0")
 //    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     // https://mvnrepository.com/artifact/com.oceanbase/oceanbase-client
     // runtimeOnly("com.oceanbase:oceanbase-client:2.4.9")
@@ -143,7 +143,7 @@ dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Task
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr
-    implementation("org.jobrunr:jobrunr:7.5.0")
+    implementation("org.jobrunr:jobrunr:7.5.1")
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-kotlin-1.7-support
     implementation("org.jobrunr:jobrunr-kotlin-1.7-support:7.2.0")
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-spring-boot-starter
@@ -168,7 +168,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
-    implementation("com.larksuite.oapi:oapi-sdk:2.4.14")
+    implementation("com.larksuite.oapi:oapi-sdk:2.4.16")
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
@@ -176,8 +176,8 @@ dependencies {
     implementation("com.alibaba.fastjson2:fastjson2-kotlin:${fastjsonVersion}")
 
     // Config File
-    implementation("com.akuleshov7:ktoml-core:0.6.0")
-    implementation("com.akuleshov7:ktoml-file:0.6.0")
+    implementation("com.akuleshov7:ktoml-core:0.7.0")
+    implementation("com.akuleshov7:ktoml-file:0.7.0")
 
     implementation("com.charleskorn.kaml:kaml:0.67.0")
 
