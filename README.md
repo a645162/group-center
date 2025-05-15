@@ -7,6 +7,54 @@
 - [Group Center Dashboard](https://github.com/a645162/group-center-dashboard)
 - [Group Center Agent(nvi-notify)](https://github.com/a645162/nvi-notify)
 
+## Group Center Backend
+
+### 语言及构建工具
+
+- Java
+- Kotlin
+- Gradle(Kotlin DSL)
+
+### IDE及开发辅助工具
+
+- Alibaba DragonWell JDK 21
+- Jetbrains Intellij IDEA
+- Jetbrains DataGrip
+- PDManer
+
+### 框架
+
+- Spring Boot
+
+### 数据库
+
+- Alibaba Druid
+- MyBatis
+- MyBatis Plus
+
+### 支持的数据库
+
+- MySQL
+- Alibaba OceanBase
+
+### 认证与加密
+
+- JWT(使用SM3算法自己实现的JWT)
+- Tencent Kona Crypto(国密SM3/SM4算法)
+
+### 消息推送
+
+- 企业微信(WeCom)
+- 飞书(Lark)
+
+### 报表(TODO)
+
+画个饼，初步计划集成JimuReport积木报表。
+
+#### JimuReport积木报表
+
+https://github.com/jeecgboot/jimureport
+
 ### 旧版项目
 
 - [web-gpu-dashboard](https://github.com/a645162/web-gpu-dashboard)
@@ -111,43 +159,3 @@ NVIDIA GPU服务器监控通知工具，主要用于监控NVIDIA GPU服务器的
 - Element Plus
 - Pinia
 - Axios
-
-## Group Center Backend
-
-### 语言及构建工具
-
-- Java
-- Kotlin
-- Gradle(Kotlin DSL)
-
-### IDE及开发辅助工具
-
-- Alibaba DragonWell JDK 21
-- Jetbrains Intellij IDEA
-- Jetbrains DataGrip
-- PDManer
-
-### 框架
-
-- Spring Boot
-
-### 数据库
-
-- Alibaba Druid
-- MyBatis
-- MyBatis Plus
-
-### 支持的数据库
-
-- MySQL
-- Alibaba OceanBase
-
-### 认证与加密
-
-- JWT(使用SM3算法自己实现的JWT)
-- Tencent Kona Crypto(国密SM3/SM4算法)
-
-### 消息推送
-
-- 企业微信(WeCom)
-- 飞书(Lark)
