@@ -27,7 +27,7 @@ val myBatisVersion = "3.0.5"
 val fastjsonVersion = "2.0.58"
 
 group = "com.khm.group"
-version = "1.2.7-SNAPSHOT"
+version = "1.3.1-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -57,50 +57,6 @@ allprojects {
             isNonStable(candidate.version)
         }
     }
-}
-
-// https://developer.aliyun.com/mirror/
-// https://developer.aliyun.com/mirror/maven
-allprojects {
-    repositories {
-        maven { url = uri("https://maven.aliyun.com/repository/central") }
-        maven { url = uri("https://maven.aliyun.com/repository/public") }
-        maven { url = uri("https://maven.aliyun.com/repository/spring") }
-        maven{ url = uri("https://maven.aliyun.com/repository/jcenter") }
-        maven{ url = uri("https://maven.aliyun.com/repository/google") }
-
-        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
-
-        // MyBatis-Plus Snapshot
-        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
-
-        mavenLocal()
-        mavenCentral()
-
-        gradlePluginPortal()
-
-        google()
-    }
-}
-
-repositories {
-    maven { url = uri("https://maven.aliyun.com/repository/central") }
-    maven { url = uri("https://maven.aliyun.com/repository/public") }
-    maven { url = uri("https://maven.aliyun.com/repository/spring") }
-    maven{ url = uri("https://maven.aliyun.com/repository/jcenter") }
-    maven{ url = uri("https://maven.aliyun.com/repository/google") }
-
-    maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
-
-    // MyBatis-Plus Snapshot
-    maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
-
-    mavenLocal()
-    mavenCentral()
-
-    gradlePluginPortal()
-
-    google()
 }
 
 dependencies {
