@@ -5,8 +5,8 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 
 plugins {
-    val kotlinVersion = "2.2.0"
-    val springBootVersion = "3.5.3"
+    val kotlinVersion = "2.2.10"
+    val springBootVersion = "3.5.5"
 
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
@@ -18,16 +18,16 @@ plugins {
     id("com.github.ben-manes.versions") version "0.52.0"
 }
 
-val kotlinVersion = "2.2.0"
+val kotlinVersion = "2.2.10"
 // val kotlinVersionPrevious = "2.1.21"
 
-val springBootVersion = "3.5.3"
+val springBootVersion = "3.5.5"
 val myBatisVersion = "3.0.5"
 
-val fastjsonVersion = "2.0.57"
+val fastjsonVersion = "2.0.58"
 
 group = "com.khm.group"
-version = "1.3.0-SNAPSHOT"
+version = "1.2.7-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -46,7 +46,7 @@ allprojects {
     apply<com.github.benmanes.gradle.versions.VersionsPlugin>()
 
     tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
-        // configure the task, for example, wrt. resolution strategies
+        // configure the task, for example wrt. resolution strategies
 
         checkForGradleUpdate = true
         outputFormatter = "txt"
@@ -61,51 +61,47 @@ allprojects {
 
 // https://developer.aliyun.com/mirror/
 // https://developer.aliyun.com/mirror/maven
-//allprojects {
-//    repositories {
-//        maven { url = uri("https://maven.aliyun.com/repository/central") }
-//        maven { url = uri("https://maven.aliyun.com/repository/public") }
-//        maven { url = uri("https://maven.aliyun.com/repository/spring") }
-//        maven{ url = uri("https://maven.aliyun.com/repository/jcenter") }
-//        maven{ url = uri("https://maven.aliyun.com/repository/google") }
-//
-//        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
-//
-//        // MyBatis-Plus Snapshot
-//        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
-//
-//        mavenLocal()
-//        mavenCentral()
-//
-//        gradlePluginPortal()
-//
-//        maven { url = uri("https://www.jitpack.io") }
-//
-//        google()
-//    }
-//}
-//
-//repositories {
-//    maven { url = uri("https://maven.aliyun.com/repository/central") }
-//    maven { url = uri("https://maven.aliyun.com/repository/public") }
-//    maven { url = uri("https://maven.aliyun.com/repository/spring") }
-//    maven{ url = uri("https://maven.aliyun.com/repository/jcenter") }
-//    maven{ url = uri("https://maven.aliyun.com/repository/google") }
-//
-//    maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
-//
-//    // MyBatis-Plus Snapshot
-//    maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
-//
-//    mavenLocal()
-//    mavenCentral()
-//
-//    gradlePluginPortal()
-//
-//    maven { url = uri("https://www.jitpack.io") }
-//
-//    google()
-//}
+allprojects {
+    repositories {
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/spring") }
+        maven{ url = uri("https://maven.aliyun.com/repository/jcenter") }
+        maven{ url = uri("https://maven.aliyun.com/repository/google") }
+
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+
+        // MyBatis-Plus Snapshot
+        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
+
+        mavenLocal()
+        mavenCentral()
+
+        gradlePluginPortal()
+
+        google()
+    }
+}
+
+repositories {
+    maven { url = uri("https://maven.aliyun.com/repository/central") }
+    maven { url = uri("https://maven.aliyun.com/repository/public") }
+    maven { url = uri("https://maven.aliyun.com/repository/spring") }
+    maven{ url = uri("https://maven.aliyun.com/repository/jcenter") }
+    maven{ url = uri("https://maven.aliyun.com/repository/google") }
+
+    maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+
+    // MyBatis-Plus Snapshot
+    maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
+
+    mavenLocal()
+    mavenCentral()
+
+    gradlePluginPortal()
+
+    google()
+}
 
 dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +115,7 @@ dependencies {
     // https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.0")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
@@ -129,7 +125,7 @@ dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Database
     // https://mvnrepository.com/artifact/com.alibaba/druid-spring-boot-starter
-    implementation("com.alibaba:druid-spring-boot-starter:1.2.25")
+    implementation("com.alibaba:druid-spring-boot-starter:1.2.27")
 
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${myBatisVersion}")
     implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.12")
@@ -139,7 +135,7 @@ dependencies {
 
     // Database Driver
     // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
-    runtimeOnly("com.mysql:mysql-connector-j:9.3.0")
+    runtimeOnly("com.mysql:mysql-connector-j:9.4.0")
 //    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     // https://mvnrepository.com/artifact/com.oceanbase/oceanbase-client
     // runtimeOnly("com.oceanbase:oceanbase-client:2.4.9")
@@ -147,7 +143,7 @@ dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Task
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr
-    implementation("org.jobrunr:jobrunr:8.0.1")
+    implementation("org.jobrunr:jobrunr:8.0.2")
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-kotlin-1.7-support
     implementation("org.jobrunr:jobrunr-kotlin-1.7-support:7.2.0")
     // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-spring-boot-starter
@@ -163,16 +159,16 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.tencent.kona/kona-crypto
     // https://github.com/Tencent/TencentKonaSMSuite
-    implementation("com.tencent.kona:kona-crypto:1.0.17")
+    implementation("com.tencent.kona:kona-crypto:1.0.18")
 
     // https://mvnrepository.com/artifact/commons-codec/commons-codec
-    implementation("commons-codec:commons-codec:1.18.0")
+    implementation("commons-codec:commons-codec:1.17.1")
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Message WebHook
     implementation("com.squareup.okhttp3:okhttp:5.1.0")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
-    implementation("com.larksuite.oapi:oapi-sdk:2.4.20")
+    implementation("com.larksuite.oapi:oapi-sdk:2.4.23")
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
@@ -183,9 +179,7 @@ dependencies {
     implementation("com.akuleshov7:ktoml-core:0.7.0")
     implementation("com.akuleshov7:ktoml-file:0.7.0")
 
-     implementation("com.charleskorn.kaml:kaml:0.67.0")
-    // implementation("com.charleskorn.kaml:kaml:0.83.0")
-    // implementation("com.github.charleskorn:kaml:0.84.0")
+    implementation("com.charleskorn.kaml:kaml:0.67.0")
 
     // File Encoding
     implementation("com.github.albfernandez:juniversalchardet:2.5.0")
