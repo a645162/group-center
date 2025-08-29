@@ -30,10 +30,14 @@ class MonitorClientAuthController {
             return response
         }
 
-        val correctPassword = MD5.getMd5Hash(machineConfig.password).lowercase()
+        val correctPassword = machineConfig.password.trim()
+        val correctPasswordMd5 = MD5.getMd5Hash(correctPassword)
+
+        val currentPassword = password.trim()
+
         if (
-            correctPassword != password.lowercase()
-            && machineConfig.password != password
+            correctPasswordMd5.lowercase() != currentPassword.lowercase()
+            && correctPassword != currentPassword
         ) {
             response.isAuthenticated = false
             response.isSucceed = false

@@ -4,6 +4,8 @@
 *.7z
 *.zip
 
+backup/
+
 /logs/
 HELP.md
 .gradle
