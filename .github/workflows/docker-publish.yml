@@ -2,148 +2,119 @@ name: Docker Image Stable Newest CI
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
-  prepare-environment:
+  prepare-environment: # 第一个任务: 准备环境并获取版本号
     runs-on: ubuntu-latest
     outputs:
       program-version: ${{ steps.set-version.outputs.program-version }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository # 拉取代码，包括子模块
+        uses: actions/checkout@v4
         with:
           submodules: true
 
-      - name: Set up Python
+      - name: Set up Python # 设置Python 3.12 环境
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
 
-      - name: Check Version Setting
+      - name: Check Version Setting # 检查Python和pip版本
         run: |
           python --version
           pip --version
 
-      - name: Set up Program Version
+      - name: Set up Program Version # 运行脚本获取版本号并设置为输出
         id: set-version
         run: |
-          python version.py
           PROGRAM_VERSION=$(python version.py)
           echo "program-version=${PROGRAM_VERSION}" >> $GITHUB_OUTPUT
           echo "PROGRAM_VERSION=${PROGRAM_VERSION}" >> $GITHUB_ENV
 
-      - name: Echo Program Version
+      - name: Echo Program Version # 打印版本号以确认
         run: echo "'${{ env.PROGRAM_VERSION }}' will be used as the version of the program."
 
-  build-jar:
+  build-jar: # 第二个任务: 构建JAR文件
     runs-on: ubuntu-latest
-    needs: prepare-environment
+    needs: prepare-environment # 依赖第一个任务
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository # 拉取代码
+        uses: actions/checkout@v4
         with:
           submodules: true
 
-      - name: Set up Python
+      - name: Set up Python # 设置Python 3.12 环境
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
 
-      - name: Set Program Version from Previous Job
+      - name: Set Program Version from Previous Job # 从上一个任务获取版本号并设为环境变量
         run: |
           echo "PROGRAM_VERSION=${{ needs.prepare-environment.outputs.program-version }}" >> $GITHUB_ENV
 
-      - name: Build .jar file
+      - name: Build .jar file # 运行脚本构建JAR文件
         run: python build_with_docker.py
 
-      - name: Check is Build Success
+      - name: Check is Build Success # 检查JAR文件是否成功生成
         run: ls group-center-docker.jar
 
-      - name: Upload JAR Artifact
+      - name: Upload JAR Artifact # 将JAR文件作为产物上传
         uses: actions/upload-artifact@v4
         with:
           name: group-center-jar
           path: group-center-docker.jar
 
-  setup-docker:
+  build-and-push: # 第三个任务: 构建并推送Docker镜像
     runs-on: ubuntu-latest
-    needs: build-jar
-    outputs:
-      acr-region: ${{ steps.set-acr.outputs.acr-region }}
-      acr-registry: ${{ steps.set-acr.outputs.acr-registry }}
+    needs: [ prepare-environment, build-jar ] # 依赖前两个任务
     steps:
-      - name: Set up QEMU
+      - name: Checkout repository # 拉取代码
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Download JAR Artifact # 下载上一步构建的JAR文件
+        uses: actions/download-artifact@v4
+        with:
+          name: group-center-jar
+          path: .
+
+      - name: Set up QEMU # 设置QEMU，用于模拟不同CPU架构
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker BuildX
+      - name: Set up Docker Buildx # 设置Docker Buildx，以支持多平台构建
         uses: docker/setup-buildx-action@v3
 
-      - name: Set up Docker BuildX with container driver
-        run: |
-          docker buildx create --use --name multi-platform-builder
-          docker buildx inspect --bootstrap
-
-      - name: Set up Aliyun Region
+      - name: Set up Aliyun Region # 设置阿里云容器镜像服务的区域信息
         id: set-acr
         env:
-          ACR_REGION: cn-shanghai
+          ACR_REGION: cn-shanghai # 可在此处修改为你需要的区域
         run: |
-          echo "acr-region=$ACR_REGION" >> $GITHUB_OUTPUT
           echo "acr-registry=registry.${ACR_REGION}.aliyuncs.com" >> $GITHUB_OUTPUT
-          echo "ACR_REGION=$ACR_REGION" >> $GITHUB_ENV
           echo "ACR_REGISTRY=registry.${ACR_REGION}.aliyuncs.com" >> $GITHUB_ENV
+          echo "ACR_REGION=${ACR_REGION}" >> $GITHUB_ENV
 
-      - name: Confirm Aliyun ACR
+      - name: Confirm Aliyun ACR # 打印并确认ACR的区域和地址
         run: |
-          echo "Aliyun ACR REGION=$ACR_REGION"
-          echo "Aliyun ACR REGISTRY=$ACR_REGISTRY"
+          echo "Aliyun ACR REGION=${{ env.ACR_REGION }}"
+          echo "Aliyun ACR REGISTRY=${{ env.ACR_REGISTRY }}"
 
-      - name: Login to Aliyun Container Registry (ACR)
+      - name: Login to Aliyun Container Registry (ACR) # 登录到阿里云容器镜像服务
         uses: docker/login-action@v3
         with:
           registry: ${{ env.ACR_REGISTRY }}
           username: ${{ secrets.ALIYUN_USERNAME }}
           password: ${{ secrets.ALIYUN_PASSWORD }}
 
-      - name: Login to DockerHub
+      - name: Login to DockerHub # 登录到DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-  build-and-push:
-    runs-on: ubuntu-latest
-    needs: [prepare-environment, setup-docker]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Download JAR Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: group-center-jar
-          path: .
-
-      - name: Set up Program Version from Previous Job
-        run: |
-          echo "PROGRAM_VERSION=${{ needs.prepare-environment.outputs.program-version }}" >> $GITHUB_ENV
-
-      - name: Set up Aliyun Region from Previous Job
-        run: |
-          echo "ACR_REGION=${{ needs.setup-docker.outputs.acr-region }}" >> $GITHUB_ENV
-          echo "ACR_REGISTRY=${{ needs.setup-docker.outputs.acr-registry }}" >> $GITHUB_ENV
-
-      - name: Set up Image Tags
-        env:
-          GITHUB_SHA: ${{ github.sha }}
-          IMAGE_TAG: latest
-        run: |
-          echo "GITHUB_SHA=$GITHUB_SHA" >> $GITHUB_ENV
-          echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-
-      - name: Build & Push image
+      - name: Build & Push image # 构建并推送多平台Docker镜像
         id: docker_build
         uses: docker/build-push-action@v5
         with:
@@ -152,10 +123,10 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ github.repository }}:latest,
-            ${{ github.repository }}:${{ needs.prepare-environment.outputs.program-version }},
-            ${{ needs.setup-docker.outputs.acr-registry }}/${{ github.repository }}:latest,
-            ${{ needs.setup-docker.outputs.acr-registry }}/${{ github.repository }}:${{ needs.prepare-environment.outputs.program-version }},
+            ${{ github.repository }}:latest
+            ${{ github.repository }}:${{ needs.prepare-environment.outputs.program-version }}
+            ${{ steps.set-acr.outputs.acr-registry }}/${{ github.repository }}:latest
+            ${{ steps.set-acr.outputs.acr-registry }}/${{ github.repository }}:${{ needs.prepare-environment.outputs.program-version }}
 
-      - name: Image digest
+      - name: Image digest # 打印最终生成镜像的摘要信息
         run: echo ${{ steps.docker_build.outputs.digest }}
