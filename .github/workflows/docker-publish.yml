@@ -2,7 +2,7 @@ name: Docker Image Stable Newest CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
@@ -77,6 +77,11 @@ jobs:
 
       - name: Set up Docker BuildX
         uses: docker/setup-buildx-action@v3
+
+      - name: Set up Docker BuildX with container driver
+        run: |
+          docker buildx create --use --name multi-platform-builder
+          docker buildx inspect --bootstrap
 
       - name: Set up Aliyun Region
         id: set-acr
