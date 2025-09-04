@@ -64,4 +64,6 @@ class GpuTaskInfo {
     var pythonVersion: String = ""
     var commandLine: String = ""
     var condaEnvName: String = ""
+
+    var totalGpuCount: Int = 0
 }

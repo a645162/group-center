@@ -33,12 +33,53 @@ class GpuTaskNotify(
 
         gpuIdList = gpuIdList.distinct().toMutableList()
 
-        if (gpuIdList.size != gpuTaskInfo.multiDeviceWorldSize) {
-            return defaultStr
-        }
+        val isRecordCorrect = (gpuIdList.size == gpuTaskInfo.multiDeviceWorldSize)
 
         // Sort
         gpuIdList.sort()
+
+        // 检查卡Index是否连续
+        var isContinuous = true
+        for (i in 0 until gpuIdList.size - 1) {
+            if (gpuIdList[i] + 1 != gpuIdList[i + 1]) {
+                isContinuous = false
+                break
+            }
+        }
+
+        // 记录正确的情况下，且不连续
+        if (isRecordCorrect && !isContinuous) {
+            sendGpuWarningMessage(
+                "GPU使用非连续警告",
+                "检测到GPU使用不连续：${gpuIdList.joinToString(",")}。建议使用连续的GPU以获得更好的性能。"
+            )
+        }
+
+        // 跨NUMA节点检测
+        val totalGpuCount = gpuTaskInfo.totalGpuCount
+        if (totalGpuCount >= 4) {
+            // 4卡及以上机器，前一半卡在NUMA1，后一半卡在NUMA2
+            val numa1MaxId = totalGpuCount / 2 - 1  // NUMA1的最大GPU ID
+
+            val isUseAllGpu = (gpuIdList.size == totalGpuCount)
+
+            // 检查使用的GPU是否跨越NUMA边界
+            val hasNuma1Gpu = gpuIdList.any { it <= numa1MaxId }
+            val hasNuma2Gpu = gpuIdList.any { it > numa1MaxId }
+
+            if (!isUseAllGpu && hasNuma1Gpu && hasNuma2Gpu) {
+                sendGpuWarningMessage(
+                    "跨NUMA节点警告",
+                    "使用GPU卡${gpuIdList.joinToString(",")}" +
+                            "跨越NUMA节点边界(边界在GPU${numa1MaxId}/${numa1MaxId + 1}之间)。" +
+                            "这可能影响性能，建议在同一NUMA节点内使用GPU。"
+                )
+            }
+        }
+
+        if (!isRecordCorrect) {
+            return defaultStr
+        }
 
         return gpuIdList.joinToString(",")
     }
@@ -137,6 +178,34 @@ class GpuTaskNotify(
 
                         + timeString
                 )
+    }
+
+    private fun sendGpuWarningMessage(warningType: String, warningContent: String) {
+        if (machineConfig == null) {
+            return
+        }
+
+        val timeString = DateTime.getDateTimeStrByPythonTimeStamp(System.currentTimeMillis() / 1000)
+
+        val warningMessage = buildString {
+            append("⚠️ ${warningType} ⚠️\n\n")
+            append("机器：${machineConfig!!.name}\n")
+            append("用户：${gpuTaskInfo.taskUser}\n")
+            append("任务：${gpuTaskInfo.projectName.ifEmpty { gpuTaskInfo.pyFileName }}\n")
+            append("GPU数量：${gpuTaskInfo.multiDeviceWorldSize}卡\n\n")
+            append("${warningContent}\n\n")
+            append("时间：${timeString}")
+        }
+
+        val messageItem = MessageItem(
+            content = warningMessage,
+            targetUser = gpuTaskInfo.taskUser,
+            machineConfig = machineConfig!!,
+            sendToPersonBot = true,
+            sendToGroupBot = true,
+            groupAt = gpuTaskInfo.taskUser, // 在群里@用户
+        )
+        MessageCenter.addNewMessage(messageItem)
     }
 
     fun sendTaskMessage() {
