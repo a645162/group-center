@@ -31,10 +31,10 @@ LABEL maintainer="Haomin Kong"
 #    && yum makecache
 
 # https://mirrors.hust.edu.cn/docs/anolis/
-#RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu.cn|g" \
-#        /etc/yum.repos.d/*.repo \
-#    && yum makecache \
-RUN    yum makecache \
+RUN    #yum makecache \
+RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu.cn|g" \
+        /etc/yum.repos.d/*.repo \
+    && yum makecache \
     && yum update -y \
     && yum clean all
 
@@ -43,7 +43,8 @@ RUN    yum makecache \
 #    && yum clean all
 
 # Install Software
-RUN    yum install -y tzdata net-tools \
+RUN    rpm --rebuilddb \
+    && yum install -y tzdata net-tools \
     && yum clean all
 
 # Set the timezone
