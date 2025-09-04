@@ -76,21 +76,13 @@ print("=" * 20)
 print(f"Build Jar({image_name}) using Docker")
 print("=" * 20)
 
-print("=" * 20)
-print("== Change Gradle to Official")
-gradle_change_to_official()
-print("=" * 20)
+
 
 # Build Image
 print("=" * 20)
 print("== Build Image")
 
 ret: bool = not run_command(f"docker build -t {image_name} -f ./Docker/Dockerfile-Build .")
-
-print("=" * 20)
-print("== Restore Gradle to Original")
-restore_to_original()
-print("=" * 20)
 
 print("=" * 20)
 print("== Check Build Image")
@@ -109,6 +101,11 @@ else:
     print("Build Scripts Not Exists")
     exit(1)
 
+print("=" * 20)
+print("== Change Gradle to Official")
+gradle_change_to_official()
+print("=" * 20)
+
 # Run Containers
 print("=" * 20)
 print("== Run Containers")
@@ -121,6 +118,11 @@ print("== Run Containers")
 if not run_command(f"docker run --rm -v .:/usr/local/group-center {image_name}"):
     print("Run Containers Failed")
     exit(1)
+
+print("=" * 20)
+print("== Restore Gradle to Original")
+restore_to_original()
+print("=" * 20)
 
 # Remove Image
 print("=" * 20)
