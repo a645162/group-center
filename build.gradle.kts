@@ -27,7 +27,7 @@ val myBatisVersion = "3.0.5"
 val fastjsonVersion = "2.0.58"
 
 group = "com.khm.group"
-version = "1.3.1-SNAPSHOT"
+version = "1.3.2-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -84,7 +84,7 @@ dependencies {
     implementation("com.alibaba:druid-spring-boot-starter:1.2.27")
 
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${myBatisVersion}")
-    implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.12")
+    implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.14")
 
     // https://mvnrepository.com/artifact/com.gitee.sunchenbin.mybatis.actable/mybatis-enhance-actable
 //    implementation("com.gitee.sunchenbin.mybatis.actable:mybatis-enhance-actable:1.5.0.RELEASE")
