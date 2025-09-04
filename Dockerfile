@@ -31,9 +31,10 @@ LABEL maintainer="Haomin Kong"
 #    && yum makecache
 
 # https://mirrors.hust.edu.cn/docs/anolis/
-RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu.cn|g" \
-        /etc/yum.repos.d/*.repo \
-    && yum makecache \
+#RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu.cn|g" \
+#        /etc/yum.repos.d/*.repo \
+#    && yum makecache \
+RUN    yum makecache \
     && yum update -y \
     && yum clean all
 
@@ -42,12 +43,12 @@ RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu
 #    && yum clean all
 
 # Install Software
-RUN yum install -y tzdata net-tools \
+RUN    yum install -y tzdata net-tools \
     && yum clean all
 
 # Set the timezone
 ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
+RUN    ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo ${TZ} > /etc/timezone
 
 LABEL AUTHOR="Haomin Kong" VERSION=1.1.0
