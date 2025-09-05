@@ -50,7 +50,17 @@ class GroupPusher {
     /**
      * 推送到指定类型的群组（内部实现）
      */
-    private fun pushToGroupsInternal(message: String, groupType: String) {
+    private fun pushToGroupsInternal(message: String, groupType: String, removeEachLineBlank: Boolean = true) {
+        if (removeEachLineBlank) {
+            // 移除每行的空白字符
+            // 分解为每一行的数组
+            val lines = message.lines()
+            // 移除每行的空白字符后重新组合为字符串
+            val cleanedLines = lines.map { it.trim() }.filter { it.isNotEmpty() }
+            val cleanedMessage = cleanedLines.joinToString("\n")
+            return pushToGroupsInternal(cleanedMessage, groupType, false)
+        }
+
         try {
             val botConfig = loadBotConfig()
             val groups = botConfig.bot.groups.filter { it.type == groupType && it.enable }

@@ -2,6 +2,7 @@ package com.khm.group.center.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.service.GroupPusher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -29,6 +30,11 @@ class ReportPushService {
      * 推送日报到指定群组
      */
     fun pushDailyReport(date: LocalDate = LocalDate.now()) {
+        if (!ConfigEnvironment.REPORT_DAILY_ENABLE) {
+            println("日报推送已禁用，跳过推送")
+            return
+        }
+        
         val report = statisticsService.getDailyReport(date)
         val message = formatDailyReport(report)
 
@@ -43,6 +49,11 @@ class ReportPushService {
      * 推送周报到指定群组
      */
     fun pushWeeklyReport() {
+        if (!ConfigEnvironment.REPORT_WEEKLY_ENABLE) {
+            println("周报推送已禁用，跳过推送")
+            return
+        }
+        
         val report = statisticsService.getWeeklyReport()
         val message = formatWeeklyReport(report)
 
@@ -57,6 +68,11 @@ class ReportPushService {
      * 推送月报到指定群组
      */
     fun pushMonthlyReport() {
+        if (!ConfigEnvironment.REPORT_MONTHLY_ENABLE) {
+            println("月报推送已禁用，跳过推送")
+            return
+        }
+        
         val report = statisticsService.getMonthlyReport()
         val message = formatMonthlyReport(report)
 
@@ -71,6 +87,11 @@ class ReportPushService {
      * 推送年报到指定群组
      */
     fun pushYearlyReport() {
+        if (!ConfigEnvironment.REPORT_YEARLY_ENABLE) {
+            println("年报推送已禁用，跳过推送")
+            return
+        }
+        
         val report = statisticsService.getYearlyReport()
         val message = formatYearlyReport(report)
 
@@ -124,33 +145,35 @@ class ReportPushService {
          return when (report) {
              is com.khm.group.center.datatype.statistics.DailyReport -> {
                  """
-                 📊 GPU使用日报 - ${report.date}
+                 📊 GPU使用日报 - 昨日的使用情况
                  ====================
+                 统计时间: ${formatDateTime(report.startTime)} - ${formatDateTime(report.endTime)}
                  总任务数: ${report.totalTasks}
                  总运行时间: ${formatTime(report.totalRuntime)}
                  活跃用户: ${report.activeUsers}
                  任务成功率: ${"%.1f".format(report.successRate)}%
                  
-                 🏆 今日Top用户:
+                 🏆 昨日Top用户:
                  ${formatTopUsers(report.topUsers.take(3))}
                  
-                 🔧 今日Top GPU:
+                 🔧 昨日Top GPU:
                  ${formatTopGpus(report.topGpus.take(3))}
                  """.trimIndent()
              }
              is Map<*, *> -> {
                  """
-                 📊 GPU使用日报 - ${LocalDate.now()}
+                 📊 GPU使用日报 - 昨日的使用情况
                  ====================
+                 统计时间: ${LocalDate.now().minusDays(1).atStartOfDay()} - ${LocalDate.now().atStartOfDay()}
                  总任务数: ${report["totalTasks"]}
                  总运行时间: ${formatTime((report["totalRuntime"] as Int))}
                  活跃用户: ${report["activeUsers"]}
                  任务成功率: ${"%.1f".format(report["successRate"] as Double)}%
                  
-                 🏆 今日Top用户:
+                 🏆 昨日Top用户:
                  ${formatTopUsers((report["topUsers"] as List<*>).take(3))}
                  
-                 🔧 今日Top GPU:
+                 🔧 昨日Top GPU:
                  ${formatTopGpus((report["topGpus"] as List<*>).take(3))}
                  """.trimIndent()
              }
@@ -164,25 +187,27 @@ class ReportPushService {
         return when (report) {
             is com.khm.group.center.datatype.statistics.WeeklyReport -> {
                 """
-                📈 GPU使用周报 (${report.startDate} - ${report.endDate})
+                📈 GPU使用周报 - 上周使用情况
                 ====================
+                统计时间: ${report.periodStartDate} - ${report.periodEndDate}
                 总任务数: ${report.totalTasks}
                 总运行时间: ${formatTime(report.totalRuntime)}
                 活跃用户: ${report.activeUsers}
                 
-                🏆 本周Top用户:
+                🏆 上周Top用户:
                 ${formatTopUsers(report.topUsers.take(5))}
                 """.trimIndent()
             }
             is Map<*, *> -> {
                 """
-                📈 GPU使用周报
+                📈 GPU使用周报 - 上周使用情况
                 ====================
+                统计时间: ${LocalDate.now().minusWeeks(1).with(java.time.DayOfWeek.MONDAY)} - ${LocalDate.now().minusWeeks(1).with(java.time.DayOfWeek.SUNDAY)}
                 总任务数: ${report["totalTasks"]}
                 总运行时间: ${formatTime((report["totalRuntime"] as Int))}
                 活跃用户: ${report["activeUsers"]}
                 
-                🏆 本周Top用户:
+                🏆 上周Top用户:
                 ${formatTopUsers((report["topUsers"] as List<*>).take(5))}
                 """.trimIndent()
             }
@@ -197,25 +222,27 @@ class ReportPushService {
         return when (report) {
             is com.khm.group.center.datatype.statistics.MonthlyReport -> {
                 """
-                📈 GPU使用月报 - ${report.year}年${report.month.value}月
+                📈 GPU使用月报 - 上月使用情况
                 ====================
+                统计时间: ${report.periodStartDate} - ${report.periodEndDate}
                 总任务数: ${report.totalTasks}
                 总运行时间: ${formatTime(report.totalRuntime)}
                 活跃用户: ${report.activeUsers}
                 
-                🏆 本月Top用户:
+                🏆 上月Top用户:
                 ${formatTopUsers(report.topUsers.take(10))}
                 """.trimIndent()
             }
             is Map<*, *> -> {
                 """
-                📈 GPU使用月报
+                📈 GPU使用月报 - 上月使用情况
                 ====================
+                统计时间: ${LocalDate.now().minusMonths(1).withDayOfMonth(1)} - ${LocalDate.now().minusMonths(1).withDayOfMonth(LocalDate.now().minusMonths(1).lengthOfMonth())}
                 总任务数: ${report["totalTasks"]}
                 总运行时间: ${formatTime((report["totalRuntime"] as Int))}
                 活跃用户: ${report["activeUsers"]}
                 
-                🏆 本月Top用户:
+                🏆 上月Top用户:
                 ${formatTopUsers((report["topUsers"] as List<*>).take(10))}
                 """.trimIndent()
             }
@@ -230,25 +257,27 @@ class ReportPushService {
         return when (report) {
             is com.khm.group.center.datatype.statistics.YearlyReport -> {
                 """
-                🎯 GPU使用年报 - ${report.year}年
+                🎯 GPU使用年报 - 去年年度总结
                 ====================
+                统计时间: ${report.periodStartDate} - ${report.periodEndDate}
                 总任务数: ${report.totalTasks}
                 总运行时间: ${formatTime(report.totalRuntime)}
                 活跃用户: ${report.activeUsers}
                 
-                🏆 年度Top用户:
+                🏆 去年Top用户:
                 ${formatTopUsers(report.topUsers.take(15))}
                 """.trimIndent()
             }
             is Map<*, *> -> {
                 """
-                🎯 GPU使用年报
+                🎯 GPU使用年报 - 去年年度总结
                 ====================
+                统计时间: ${LocalDate.of(LocalDate.now().year - 1, 1, 1)} - ${LocalDate.of(LocalDate.now().year - 1, 12, 31)}
                 总任务数: ${report["totalTasks"]}
                 总运行时间: ${formatTime((report["totalRuntime"] as Int))}
                 活跃用户: ${report["activeUsers"]}
                 
-                🏆 年度Top用户:
+                🏆 去年Top用户:
                 ${formatTopUsers((report["topUsers"] as List<*>).take(15))}
                 """.trimIndent()
             }
@@ -283,6 +312,13 @@ class ReportPushService {
         val hours = seconds / 3600
         val minutes = (seconds % 3600) / 60
         return "${hours}h${minutes}m"
+    }
+
+    /**
+     * 格式化日期时间（精确到分钟）
+     */
+    private fun formatDateTime(dateTime: java.time.LocalDateTime): String {
+        return dateTime.format(java.time.format.DateTimeFormatter.ofPattern("MM-dd HH:mm"))
     }
 
     /**

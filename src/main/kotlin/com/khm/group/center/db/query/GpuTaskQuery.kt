@@ -16,7 +16,8 @@ class GpuTaskQuery {
     fun queryTasks(
         timePeriod: TimePeriod,
         userName: String = "",
-        serverNameEng: String = ""
+        serverNameEng: String = "",
+        onlyFinished: Boolean = true
     ): List<GpuTaskInfoModel> {
         val timestamp = timePeriod.getAgoTimestamp(null) / 1000
 
@@ -32,6 +33,10 @@ class GpuTaskQuery {
 
         if (serverNameEng.isNotEmpty()) {
             queryWrapper.eq("server_name_eng", serverNameEng)
+        }
+
+        if (onlyFinished) {
+            queryWrapper.eq("message_type", "finish")
         }
 
         // Query

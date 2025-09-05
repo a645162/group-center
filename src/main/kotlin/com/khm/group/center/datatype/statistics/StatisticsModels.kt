@@ -75,6 +75,8 @@ data class TimeTrendStatistics(
 // 日报数据结构
 data class DailyReport(
     val date: LocalDate,
+    val startTime: java.time.LocalDateTime,
+    val endTime: java.time.LocalDateTime,
     val totalTasks: Int,
     val totalRuntime: Int,
     val activeUsers: Int,
@@ -89,6 +91,8 @@ data class DailyReport(
 data class WeeklyReport(
     val startDate: LocalDate,
     val endDate: LocalDate,
+    val periodStartDate: LocalDate,
+    val periodEndDate: LocalDate,
     val totalTasks: Int,
     val totalRuntime: Int,
     val activeUsers: Int,
@@ -112,6 +116,8 @@ data class WeeklyStats(
 data class MonthlyReport(
     val month: Month,
     val year: Int,
+    val periodStartDate: LocalDate,
+    val periodEndDate: LocalDate,
     val totalTasks: Int,
     val totalRuntime: Int,
     val activeUsers: Int,
@@ -136,6 +142,8 @@ data class MonthlyStats(
 // 年报数据结构
 data class YearlyReport(
     val year: Int,
+    val periodStartDate: LocalDate,
+    val periodEndDate: LocalDate,
     val totalTasks: Int,
     val totalRuntime: Int,
     val activeUsers: Int,

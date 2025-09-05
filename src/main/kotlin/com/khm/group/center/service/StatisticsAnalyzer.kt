@@ -1,5 +1,6 @@
 package com.khm.group.center.service
 
+import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.statistics.*
 import com.khm.group.center.db.model.client.GpuTaskInfoModel
 import com.khm.group.center.utils.time.TimePeriod
@@ -11,14 +12,29 @@ import java.time.ZoneId
 
 @Component
 class StatisticsAnalyzer {
+    /**
+     * 过滤多卡任务（如果启用多卡过滤）
+     */
+    private fun filterMultiGpuTasks(tasks: List<GpuTaskInfoModel>): List<GpuTaskInfoModel> {
+        if (!ConfigEnvironment.FILTER_MULTI_GPU_TASKS) {
+            return tasks
+        }
+
+        return tasks.filter { task ->
+            // 如果multiDeviceWorldSize > 1 且 multiDeviceLocalRank == 0，则保留
+            // 如果multiDeviceWorldSize <= 1，则保留所有任务
+            task.multiDeviceWorldSize <= 1 || (task.multiDeviceWorldSize > 1 && task.multiDeviceLocalRank == 0)
+        }
+    }
 
     /**
      * 分析用户统计数据
      */
     fun analyzeUserStatistics(tasks: List<GpuTaskInfoModel>): List<UserStatistics> {
+        val filteredTasks = filterMultiGpuTasks(tasks)
         val userMap = mutableMapOf<String, UserStatistics>()
 
-        for (task in tasks) {
+        for (task in filteredTasks) {
             val userName = task.taskUser
             val user = userMap.getOrPut(userName) {
                 UserStatistics(
@@ -35,7 +51,7 @@ class StatisticsAnalyzer {
 
             user.totalTasks++
             user.totalRuntime += task.taskRunningTimeInSeconds
-            
+
             if (task.taskStatus.equals("success", ignoreCase = true)) {
                 user.successTasks++
             } else {
@@ -65,9 +81,10 @@ class StatisticsAnalyzer {
      * 分析GPU统计数据
      */
     fun analyzeGpuStatistics(tasks: List<GpuTaskInfoModel>): List<GpuStatistics> {
+        val filteredTasks = filterMultiGpuTasks(tasks)
         val gpuMap = mutableMapOf<String, GpuStatistics>()
 
-        for (task in tasks) {
+        for (task in filteredTasks) {
             val gpuKey = "${task.taskGpuName}_${task.serverName}"
             val gpu = gpuMap.getOrPut(gpuKey) {
                 GpuStatistics(
@@ -83,8 +100,10 @@ class StatisticsAnalyzer {
 
             gpu.totalUsageCount++
             gpu.totalRuntime += task.taskRunningTimeInSeconds
-            gpu.averageUsagePercent = (gpu.averageUsagePercent * (gpu.totalUsageCount - 1) + task.gpuUsagePercent) / gpu.totalUsageCount
-            gpu.averageMemoryUsage = (gpu.averageMemoryUsage * (gpu.totalUsageCount - 1) + task.gpuMemoryPercent) / gpu.totalUsageCount
+            gpu.averageUsagePercent =
+                (gpu.averageUsagePercent * (gpu.totalUsageCount - 1) + task.gpuUsagePercent) / gpu.totalUsageCount
+            gpu.averageMemoryUsage =
+                (gpu.averageMemoryUsage * (gpu.totalUsageCount - 1) + task.gpuMemoryPercent) / gpu.totalUsageCount
             gpu.totalMemoryUsage += task.taskGpuMemoryGb
         }
 
@@ -95,9 +114,10 @@ class StatisticsAnalyzer {
      * 分析服务器统计数据
      */
     fun analyzeServerStatistics(tasks: List<GpuTaskInfoModel>): List<ServerStatistics> {
+        val filteredTasks = filterMultiGpuTasks(tasks)
         val serverMap = mutableMapOf<String, ServerStatistics>()
 
-        for (task in tasks) {
+        for (task in filteredTasks) {
             val serverName = task.serverName
             val server = serverMap.getOrPut(serverName) {
                 ServerStatistics(
@@ -112,7 +132,8 @@ class StatisticsAnalyzer {
             server.totalTasks++
             server.totalRuntime += task.taskRunningTimeInSeconds
             server.activeUsers.add(task.taskUser)
-            server.gpuUtilization = (server.gpuUtilization * (server.totalTasks - 1) + task.gpuUsagePercent) / server.totalTasks
+            server.gpuUtilization =
+                (server.gpuUtilization * (server.totalTasks - 1) + task.gpuUsagePercent) / server.totalTasks
         }
 
         return serverMap.values.sortedByDescending { it.totalRuntime }
@@ -122,9 +143,10 @@ class StatisticsAnalyzer {
      * 分析项目统计数据
      */
     fun analyzeProjectStatistics(tasks: List<GpuTaskInfoModel>): List<ProjectStatistics> {
+        val filteredTasks = filterMultiGpuTasks(tasks)
         val projectMap = mutableMapOf<String, ProjectStatistics>()
 
-        for (task in tasks) {
+        for (task in filteredTasks) {
             val projectName = task.projectName.takeIf { it.isNotBlank() } ?: "Unknown"
             val project = projectMap.getOrPut(projectName) {
                 ProjectStatistics(
@@ -142,7 +164,8 @@ class StatisticsAnalyzer {
         }
 
         projectMap.values.forEach { project ->
-            project.averageRuntime = if (project.totalTasks > 0) project.totalRuntime.toDouble() / project.totalTasks else 0.0
+            project.averageRuntime =
+                if (project.totalTasks > 0) project.totalRuntime.toDouble() / project.totalTasks else 0.0
         }
 
         return projectMap.values.sortedByDescending { it.totalRuntime }
@@ -153,10 +176,10 @@ class StatisticsAnalyzer {
      */
     fun analyzeTimeTrendStatistics(tasks: List<GpuTaskInfoModel>, timePeriod: TimePeriod): TimeTrendStatistics {
         val dailyStats = mutableMapOf<LocalDate, DailyStats>()
-        
+
         for (task in tasks) {
             val taskDate = LocalDateTime.ofInstant(
-                Instant.ofEpochSecond(task.taskStartTime), 
+                Instant.ofEpochSecond(task.taskStartTime),
                 ZoneId.systemDefault()
             ).toLocalDate()
 
@@ -196,8 +219,33 @@ class StatisticsAnalyzer {
         val projectStats = analyzeProjectStatistics(tasks)
         val serverStats = analyzeServerStatistics(tasks)
 
+        // 计算开始时间和结束时间
+        val startTime = if (tasks.isNotEmpty()) {
+            tasks.minOf {
+                java.time.LocalDateTime.ofInstant(
+                    java.time.Instant.ofEpochSecond(it.taskStartTime),
+                    java.time.ZoneId.systemDefault()
+                )
+            }
+        } else {
+            java.time.LocalDateTime.of(date, java.time.LocalTime.MIN)
+        }
+
+        val endTime = if (tasks.isNotEmpty()) {
+            tasks.maxOf {
+                java.time.LocalDateTime.ofInstant(
+                    java.time.Instant.ofEpochSecond(it.taskFinishTime),
+                    java.time.ZoneId.systemDefault()
+                )
+            }
+        } else {
+            java.time.LocalDateTime.of(date, java.time.LocalTime.MAX)
+        }
+
         return DailyReport(
             date = date,
+            startTime = startTime,
+            endTime = endTime,
             totalTasks = tasks.size,
             totalRuntime = tasks.sumOf { it.taskRunningTimeInSeconds },
             activeUsers = tasks.map { it.taskUser }.distinct().size,
@@ -219,9 +267,14 @@ class StatisticsAnalyzer {
         val gpuStats = analyzeGpuStatistics(tasks)
         val timeTrend = analyzeTimeTrendStatistics(tasks, TimePeriod.ONE_WEEK)
 
+        val lastWeekStart = LocalDate.now().minusWeeks(1).with(java.time.DayOfWeek.MONDAY)
+        val lastWeekEnd = LocalDate.now().minusWeeks(1).with(java.time.DayOfWeek.SUNDAY)
+
         return WeeklyReport(
             startDate = LocalDate.now().minusDays(7),
             endDate = LocalDate.now(),
+            periodStartDate = lastWeekStart,
+            periodEndDate = lastWeekEnd,
             totalTasks = tasks.size,
             totalRuntime = tasks.sumOf { it.taskRunningTimeInSeconds },
             activeUsers = tasks.map { it.taskUser }.distinct().size,
@@ -242,9 +295,15 @@ class StatisticsAnalyzer {
         val projectStats = analyzeProjectStatistics(tasks)
         val timeTrend = analyzeTimeTrendStatistics(tasks, TimePeriod.ONE_MONTH)
 
+        val lastMonth = LocalDate.now().minusMonths(1)
+        val lastMonthStart = lastMonth.withDayOfMonth(1)
+        val lastMonthEnd = lastMonth.withDayOfMonth(lastMonth.lengthOfMonth())
+
         return MonthlyReport(
-            month = LocalDate.now().month,
-            year = LocalDate.now().year,
+            month = lastMonth.month,
+            year = lastMonth.year,
+            periodStartDate = lastMonthStart,
+            periodEndDate = lastMonthEnd,
             totalTasks = tasks.size,
             totalRuntime = tasks.sumOf { it.taskRunningTimeInSeconds },
             activeUsers = tasks.map { it.taskUser }.distinct().size,
@@ -285,8 +344,14 @@ class StatisticsAnalyzer {
                 )
             }
 
+        val lastYear = LocalDate.now().minusYears(1)
+        val lastYearStart = LocalDate.of(lastYear.year, 1, 1)
+        val lastYearEnd = LocalDate.of(lastYear.year, 12, 31)
+
         return YearlyReport(
-            year = LocalDate.now().year,
+            year = lastYear.year,
+            periodStartDate = lastYearStart,
+            periodEndDate = lastYearEnd,
             totalTasks = tasks.size,
             totalRuntime = tasks.sumOf { it.taskRunningTimeInSeconds },
             activeUsers = tasks.map { it.taskUser }.distinct().size,
