@@ -3,6 +3,7 @@ package com.khm.group.center.service
 import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.statistics.*
 import com.khm.group.center.db.model.client.GpuTaskInfoModel
+import com.khm.group.center.utils.time.DateTimeUtils
 import com.khm.group.center.utils.time.TimePeriod
 import org.springframework.stereotype.Component
 import java.time.Instant
@@ -219,27 +220,17 @@ class StatisticsAnalyzer {
         val projectStats = analyzeProjectStatistics(tasks)
         val serverStats = analyzeServerStatistics(tasks)
 
-        // 计算开始时间和结束时间
+        // 计算开始时间和结束时间（使用统一的转换函数）
         val startTime = if (tasks.isNotEmpty()) {
-            tasks.minOf {
-                java.time.LocalDateTime.ofInstant(
-                    java.time.Instant.ofEpochSecond(it.taskStartTime),
-                    java.time.ZoneId.systemDefault()
-                )
-            }
+            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
         } else {
-            java.time.LocalDateTime.of(date, java.time.LocalTime.MIN)
+            LocalDateTime.of(date, java.time.LocalTime.MIN)
         }
 
         val endTime = if (tasks.isNotEmpty()) {
-            tasks.maxOf {
-                java.time.LocalDateTime.ofInstant(
-                    java.time.Instant.ofEpochSecond(it.taskFinishTime),
-                    java.time.ZoneId.systemDefault()
-                )
-            }
+            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
         } else {
-            java.time.LocalDateTime.of(date, java.time.LocalTime.MAX)
+            LocalDateTime.of(date, java.time.LocalTime.MAX)
         }
 
         return DailyReport(

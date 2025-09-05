@@ -179,6 +179,8 @@ dependencies {
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:${myBatisVersion}")
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    // testImplementation("io.mockk:mockk:1.13.12")
 }
 
 // Output Program Version

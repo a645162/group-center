@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.khm.group.center.db.analyse
 
 import com.khm.group.center.datatype.summary.GpuSummary

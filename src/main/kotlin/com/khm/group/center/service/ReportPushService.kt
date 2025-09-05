@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.service.GroupPusher
+import com.khm.group.center.utils.time.DateTimeUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.nio.file.Files
@@ -316,9 +317,10 @@ class ReportPushService {
 
     /**
      * 格式化日期时间（精确到分钟）
+     * 使用统一的工具类进行格式化
      */
     private fun formatDateTime(dateTime: java.time.LocalDateTime): String {
-        return dateTime.format(java.time.format.DateTimeFormatter.ofPattern("MM-dd HH:mm"))
+        return DateTimeUtils.formatDateTimeShort(dateTime)
     }
 
     /**
