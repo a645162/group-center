@@ -28,7 +28,7 @@ class ReportPushService {
     private val reportStatusDir: Path = Paths.get("Config/Program/Report")
 
     /**
-     * 推送日报到指定群组
+     * 推送24小时报告到指定群组（替代原来的日报）
      */
     fun pushDailyReport(date: LocalDate = LocalDate.now()) {
         if (!ConfigEnvironment.REPORT_DAILY_ENABLE) {
@@ -36,10 +36,10 @@ class ReportPushService {
             return
         }
         
-        val report = statisticsService.getDailyReport(date)
-        val message = formatDailyReport(report)
+        val report = statisticsService.get24HourReport()
+        val message = format24HourReport(report)
 
-        // 推送到短期群（日报）
+        // 推送到短期群（24小时报告）
         GroupPusher.pushToShortTermGroup(message)
 
         // 记录推送状态
@@ -140,13 +140,13 @@ class ReportPushService {
     }
 
     /**
-     * 格式化日报消息
+     * 格式化24小时报告消息
      */
-     private fun formatDailyReport(report: Any): String {
+     private fun format24HourReport(report: Any): String {
          return when (report) {
              is com.khm.group.center.datatype.statistics.DailyReport -> {
                  """
-                 📊 GPU使用日报 - 昨日的使用情况
+                 📊 GPU使用报告 - 最近24小时使用情况
                  ====================
                  统计时间: ${formatDateTime(report.startTime)} - ${formatDateTime(report.endTime)}
                  总任务数: ${report.totalTasks}
@@ -154,16 +154,59 @@ class ReportPushService {
                  活跃用户: ${report.activeUsers}
                  任务成功率: ${"%.1f".format(report.successRate)}%
                  
-                 🏆 昨日Top用户:
+                 🏆 Top用户:
                  ${formatTopUsers(report.topUsers.take(3))}
                  
-                 🔧 昨日Top GPU:
+                 🔧 Top GPU:
                  ${formatTopGpus(report.topGpus.take(3))}
                  """.trimIndent()
              }
              is Map<*, *> -> {
                  """
-                 📊 GPU使用日报 - 昨日的使用情况
+                 📊 GPU使用报告 - 最近24小时使用情况
+                 ====================
+                 统计时间: ${java.time.LocalDateTime.now().minusHours(24)} - ${java.time.LocalDateTime.now()}
+                 总任务数: ${report["totalTasks"]}
+                 总运行时间: ${formatTime((report["totalRuntime"] as Int))}
+                 活跃用户: ${report["activeUsers"]}
+                 任务成功率: ${"%.1f".format(report["successRate"] as Double)}%
+                 
+                 🏆 Top用户:
+                 ${formatTopUsers((report["topUsers"] as List<*>).take(3))}
+                 
+                 🔧 Top GPU:
+                 ${formatTopGpus((report["topGpus"] as List<*>).take(3))}
+                 """.trimIndent()
+             }
+             else -> "❌ 未知的报告格式"
+         }
+     }
+
+    /**
+     * 格式化日报消息（按自然日统计，用于API接口）
+     */
+     private fun formatDailyReport(report: Any): String {
+         return when (report) {
+             is com.khm.group.center.datatype.statistics.DailyReport -> {
+                 """
+                 📊 GPU使用日报 - ${report.date} 使用情况
+                 ====================
+                 统计时间: ${formatDateTime(report.startTime)} - ${formatDateTime(report.endTime)}
+                 总任务数: ${report.totalTasks}
+                 总运行时间: ${formatTime(report.totalRuntime)}
+                 活跃用户: ${report.activeUsers}
+                 任务成功率: ${"%.1f".format(report.successRate)}%
+                 
+                 🏆 Top用户:
+                 ${formatTopUsers(report.topUsers.take(3))}
+                 
+                 🔧 Top GPU:
+                 ${formatTopGpus(report.topGpus.take(3))}
+                 """.trimIndent()
+             }
+             is Map<*, *> -> {
+                 """
+                 📊 GPU使用日报 - ${LocalDate.now().minusDays(1)} 使用情况
                  ====================
                  统计时间: ${LocalDate.now().minusDays(1).atStartOfDay()} - ${LocalDate.now().atStartOfDay()}
                  总任务数: ${report["totalTasks"]}
@@ -171,10 +214,10 @@ class ReportPushService {
                  活跃用户: ${report["activeUsers"]}
                  任务成功率: ${"%.1f".format(report["successRate"] as Double)}%
                  
-                 🏆 昨日Top用户:
+                 🏆 Top用户:
                  ${formatTopUsers((report["topUsers"] as List<*>).take(3))}
                  
-                 🔧 昨日Top GPU:
+                 🔧 Top GPU:
                  ${formatTopGpus((report["topGpus"] as List<*>).take(3))}
                  """.trimIndent()
              }
@@ -197,6 +240,9 @@ class ReportPushService {
                 
                 🏆 上周Top用户:
                 ${formatTopUsers(report.topUsers.take(5))}
+                
+                🔧 上周Top GPU:
+                ${formatTopGpus(report.topGpus.take(3))}
                 """.trimIndent()
             }
             is Map<*, *> -> {
@@ -210,6 +256,9 @@ class ReportPushService {
                 
                 🏆 上周Top用户:
                 ${formatTopUsers((report["topUsers"] as List<*>).take(5))}
+                
+                🔧 上周Top GPU:
+                ${formatTopGpus((report["topGpus"] as List<*>).take(3))}
                 """.trimIndent()
             }
             else -> "❌ 未知的报告格式"
@@ -232,6 +281,12 @@ class ReportPushService {
                 
                 🏆 上月Top用户:
                 ${formatTopUsers(report.topUsers.take(10))}
+                
+                🔧 上月Top GPU:
+                ${formatTopGpus(report.topGpus.take(5))}
+                
+                📋 上月Top项目:
+                ${formatTopProjects(report.topProjects.take(5))}
                 """.trimIndent()
             }
             is Map<*, *> -> {
@@ -245,6 +300,12 @@ class ReportPushService {
                 
                 🏆 上月Top用户:
                 ${formatTopUsers((report["topUsers"] as List<*>).take(10))}
+                
+                🔧 上月Top GPU:
+                ${formatTopGpus((report["topGpus"] as List<*>).take(5))}
+                
+                📋 上月Top项目:
+                ${formatTopProjects((report["topProjects"] as List<*>).take(5))}
                 """.trimIndent()
             }
             else -> "❌ 未知的报告格式"
@@ -267,6 +328,12 @@ class ReportPushService {
                 
                 🏆 去年Top用户:
                 ${formatTopUsers(report.topUsers.take(15))}
+                
+                🔧 去年Top GPU:
+                ${formatTopGpus(report.topGpus.take(8))}
+                
+                📋 去年Top项目:
+                ${formatTopProjects(report.topProjects.take(10))}
                 """.trimIndent()
             }
             is Map<*, *> -> {
@@ -280,6 +347,12 @@ class ReportPushService {
                 
                 🏆 去年Top用户:
                 ${formatTopUsers((report["topUsers"] as List<*>).take(15))}
+                
+                🔧 去年Top GPU:
+                ${formatTopGpus((report["topGpus"] as List<*>).take(8))}
+                
+                📋 去年Top项目:
+                ${formatTopProjects((report["topProjects"] as List<*>).take(10))}
                 """.trimIndent()
             }
             else -> "❌ 未知的报告格式"
@@ -303,6 +376,16 @@ class ReportPushService {
         return gpus.joinToString("\n") { gpu ->
             val g = gpu as com.khm.group.center.datatype.statistics.GpuStatistics
             "• ${g.gpuName}@${g.serverName}: ${formatTime(g.totalRuntime)}"
+        }
+    }
+
+    /**
+     * 格式化Top项目列表
+     */
+    private fun formatTopProjects(projects: List<*>): String {
+        return projects.joinToString("\n") { project ->
+            val p = project as com.khm.group.center.datatype.statistics.ProjectStatistics
+            "• ${p.projectName}: ${formatTime(p.totalRuntime)} (${p.totalTasks} tasks)"
         }
     }
 

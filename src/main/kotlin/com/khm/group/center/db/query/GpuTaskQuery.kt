@@ -17,15 +17,23 @@ class GpuTaskQuery {
         timePeriod: TimePeriod,
         userName: String = "",
         serverNameEng: String = "",
-        onlyFinished: Boolean = true
+        onlyFinished: Boolean = true,
+        startTime: Long? = null,
+        endTime: Long? = null
     ): List<GpuTaskInfoModel> {
-        val timestamp = timePeriod.getAgoTimestamp(null) / 1000
-
         // Create Query Wrapper
         val queryWrapper = QueryWrapper<GpuTaskInfoModel>()
 
-        // Query taskStartTime >= timestamp
-        queryWrapper.ge("task_start_time", timestamp)
+        // 处理时间范围查询
+        if (startTime != null && endTime != null) {
+            // 自定义时间范围
+            queryWrapper.ge("task_start_time", startTime)
+            queryWrapper.le("task_start_time", endTime)
+        } else {
+            // 使用预定义的时间周期
+            val timestamp = timePeriod.getAgoTimestamp(null) / 1000
+            queryWrapper.ge("task_start_time", timestamp)
+        }
 
         if (userName.isNotEmpty()) {
             queryWrapper.eq("task_user", userName)

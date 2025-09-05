@@ -212,7 +212,37 @@ class StatisticsAnalyzer {
     }
 
     /**
-     * 生成日报
+     * 生成24小时报告
+     */
+    fun generate24HourReport(tasks: List<GpuTaskInfoModel>, startTimestamp: Long, endTimestamp: Long): DailyReport {
+        val userStats = analyzeUserStatistics(tasks)
+        val gpuStats = analyzeGpuStatistics(tasks)
+        val projectStats = analyzeProjectStatistics(tasks)
+        val serverStats = analyzeServerStatistics(tasks)
+
+        // 计算开始时间和结束时间
+        val startTime = DateTimeUtils.convertTimestampToDateTime(startTimestamp)
+        val endTime = DateTimeUtils.convertTimestampToDateTime(endTimestamp)
+
+        return DailyReport(
+            date = LocalDate.now(), // 使用当前日期作为参考
+            startTime = startTime,
+            endTime = endTime,
+            totalTasks = tasks.size,
+            totalRuntime = tasks.sumOf { it.taskRunningTimeInSeconds },
+            activeUsers = tasks.map { it.taskUser }.distinct().size,
+            topUsers = userStats.take(5),
+            topGpus = gpuStats.take(5),
+            topProjects = projectStats.take(5),
+            serverStats = serverStats,
+            successRate = if (tasks.isNotEmpty()) {
+                tasks.count { it.taskStatus.equals("success", ignoreCase = true) } * 100.0 / tasks.size
+            } else 0.0
+        )
+    }
+
+    /**
+     * 生成日报（按自然日统计）
      */
     fun generateDailyReport(tasks: List<GpuTaskInfoModel>, date: LocalDate): DailyReport {
         val userStats = analyzeUserStatistics(tasks)

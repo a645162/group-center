@@ -83,7 +83,37 @@ class StatisticsController {
         return result
     }
 
-    @Operation(summary = "获取日报")
+    @Operation(summary = "获取24小时报告（最近24小时使用情况）")
+    @GetMapping("/reports/24hour")
+    fun get24HourReport(): ClientResponse {
+        val report = statisticsService.get24HourReport()
+        
+        val result = ClientResponse()
+        result.result = report
+        return result
+    }
+
+    @Operation(summary = "获取48小时报告（最近48小时使用情况）")
+    @GetMapping("/reports/48hour")
+    fun get48HourReport(): ClientResponse {
+        val report = statisticsService.get48HourReport()
+        
+        val result = ClientResponse()
+        result.result = report
+        return result
+    }
+
+    @Operation(summary = "获取72小时报告（最近72小时使用情况）")
+    @GetMapping("/reports/72hour")
+    fun get72HourReport(): ClientResponse {
+        val report = statisticsService.get72HourReport()
+        
+        val result = ClientResponse()
+        result.result = report
+        return result
+    }
+
+    @Operation(summary = "获取日报（按自然日统计）")
     @GetMapping("/reports/daily")
     fun getDailyReport(
         @RequestParam(required = false)

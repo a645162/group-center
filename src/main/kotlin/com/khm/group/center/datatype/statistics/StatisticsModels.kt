@@ -84,9 +84,9 @@ data class DailyReport(
     val topGpus: List<GpuStatistics>,
     val topProjects: List<ProjectStatistics>,
     val serverStats: List<ServerStatistics>,
-    val successRate: Double
+    val successRate: Double,
+    val refreshTime: java.time.LocalDateTime = java.time.LocalDateTime.now()
 )
-
 // 周报数据结构
 data class WeeklyReport(
     val startDate: LocalDate,
@@ -100,7 +100,8 @@ data class WeeklyReport(
     val topGpus: List<GpuStatistics>,
     val dailyTrend: List<DailyStats>,
     val averageDailyTasks: Int,
-    val averageDailyRuntime: Int
+    val averageDailyRuntime: Int,
+    val refreshTime: java.time.LocalDateTime = java.time.LocalDateTime.now()
 )
 
 // 周统计数据结构
@@ -126,7 +127,8 @@ data class MonthlyReport(
     val topProjects: List<ProjectStatistics>,
     val weeklyTrend: List<WeeklyStats>,
     val averageWeeklyTasks: Int,
-    val averageWeeklyRuntime: Int
+    val averageWeeklyRuntime: Int,
+    val refreshTime: java.time.LocalDateTime = java.time.LocalDateTime.now()
 )
 
 // 月统计数据结构
@@ -152,5 +154,6 @@ data class YearlyReport(
     val topProjects: List<ProjectStatistics>,
     val monthlyStats: List<MonthlyStats>,
     val averageMonthlyTasks: Int,
-    val averageMonthlyRuntime: Int
+    val averageMonthlyRuntime: Int,
+    val refreshTime: java.time.LocalDateTime = java.time.LocalDateTime.now()
 )
