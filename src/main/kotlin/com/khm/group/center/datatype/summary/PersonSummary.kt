@@ -7,8 +7,11 @@ class PersonSummary(
     val personNameEng: String,
     var personUseTime: Int
 ) {
-    // 卡型号的使用时间
+    // 卡型号的使用时间（累计统计）
     val gpuModelUseTime = mutableListOf<GpuSummary>()
+
+    // 详细的任务信息列表（新增）
+    val gpuTaskDetails = mutableListOf<GpuTaskDetail>()
 
     val projectList = mutableListOf<ProjectSummary>()
 

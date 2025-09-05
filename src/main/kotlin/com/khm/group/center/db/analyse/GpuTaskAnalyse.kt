@@ -3,6 +3,7 @@
 package com.khm.group.center.db.analyse
 
 import com.khm.group.center.datatype.summary.GpuSummary
+import com.khm.group.center.datatype.summary.GpuTaskDetail
 import com.khm.group.center.datatype.summary.PersonSummary
 import com.khm.group.center.datatype.summary.TaskSummary
 import com.khm.group.center.db.model.client.GpuTaskInfoModel
@@ -153,10 +154,35 @@ class GpuTaskAnalyse {
 
             user.personUseTime += task.taskRunningTimeInSeconds
 
-            // 统计用户最喜欢的GPU
-            val gpuSummary = GpuSummary(task.taskGpuName, task.serverName, 0)
-            gpuSummary.addUseTime(task.taskRunningTimeInSeconds)
-            user.gpuModelUseTime.add(gpuSummary)
+            // 统计用户最喜欢的GPU（累计统计）
+            val gpuKey = "${task.taskGpuName}_${task.serverName}"
+            val existingGpuSummary = user.gpuModelUseTime.find {
+                it.gpuName == task.taskGpuName && it.machineName == task.serverName
+            }
+            
+            if (existingGpuSummary != null) {
+                existingGpuSummary.addUseTime(task.taskRunningTimeInSeconds)
+            } else {
+                val gpuSummary = GpuSummary(task.taskGpuName, task.serverName, 0)
+                gpuSummary.addUseTime(task.taskRunningTimeInSeconds)
+                user.gpuModelUseTime.add(gpuSummary)
+            }
+
+            // 添加详细的任务信息（新增）
+            val taskDetail = GpuTaskDetail(
+                taskId = task.taskId,
+                gpuName = task.taskGpuName,
+                machineName = task.serverName,
+                gpuUseTime = task.taskRunningTimeInSeconds,
+                startTime = task.taskStartTime,
+                finishTime = task.taskFinishTime,
+                projectName = task.projectName,
+                gpuUsagePercent = task.gpuUsagePercent,
+                gpuMemoryPercent = task.gpuMemoryPercent,
+                gpuMemoryGb = task.taskGpuMemoryGb,
+                taskStatus = task.taskStatus
+            )
+            user.gpuTaskDetails.add(taskDetail)
         }
 
         return userMap.values.sortedByDescending { it.personUseTime }

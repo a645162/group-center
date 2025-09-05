@@ -25,29 +25,37 @@ class GpuTaskInfo {
 
     var allTaskMessage: String = ""
 
-    // GPU 信息
+    // GPU 占用信息
     var gpuUsagePercent: Float = 0f
     var gpuMemoryUsageString: String = ""
     var gpuMemoryFreeString: String = ""
     var gpuMemoryTotalString: String = ""
     var gpuMemoryPercent: Float = 0f
 
+    // GPU Index
     var taskGpuId: Int = 0
+    // GPU 名称
     var taskGpuName: String = ""
 
+    // 任务显存占用
     var taskGpuMemoryGb: Float = 0f
     var taskGpuMemoryHuman: String = ""
 
+    // 最大显存占用
     var taskGpuMemoryMaxGb: Float = 0f
 
+    // 多卡
     var isMultiGpu: Boolean = false
     var multiDeviceLocalRank: Int = 0
     var multiDeviceWorldSize: Int = 0
+    // 根进程PID
     var topPythonPid: Int = -1
 
+    // CUDA 信息
     var cudaRoot: String = ""
     var cudaVersion: String = ""
 
+    // 是否为调试模式
     var isDebugMode: Boolean = false
 
     // 运行时间
