@@ -32,6 +32,11 @@ logging:
       max-file-size: 10MB
       max-history: 7
 
+# Bot配置文件路径
+bot:
+  config:
+    file: Config/Bot/bot-groups.yaml
+
 # https://blog.csdn.net/weixin_42703501/article/details/139587100
 # https://www.jobrunr.io/en/documentation/configuration/spring/
 org:

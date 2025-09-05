@@ -1,0 +1,37 @@
+# Bot群配置
+bot:
+  groups:
+    - name: "报警群"
+      type: "alarm"
+      weComGroupBotKey: "" # 企业微信报警群机器人key
+      larkGroupBotId: "" # 飞书报警群机器人ID
+      larkGroupBotKey: "" # 飞书报警群机器人key
+      enable: true
+
+    - name: "日报群"
+      type: "daily"
+      weComGroupBotKey: ""
+      larkGroupBotId: ""
+      larkGroupBotKey: ""
+      enable: true
+
+    - name: "周报群"
+      type: "weekly"
+      weComGroupBotKey: ""
+      larkGroupBotId: ""
+      larkGroupBotKey: ""
+      enable: true
+
+    - name: "月报群"
+      type: "monthly"
+      weComGroupBotKey: ""
+      larkGroupBotId: ""
+      larkGroupBotKey: ""
+      enable: true
+
+    - name: "年报群"
+      type: "yearly"
+      weComGroupBotKey: ""
+      larkGroupBotId: ""
+      larkGroupBotKey: ""
+      enable: true
