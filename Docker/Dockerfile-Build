@@ -2,7 +2,8 @@
 #FROM alibabadragonwell/dragonwell:21-ubuntu
 #FROM alibabadragonwell/dragonwell:21-anolis
 
-FROM dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-anolis
+#FROM dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-anolis
+FROM openjdk:24-oraclelinux9
 
 # https://github-wiki-see.page/m/dragonwell-project/dragonwell21/wiki/Use-Dragonwell-21-docker-images
 # dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21

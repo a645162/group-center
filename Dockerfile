@@ -2,7 +2,8 @@
 #FROM alibabadragonwell/dragonwell:21-ubuntu
 #FROM alibabadragonwell/dragonwell:21-anolis
 
-FROM dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-anolis
+#FROM dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-anolis
+FROM openjdk:24-oraclelinux9
 
 # https://github-wiki-see.page/m/dragonwell-project/dragonwell21/wiki/Use-Dragonwell-21-docker-images
 # dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21
@@ -31,10 +32,10 @@ LABEL maintainer="Haomin Kong"
 #    && yum makecache
 
 # https://mirrors.hust.edu.cn/docs/anolis/
-RUN    #yum makecache \
-RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu.cn|g" \
-        /etc/yum.repos.d/*.repo \
-    && yum makecache \
+#RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu.cn|g" \
+#        /etc/yum.repos.d/*.repo \
+#    && yum makecache \
+RUN    yum makecache \
     && yum update -y \
     && yum clean all
 
@@ -43,8 +44,7 @@ RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu
 #    && yum clean all
 
 # Install Software
-RUN    rpm --rebuilddb \
-    && yum install -y tzdata net-tools \
+RUN    yum install -y tzdata net-tools \
     && yum clean all
 
 # Set the timezone
