@@ -29,23 +29,21 @@ LABEL maintainer="Haomin Kong"
 #        -i.bak \
 #        /etc/yum.repos.d/AnolisOS-Debuginfo.repo \
 #        /etc/yum.repos.d/AnolisOS-Source.repo \
-#    && yum makecache
+#    && dnf makecache
 
 # https://mirrors.hust.edu.cn/docs/anolis/
 #RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu.cn|g" \
 #        /etc/yum.repos.d/*.repo \
-#    && yum makecache \
-RUN    yum makecache \
-    && yum update -y \
-    && yum clean all
+#    && dnf makecache \
 
-## Update Software
-#RUN yum update -y \
-#    && yum clean all
+# Upgrade all packages to the latest version
+RUN    dnf makecache \
+    && dnf update -y \
+    && dnf clean all
 
 # Install Software
-RUN    yum install -y tzdata net-tools \
-    && yum clean all
+RUN    dnf install -y tzdata net-tools \
+    && dnf clean all
 
 # Set the timezone
 ENV TZ=Asia/Shanghai
