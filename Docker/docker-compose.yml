@@ -1,0 +1,4 @@
+services:
+  app:
+    image: openjdk:26-oraclelinux9
+    container_name: openjdk-26-oraclelinux9

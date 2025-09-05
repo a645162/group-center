@@ -1,61 +1,28 @@
-# https://hub.docker.com/r/alibabadragonwell/dragonwell
-#FROM alibabadragonwell/dragonwell:21-ubuntu
-#FROM alibabadragonwell/dragonwell:21-anolis
-
-#FROM dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-anolis
-FROM openjdk:24-oraclelinux9
-
-# https://github-wiki-see.page/m/dragonwell-project/dragonwell21/wiki/Use-Dragonwell-21-docker-images
-# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21
-# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-anolis
-# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-standard-ga-anolis
-# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21.0.1.0.1.12-standard-ga-anolis
+# https://hub.docker.com/_/openjdk/tags
+FROM openjdk:26-oraclelinux9
 
 # MAINTAINER Haomin Kong
 LABEL maintainer="Haomin Kong"
 
-# https://mirrors.nwafu.edu.cn/help/local-repository/anolis/
-#RUN sed -e 's|^mirrorlist=|#mirrorlist=|g' \
-#        -e 's|^#http://mirrors.openanolis.cn/|https://mirrors.nwafu.edu.cn/|g' \
-#        -i.bak \
-#        /etc/yum.repos.d/AnolisOS-AppStream.repo \
-#        /etc/yum.repos.d/AnolisOS-DDE.repo \
-#        /etc/yum.repos.d/AnolisOS-HighAvailability.repo \
-#        /etc/yum.repos.d/AnolisOS-PowerTools.repo \
-#        /etc/yum.repos.d/AnolisOS-BaseOS.repo \
-#        /etc/yum.repos.d/AnolisOS-Plus.repo \
-#    && sed -e 's|^mirrorlist=|#mirrorlist=|g' \
-#        -e 's|^#https://mirrors.openanolis.cn/|https://mirrors.nwafu.edu.cn/|g' \
-#        -i.bak \
-#        /etc/yum.repos.d/AnolisOS-Debuginfo.repo \
-#        /etc/yum.repos.d/AnolisOS-Source.repo \
-#    && dnf makecache
-
-# https://mirrors.hust.edu.cn/docs/anolis/
-#RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu.cn|g" \
-#        /etc/yum.repos.d/*.repo \
-#    && dnf makecache \
-
-# Upgrade all packages to the latest version
-RUN    dnf makecache \
-    && dnf update -y \
-    && dnf clean all
-
-# Install Software
-RUN    dnf install -y tzdata net-tools \
-    && dnf clean all
-
-# Set the timezone
-ENV TZ=Asia/Shanghai
-RUN    ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
-    && echo ${TZ} > /etc/timezone
-
-LABEL AUTHOR="Haomin Kong" VERSION=1.1.0
-
 ENV BASE_PATH="/usr/local/group-center"
 ENV RUN_IN_DOCKER=True
 
+ENV PACKAGE_MANAGER="microdnf"
+
 WORKDIR "$BASE_PATH"
+
+# Upgrade all packages to the latest version
+RUN    $PACKAGE_MANAGER update -y \
+    && $PACKAGE_MANAGER clean all
+
+# Install Software
+RUN    $PACKAGE_MANAGER install -y git python3 python3-pip bash tzdata net-tools findutils \
+    && $PACKAGE_MANAGER clean all
+
+# Set the timezone
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
+    && echo ${TZ} > /etc/timezone
 
 ENV LOGS_PATH="$BASE_PATH/logs"
 

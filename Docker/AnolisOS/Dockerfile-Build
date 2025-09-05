@@ -1,0 +1,41 @@
+# https://hub.docker.com/r/alibabadragonwell/dragonwell
+#FROM alibabadragonwell/dragonwell:21-ubuntu
+#FROM alibabadragonwell/dragonwell:21-anolis
+
+FROM dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-anolis
+
+# https://github-wiki-see.page/m/dragonwell-project/dragonwell21/wiki/Use-Dragonwell-21-docker-images
+# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21
+# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-anolis
+# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21-standard-ga-anolis
+# dragonwell-registry.cn-hangzhou.cr.aliyuncs.com/dragonwell/dragonwell:21.0.1.0.1.12-standard-ga-anolis
+
+# MAINTAINER Haomin Kong
+LABEL maintainer="Haomin Kong"
+
+ENV BASE_PATH="/usr/local/group-center"
+ENV RUN_IN_DOCKER=True
+
+WORKDIR "$BASE_PATH"
+
+# https://mirrors.hust.edu.cn/docs/anolis/
+RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu.cn|g" \
+    /etc/yum.repos.d/*.repo \
+    && yum makecache \
+    && yum update -y \
+    && yum clean all
+
+## Update Software
+#RUN yum update -y \
+#    && yum clean all
+
+# Install Software
+RUN yum install -y git python3 python3-pip bash tzdata net-tools \
+    && yum clean all
+
+# Set the timezone
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
+    && echo ${TZ} > /etc/timezone
+
+ENTRYPOINT ["python3", "/usr/local/group-center/build.py", "--clean-cache"]

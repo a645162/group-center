@@ -1,11 +1,11 @@
 services:
-  group_center:
+  core:
     image: registry.cn-shanghai.aliyuncs.com/a645162/group-center:latest
-    #    image: a645162/group-center:latest
-    #    image: group_center
-    #    build:
-    #      context: .
-    #      dockerfile: Dockerfile
+    # image: a645162/group-center:latest
+    # image: group_center
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - 15090:15090
       - 15092:15092
@@ -14,7 +14,7 @@ services:
         aliases:
           - GROUP_CENTER_URL
     restart: always
-    container_name: GroupCenterJdk21
+    # container_name: GroupCenterJdk
     depends_on:
       db:
         condition: service_healthy
@@ -39,7 +39,7 @@ services:
         aliases:
           - MYSQL_URL
     restart: always
-    container_name: GroupCenterMySQL
+    # container_name: GroupCenterMySQL
     privileged: true
     healthcheck:
       test: [ "CMD-SHELL", "mysqladmin ping -h127.0.0.1 -u root -p123456" ]
