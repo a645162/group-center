@@ -20,9 +20,10 @@ ENV RUN_IN_DOCKER=True
 WORKDIR "$BASE_PATH"
 
 # https://mirrors.hust.edu.cn/docs/anolis/
-RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu.cn|g" \
-        /etc/yum.repos.d/*.repo \
-    && yum makecache \
+#RUN sed -i.bak -E "s|https?://(mirrors\.openanolis\.cn)|https://mirrors.hust.edu.cn|g" \
+#        /etc/yum.repos.d/*.repo \
+#    && yum makecache \
+RUN    yum makecache \
     && yum update -y \
     && yum clean all
 
