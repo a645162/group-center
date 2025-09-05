@@ -1,11 +1,11 @@
 package com.khm.group.center.controller.api.web.dashboard
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.khm.group.center.datatype.response.ClientResponse
 import com.khm.group.center.db.analyse.GpuTaskAnalyse
 import com.khm.group.center.db.query.GpuTaskQuery
 import com.khm.group.center.utils.time.TimePeriod
 import io.swagger.v3.oas.annotations.Operation
-import org.jobrunr.scheduling.BackgroundJob
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
@@ -19,6 +19,9 @@ class DashboardController {
 
     @Autowired
     lateinit var gpuTaskAnalyse: GpuTaskAnalyse
+
+    @Autowired
+    lateinit var objectMapper: ObjectMapper
 
     @Operation(summary = "更新面板")
     @RequestMapping("/usage/update", method = [RequestMethod.GET])

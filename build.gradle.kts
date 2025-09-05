@@ -98,12 +98,12 @@ dependencies {
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Task
-    // https://mvnrepository.com/artifact/org.jobrunr/jobrunr
-    implementation("org.jobrunr:jobrunr:8.0.2")
-    // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-kotlin-1.7-support
-    implementation("org.jobrunr:jobrunr-kotlin-1.7-support:7.2.0")
-    // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-spring-boot-starter
-    implementation("org.jobrunr:jobrunr-spring-boot-starter:5.3.3")
+    // // https://mvnrepository.com/artifact/org.jobrunr/jobrunr
+    // implementation("org.jobrunr:jobrunr:8.0.2")
+    // // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-kotlin-1.7-support
+    // implementation("org.jobrunr:jobrunr-kotlin-1.7-support:7.2.0")
+    // // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-spring-boot-starter
+    // implementation("org.jobrunr:jobrunr-spring-boot-starter:5.3.3")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Security and Crypto

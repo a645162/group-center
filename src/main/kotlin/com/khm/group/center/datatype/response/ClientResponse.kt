@@ -7,5 +7,5 @@ class ClientResponse {
     var isAuthenticated: Boolean = true
     var haveError: Boolean = false
     var isSucceed: Boolean = true
-    var result: String = ""
+    var result: Any? = null
 }

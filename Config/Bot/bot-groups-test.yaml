@@ -1,0 +1,36 @@
+# Bot群测试配置
+# 用于开发和测试环境
+
+bot:
+  groups:
+    # 报警群 - 用于接收系统报警和重要通知
+    - name: "报警群(测试)"
+      type: "alarm"
+      weComGroupBotKey: "test-wecom-alarm-bot-key"
+      larkGroupBotId: "test-lark-alarm-bot-id"
+      larkGroupBotKey: "test-lark-alarm-bot-secret"
+      enable: true
+
+    # 短期群 - 用于接收日报和周报
+    - name: "日/周报群(测试)"
+      type: "shortterm"
+      weComGroupBotKey: "test-wecom-daily-bot-key"
+      larkGroupBotId: "test-lark-daily-bot-id"
+      larkGroupBotKey: "test-lark-daily-bot-secret"
+      enable: true
+
+    # 长期群 - 用于接收月报和年报
+    - name: "年/月报群(测试)"
+      type: "longterm"
+      weComGroupBotKey: "test-wecom-monthly-bot-key"
+      larkGroupBotId: "test-lark-monthly-bot-id"
+      larkGroupBotKey: "test-lark-monthly-bot-secret"
+      enable: true
+
+    # 测试群 - 用于测试报告推送功能
+    - name: "测试群"
+      type: "test"
+      weComGroupBotKey: "test-wecom-test-bot-key"
+      larkGroupBotId: "test-lark-test-bot-id"
+      larkGroupBotKey: "test-lark-test-bot-secret"
+      enable: true
