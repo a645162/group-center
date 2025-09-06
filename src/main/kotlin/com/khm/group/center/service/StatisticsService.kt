@@ -243,8 +243,9 @@ class StatisticsService {
 
     /**
      * 获取日报数据（按自然日统计）
+     * 默认获取昨天的日报（昨天凌晨12点到今天凌晨12点）
      */
-    fun getDailyReport(date: LocalDate = LocalDate.now()): DailyReport {
+    fun getDailyReport(date: LocalDate = LocalDate.now().minusDays(1)): DailyReport {
         val cacheKey = "daily_report_${date}"
         
         // 使用类型安全的缓存获取

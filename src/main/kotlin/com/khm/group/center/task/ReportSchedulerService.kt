@@ -19,16 +19,12 @@ class ReportSchedulerService(
 ) {
 
     /**
-     * 每天早上8点生成并推送日报
+     * 每天早上8点生成并推送日报（昨天的日报）
      */
     @Scheduled(cron = "0 0 8 * * ?")
     fun generateAndPushDailyReport() {
         try {
-            val report = gpuTaskAnalyse.getDailyReport()
-            val content = ReportFormatter.formatDailyReport(report)
-            val title = ReportFormatter.generateDailyTitle()
-
-            botPushService.pushDailyReport(title, content)
+            reportPushService.pushDailyReport()
             logger.info("✅ Daily report pushed successfully")
         } catch (e: Exception) {
             logger.error("❌ Failed to generate daily report: ${e.message}", e)
@@ -41,11 +37,7 @@ class ReportSchedulerService(
     @Scheduled(cron = "0 0 9 ? * MON")
     fun generateAndPushWeeklyReport() {
         try {
-            val report = gpuTaskAnalyse.getWeeklyReport()
-            val content = ReportFormatter.formatWeeklyReport(report)
-            val title = ReportFormatter.generateWeeklyTitle()
-
-            botPushService.pushWeeklyReport(title, content)
+            reportPushService.pushWeeklyReport()
             logger.info("✅ Weekly report pushed successfully")
         } catch (e: Exception) {
             logger.error("❌ Failed to generate weekly report: ${e.message}", e)
@@ -58,11 +50,7 @@ class ReportSchedulerService(
     @Scheduled(cron = "0 0 10 1 * ?")
     fun generateAndPushMonthlyReport() {
         try {
-            val report = gpuTaskAnalyse.getMonthlyReport()
-            val content = ReportFormatter.formatMonthlyReport(report)
-            val title = ReportFormatter.generateMonthlyTitle()
-
-            botPushService.pushMonthlyReport(title, content)
+            reportPushService.pushMonthlyReport()
             logger.info("✅ Monthly report pushed successfully")
         } catch (e: Exception) {
             logger.error("❌ Failed to generate monthly report: ${e.message}", e)
@@ -75,11 +63,7 @@ class ReportSchedulerService(
     @Scheduled(cron = "0 0 11 1 1 ?")
     fun generateAndPushYearlyReport() {
         try {
-            val report = gpuTaskAnalyse.getYearlyReport()
-            val content = ReportFormatter.formatYearlyReport(report)
-            val title = ReportFormatter.generateYearlyTitle()
-
-            botPushService.pushYearlyReport(title, content)
+            reportPushService.pushYearlyReport()
             logger.info("✅ Yearly report pushed successfully")
         } catch (e: Exception) {
             logger.error("❌ Failed to generate yearly report: ${e.message}", e)

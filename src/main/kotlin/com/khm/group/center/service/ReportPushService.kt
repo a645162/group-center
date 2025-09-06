@@ -28,18 +28,18 @@ class ReportPushService {
     private val reportStatusDir: Path = Paths.get("Config/Program/Report")
 
     /**
-     * 推送24小时报告到指定群组（替代原来的日报）
+     * 推送日报到指定群组（昨天的完整日报，昨天凌晨12点到今天凌晨12点）
      */
-    fun pushDailyReport(date: LocalDate = LocalDate.now()) {
+    fun pushDailyReport(date: LocalDate = LocalDate.now().minusDays(1)) {
         if (!ConfigEnvironment.REPORT_DAILY_ENABLE) {
             println("日报推送已禁用，跳过推送")
             return
         }
         
-        val report = statisticsService.get24HourReport()
-        val message = format24HourReport(report)
+        val report = statisticsService.getDailyReport(date)
+        val message = formatDailyReport(report)
 
-        // 推送到短期群（24小时报告）
+        // 推送到短期群（日报）
         GroupPusher.pushToShortTermGroup(message)
 
         // 记录推送状态
@@ -109,9 +109,10 @@ class ReportPushService {
     fun checkAndPushMissingReports() {
         val today = LocalDate.now()
 
-        // 检查日报
-        if (!isReportPushed("daily", today)) {
-            pushDailyReport(today)
+        // 检查日报（检查昨天的日报是否已推送）
+        val yesterday = today.minusDays(1)
+        if (!isReportPushed("daily", yesterday)) {
+            pushDailyReport(yesterday)
         }
 
         // 检查周报（每周一检查上周的周报）
