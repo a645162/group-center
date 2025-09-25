@@ -155,12 +155,19 @@ class CachedStatisticsService {
         if (cached != null) {
             val cachedHour = cacheManager.getCachedData<Long>("${cacheKey}_hour")
             if (cachedHour != null && cachedHour == currentHour) {
-                logger.debug("从缓存获取24小时报告")
+                logger.info("✅ 缓存命中，从缓存获取24小时报告（当前小时：${currentHour}）")
                 return cached
             }
         }
 
-        logger.info("缓存未命中，重新计算24小时报告")
+        logger.info("🔄 缓存未命中，重新计算24小时报告（当前小时：${currentHour}）")
+        
+        // 清除所有旧的24小时报告缓存
+        val clearedCount = cacheManager.clearCacheByType("24hour_report")
+        if (clearedCount > 0) {
+            logger.info("🗑️ 清除旧的24小时报告缓存：${clearedCount}个")
+        }
+        
         val currentTimeSeconds = currentTime / 1000
         val startTime = currentTimeSeconds - 24 * 60 * 60 // 24小时前
 
@@ -175,6 +182,7 @@ class CachedStatisticsService {
         // 存储到缓存
         cacheManager.putCachedData(cacheKey, report, HOURLY_REPORT_CACHE_DURATION)
         cacheManager.putCachedData("${cacheKey}_hour", currentHour, HOURLY_REPORT_CACHE_DURATION)
+        logger.info("💾 新24小时报告已缓存（当前小时：${currentHour}）")
         
         return report
     }
@@ -193,12 +201,19 @@ class CachedStatisticsService {
         if (cached != null) {
             val cachedHour = cacheManager.getCachedData<Long>("${cacheKey}_hour")
             if (cachedHour != null && cachedHour == currentHour && currentMinute >= 5) {
-                logger.debug("从缓存获取48小时报告")
+                logger.info("✅ 缓存命中，从缓存获取48小时报告（当前小时：${currentHour}，分钟：${currentMinute}）")
                 return cached
             }
         }
 
-        logger.info("缓存未命中，重新计算48小时报告")
+        logger.info("🔄 缓存未命中，重新计算48小时报告（当前小时：${currentHour}，分钟：${currentMinute}）")
+        
+        // 清除所有旧的48小时报告缓存
+        val clearedCount = cacheManager.clearCacheByType("48hour_report")
+        if (clearedCount > 0) {
+            logger.info("🗑️ 清除旧的48小时报告缓存：${clearedCount}个")
+        }
+        
         val currentTimeSeconds = currentTime / 1000
         val startTime = currentTimeSeconds - 48 * 60 * 60
 
@@ -213,6 +228,7 @@ class CachedStatisticsService {
         // 存储到缓存
         cacheManager.putCachedData(cacheKey, report, HOURLY_REPORT_CACHE_DURATION)
         cacheManager.putCachedData("${cacheKey}_hour", currentHour, HOURLY_REPORT_CACHE_DURATION)
+        logger.info("💾 新48小时报告已缓存（当前小时：${currentHour}）")
         
         return report
     }
@@ -231,12 +247,19 @@ class CachedStatisticsService {
         if (cached != null) {
             val cachedHour = cacheManager.getCachedData<Long>("${cacheKey}_hour")
             if (cachedHour != null && cachedHour == currentHour && currentMinute >= 10) {
-                logger.debug("从缓存获取72小时报告")
+                logger.info("✅ 缓存命中，从缓存获取72小时报告（当前小时：${currentHour}，分钟：${currentMinute}）")
                 return cached
             }
         }
 
-        logger.info("缓存未命中，重新计算72小时报告")
+        logger.info("🔄 缓存未命中，重新计算72小时报告（当前小时：${currentHour}，分钟：${currentMinute}）")
+        
+        // 清除所有旧的72小时报告缓存
+        val clearedCount = cacheManager.clearCacheByType("72hour_report")
+        if (clearedCount > 0) {
+            logger.info("🗑️ 清除旧的72小时报告缓存：${clearedCount}个")
+        }
+        
         val currentTimeSeconds = currentTime / 1000
         val startTime = currentTimeSeconds - 72 * 60 * 60
 
@@ -251,6 +274,7 @@ class CachedStatisticsService {
         // 存储到缓存
         cacheManager.putCachedData(cacheKey, report, HOURLY_REPORT_CACHE_DURATION)
         cacheManager.putCachedData("${cacheKey}_hour", currentHour, HOURLY_REPORT_CACHE_DURATION)
+        logger.info("💾 新72小时报告已缓存（当前小时：${currentHour}）")
         
         return report
     }
@@ -264,16 +288,24 @@ class CachedStatisticsService {
         // 尝试从缓存获取
         val cached: DailyReport? = cacheManager.getCachedData(cacheKey)
         if (cached != null) {
-            logger.debug("从缓存获取日报：$date")
+            logger.info("✅ 缓存命中，从缓存获取日报（${date}）")
             return cached
         }
 
-        logger.info("缓存未命中，重新计算日报：$date")
+        logger.info("🔄 缓存未命中，重新计算日报（${date}）")
+        
+        // 清除所有旧的日报缓存
+        val clearedCount = cacheManager.clearCacheByType("daily_report")
+        if (clearedCount > 0) {
+            logger.info("🗑️ 清除旧的日报缓存：${clearedCount}个")
+        }
+        
         val tasks = gpuTaskQuery.queryTasks(TimePeriod.ONE_WEEK)
         val report = baseStatisticsService.generateDailyReport(tasks, date)
 
         // 存储到缓存
         cacheManager.putCachedData(cacheKey, report, CACHE_DURATION)
+        logger.info("💾 新日报已缓存（${date}）")
         return report
     }
 
@@ -281,43 +313,60 @@ class CachedStatisticsService {
      * 获取周报数据（带缓存）
      */
     fun getWeeklyReport(): WeeklyReport {
-        val cacheKey = "weekly_report_${LocalDate.now()}"
+        val currentDate = LocalDate.now()
+        val cacheKey = "weekly_report_${currentDate}"
         
         // 尝试从缓存获取
         val cached: WeeklyReport? = cacheManager.getCachedData(cacheKey)
         if (cached != null) {
-            logger.debug("从缓存获取周报")
+            logger.info("✅ 缓存命中，从缓存获取周报（${currentDate}）")
             return cached
         }
 
-        logger.info("缓存未命中，重新计算周报")
+        logger.info("🔄 缓存未命中，重新计算周报（${currentDate}）")
+        
+        // 清除所有旧的周报缓存
+        val clearedCount = cacheManager.clearCacheByType("weekly_report")
+        if (clearedCount > 0) {
+            logger.info("🗑️ 清除旧的周报缓存：${clearedCount}个")
+        }
+        
         val tasks = gpuTaskQuery.queryTasks(TimePeriod.ONE_MONTH)
         val report = baseStatisticsService.generateWeeklyReport(tasks)
 
         // 存储到缓存
         cacheManager.putCachedData(cacheKey, report, CACHE_DURATION)
+        logger.info("💾 新周报已缓存（${currentDate}）")
         return report
     }
-
     /**
      * 获取月报数据（带缓存）
      */
     fun getMonthlyReport(): MonthlyReport {
-        val cacheKey = "monthly_report_${LocalDate.now().monthValue}"
+        val currentMonth = LocalDate.now().monthValue
+        val cacheKey = "monthly_report_${currentMonth}"
         
         // 尝试从缓存获取
         val cached: MonthlyReport? = cacheManager.getCachedData(cacheKey)
         if (cached != null) {
-            logger.debug("从缓存获取月报")
+            logger.info("✅ 缓存命中，从缓存获取月报（${currentMonth}月）")
             return cached
         }
 
-        logger.info("缓存未命中，重新计算月报")
+        logger.info("🔄 缓存未命中，重新计算月报（${currentMonth}月）")
+        
+        // 清除所有旧的月报缓存
+        val clearedCount = cacheManager.clearCacheByType("monthly_report")
+        if (clearedCount > 0) {
+            logger.info("🗑️ 清除旧的月报缓存：${clearedCount}个")
+        }
+        
         val tasks = gpuTaskQuery.queryTasks(TimePeriod.SIX_MONTH)
         val report = baseStatisticsService.generateMonthlyReport(tasks)
 
         // 存储到缓存
         cacheManager.putCachedData(cacheKey, report, CACHE_DURATION)
+        logger.info("💾 新月报已缓存（${currentMonth}月）")
         return report
     }
 
@@ -325,21 +374,30 @@ class CachedStatisticsService {
      * 获取年报数据（带缓存）
      */
     fun getYearlyReport(): YearlyReport {
-        val cacheKey = "yearly_report_${LocalDate.now().year}"
+        val currentYear = LocalDate.now().year
+        val cacheKey = "yearly_report_${currentYear}"
         
         // 尝试从缓存获取
         val cached: YearlyReport? = cacheManager.getCachedData(cacheKey)
         if (cached != null) {
-            logger.debug("从缓存获取年报")
+            logger.info("✅ 缓存命中，从缓存获取年报（${currentYear}年）")
             return cached
         }
 
-        logger.info("缓存未命中，重新计算年报")
+        logger.info("🔄 缓存未命中，重新计算年报（${currentYear}年）")
+        
+        // 清除所有旧的年报缓存
+        val clearedCount = cacheManager.clearCacheByType("yearly_report")
+        if (clearedCount > 0) {
+            logger.info("🗑️ 清除旧的年报缓存：${clearedCount}个")
+        }
+        
         val tasks = gpuTaskQuery.queryTasks(TimePeriod.ONE_YEAR)
         val report = baseStatisticsService.generateYearlyReport(tasks)
 
         // 存储到缓存
         cacheManager.putCachedData(cacheKey, report, CACHE_DURATION)
+        logger.info("💾 新年报已缓存（${currentYear}年）")
         return report
     }
 

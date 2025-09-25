@@ -89,6 +89,31 @@ class CacheManager {
     }
 
     /**
+     * 按类型清除缓存
+     * @param type 缓存类型（如 "weekly_report", "daily_report" 等）
+     * @return 清除的缓存数量
+     */
+    fun clearCacheByType(type: String): Int {
+        var count = 0
+        val iterator = cache.entries.iterator()
+        while (iterator.hasNext()) {
+            val entry = iterator.next()
+            if (entry.key.startsWith(type)) {
+                iterator.remove()
+                count++
+            }
+        }
+        return count
+    }
+
+    /**
+     * 获取所有缓存键
+     */
+    fun getAllCacheKeys(): Set<String> {
+        return cache.keys.toSet()
+    }
+
+    /**
      * 获取缓存大小
      */
     fun getCacheSize(): Int {
@@ -101,6 +126,29 @@ class CacheManager {
     fun containsValidCache(key: String): Boolean {
         val cached = cache[key]
         return cached != null && cached.isValid()
+    }
+
+    /**
+     * 获取缓存统计信息
+     */
+    fun getCacheStats(): Map<String, Any> {
+        val total = cache.size
+        var valid = 0
+        var expired = 0
+        
+        cache.values.forEach { cachedData ->
+            if (cachedData.isValid()) {
+                valid++
+            } else {
+                expired++
+            }
+        }
+        
+        return mapOf(
+            "total" to total,
+            "valid" to valid,
+            "expired" to expired
+        )
     }
 
     companion object {
