@@ -170,3 +170,37 @@ data class YearlyReport(
     val averageMonthlyRuntime: Int,
     val refreshTime: java.time.LocalDateTime = java.time.LocalDateTime.now()
 )
+
+// 作息分析数据结构
+data class SleepAnalysis(
+    val lateNightTasks: List<com.khm.group.center.db.model.client.GpuTaskInfoModel>,
+    val earlyMorningTasks: List<com.khm.group.center.db.model.client.GpuTaskInfoModel>,
+    val lateNightChampion: com.khm.group.center.db.model.client.GpuTaskInfoModel?, // 熬夜冠军（最晚启动）
+    val earlyMorningChampion: com.khm.group.center.db.model.client.GpuTaskInfoModel?, // 早起冠军（最早启动）
+    val totalLateNightTasks: Int,
+    val totalEarlyMorningTasks: Int,
+    val lateNightUsers: Set<String>, // 熬夜用户集合
+    val earlyMorningUsers: Set<String>, // 早起用户集合
+    val refreshTime: java.time.LocalDateTime = java.time.LocalDateTime.now()
+) {
+    val totalLateNightUsers: Int get() = lateNightUsers.size
+    val totalEarlyMorningUsers: Int get() = earlyMorningUsers.size
+}
+
+// 自定义时间段统计数据结构
+data class CustomPeriodStatistics(
+    val startTime: java.time.LocalDateTime,
+    val endTime: java.time.LocalDateTime,
+    val totalTasks: Int,
+    val totalRuntime: Int,
+    val activeUsers: Int,
+    val userStats: List<UserStatistics>,
+    val gpuStats: List<GpuStatistics>,
+    val serverStats: List<ServerStatistics>,
+    val projectStats: List<ProjectStatistics>,
+    val sleepAnalysis: SleepAnalysis?,
+    val successRate: Double,
+    val refreshTime: java.time.LocalDateTime = java.time.LocalDateTime.now()
+) {
+    val formattedSuccessRate: Double get() = NumberFormat.formatDouble(successRate)
+}

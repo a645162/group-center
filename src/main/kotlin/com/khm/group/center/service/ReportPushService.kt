@@ -3,8 +3,11 @@ package com.khm.group.center.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.khm.group.center.config.env.ConfigEnvironment
+import com.khm.group.center.service.BaseStatisticsService
+import com.khm.group.center.service.CachedStatisticsService
 import com.khm.group.center.service.GroupPusher
 import com.khm.group.center.utils.time.DateTimeUtils
+import com.khm.group.center.utils.time.TimePeriod
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.nio.file.Files
@@ -20,7 +23,10 @@ class ReportPushService {
     lateinit var objectMapper: ObjectMapper
 
     @Autowired
-    lateinit var statisticsService: StatisticsService
+    lateinit var statisticsService: CachedStatisticsService
+
+    @Autowired
+    lateinit var baseStatisticsService: BaseStatisticsService
 
     @Autowired
     lateinit var groupPusher: GroupPusher
@@ -37,7 +43,8 @@ class ReportPushService {
         }
         
         val report = statisticsService.getDailyReport(date)
-        val message = formatDailyReport(report)
+        val sleepAnalysis = getSleepAnalysisForPeriod(TimePeriod.ONE_DAY)
+        val message = generateReportString(report, "daily", sleepAnalysis)
 
         // 推送到短期群（日报）
         GroupPusher.pushToShortTermGroup(message)
@@ -56,7 +63,8 @@ class ReportPushService {
         }
         
         val report = statisticsService.getWeeklyReport()
-        val message = formatWeeklyReport(report)
+        val sleepAnalysis = getSleepAnalysisForPeriod(TimePeriod.ONE_WEEK)
+        val message = generateReportString(report, "weekly", sleepAnalysis)
 
         // 推送到短期群（周报）
         GroupPusher.pushToShortTermGroup(message)
@@ -75,7 +83,8 @@ class ReportPushService {
         }
         
         val report = statisticsService.getMonthlyReport()
-        val message = formatMonthlyReport(report)
+        val sleepAnalysis = getSleepAnalysisForPeriod(TimePeriod.ONE_MONTH)
+        val message = generateReportString(report, "monthly", sleepAnalysis)
 
         // 推送到长期群（月报）
         GroupPusher.pushToLongTermGroup(message)
@@ -94,7 +103,8 @@ class ReportPushService {
         }
         
         val report = statisticsService.getYearlyReport()
-        val message = formatYearlyReport(report)
+        val sleepAnalysis = getSleepAnalysisForPeriod(TimePeriod.ONE_YEAR)
+        val message = generateReportString(report, "yearly", sleepAnalysis)
 
         // 推送到长期群（年报）
         GroupPusher.pushToLongTermGroup(message)
@@ -141,228 +151,139 @@ class ReportPushService {
     }
 
     /**
-     * 格式化24小时报告消息
+     * 报告配置数据类
      */
-     private fun format24HourReport(report: Any): String {
-         return when (report) {
-             is com.khm.group.center.datatype.statistics.DailyReport -> {
-                 """
-                 📊 GPU使用报告 - 最近24小时使用情况
-                 ====================
-                 统计时间: ${formatDateTime(report.startTime)} - ${formatDateTime(report.endTime)}
-                 总任务数: ${report.totalTasks}
-                 总运行时间: ${formatTime(report.totalRuntime)}
-                 活跃用户: ${report.activeUsers}
-                 任务成功率: ${"%.1f".format(report.successRate)}%
-                 
-                 🏆 Top用户:
-                 ${formatTopUsers(report.topUsers.take(3))}
-                 
-                 🔧 Top GPU:
-                 ${formatTopGpus(report.topGpus.take(3))}
-                 """.trimIndent()
-             }
-             is Map<*, *> -> {
-                 """
-                 📊 GPU使用报告 - 最近24小时使用情况
-                 ====================
-                 统计时间: ${java.time.LocalDateTime.now().minusHours(24)} - ${java.time.LocalDateTime.now()}
-                 总任务数: ${report["totalTasks"]}
-                 总运行时间: ${formatTime((report["totalRuntime"] as Int))}
-                 活跃用户: ${report["activeUsers"]}
-                 任务成功率: ${"%.1f".format(report["successRate"] as Double)}%
-                 
-                 🏆 Top用户:
-                 ${formatTopUsers((report["topUsers"] as List<*>).take(3))}
-                 
-                 🔧 Top GPU:
-                 ${formatTopGpus((report["topGpus"] as List<*>).take(3))}
-                 """.trimIndent()
-             }
-             else -> "❌ 未知的报告格式"
-         }
-     }
+    data class ReportConfig(
+        val title: String,
+        val timeRange: String,
+        val userCount: Int,
+        val gpuCount: Int,
+        val projectCount: Int
+    )
 
     /**
-     * 格式化日报消息（按自然日统计，用于API接口）
+     * 统一生成报告字符串
+     * @param report 报告数据
+     * @param reportType 报告类型（daily, weekly, monthly, yearly）
+     * @param sleepAnalysis 作息分析数据（可选）
+     * @return 格式化后的报告字符串
      */
-     private fun formatDailyReport(report: Any): String {
-         return when (report) {
-             is com.khm.group.center.datatype.statistics.DailyReport -> {
-                 """
-                 📊 GPU使用日报 - ${report.date} 使用情况
-                 ====================
-                 统计时间: ${formatDateTime(report.startTime)} - ${formatDateTime(report.endTime)}
-                 总任务数: ${report.totalTasks}
-                 总运行时间: ${formatTime(report.totalRuntime)}
-                 活跃用户: ${report.activeUsers}
-                 任务成功率: ${"%.1f".format(report.successRate)}%
-                 
-                 🏆 Top用户:
-                 ${formatTopUsers(report.topUsers.take(3))}
-                 
-                 🔧 Top GPU:
-                 ${formatTopGpus(report.topGpus.take(3))}
-                 """.trimIndent()
-             }
-             is Map<*, *> -> {
-                 """
-                 📊 GPU使用日报 - ${LocalDate.now().minusDays(1)} 使用情况
-                 ====================
-                 统计时间: ${LocalDate.now().minusDays(1).atStartOfDay()} - ${LocalDate.now().atStartOfDay()}
-                 总任务数: ${report["totalTasks"]}
-                 总运行时间: ${formatTime((report["totalRuntime"] as Int))}
-                 活跃用户: ${report["activeUsers"]}
-                 任务成功率: ${"%.1f".format(report["successRate"] as Double)}%
-                 
-                 🏆 Top用户:
-                 ${formatTopUsers((report["topUsers"] as List<*>).take(3))}
-                 
-                 🔧 Top GPU:
-                 ${formatTopGpus((report["topGpus"] as List<*>).take(3))}
-                 """.trimIndent()
-             }
-             else -> "❌ 未知的报告格式"
-         }
-     }
-    /**
-     * 格式化周报消息
-     */
-    private fun formatWeeklyReport(report: Any): String {
-        return when (report) {
+    private fun generateReportString(report: Any, reportType: String, sleepAnalysis: com.khm.group.center.datatype.statistics.SleepAnalysis? = null): String {
+        val config = when (reportType) {
+            "daily" -> ReportConfig("📊 GPU使用日报", "最近24小时", 3, 3, 0)
+            "weekly" -> ReportConfig("📈 GPU使用周报", "上周", 5, 3, 3)
+            "monthly" -> ReportConfig("📈 GPU使用月报", "上月", 10, 5, 5)
+            "yearly" -> ReportConfig("🎯 GPU使用年报", "去年", 15, 8, 10)
+            else -> ReportConfig("📊 GPU使用报告", "统计期间", 3, 3, 3)
+        }
+        val baseContent = when (report) {
+            is com.khm.group.center.datatype.statistics.DailyReport -> {
+                """
+                ${config.title} - ${report.date} 使用情况
+                ====================
+                统计时间: ${formatDateTime(report.startTime)} - ${formatDateTime(report.endTime)}
+                总任务数: ${report.totalTasks}
+                总运行时间: ${formatTime(report.totalRuntime)}
+                活跃用户: ${report.activeUsers}
+                任务成功率: ${"%.1f".format(report.successRate)}%
+                
+                🏆 Top用户:
+                ${formatTopUsers(report.topUsers.take(config.userCount))}
+                
+                🔧 Top GPU:
+                ${formatTopGpus(report.topGpus.take(config.gpuCount))}
+                """.trimIndent() + if (config.projectCount > 0 && report.topProjects.isNotEmpty()) {
+                    "\n\n📋 Top项目:\n${formatTopProjects(report.topProjects.take(config.projectCount))}"
+                } else ""
+            }
             is com.khm.group.center.datatype.statistics.WeeklyReport -> {
                 """
-                📈 GPU使用周报 - 上周使用情况
+                ${config.title} - ${config.timeRange} 使用情况
                 ====================
                 统计时间: ${report.periodStartDate} - ${report.periodEndDate}
                 总任务数: ${report.totalTasks}
                 总运行时间: ${formatTime(report.totalRuntime)}
                 活跃用户: ${report.activeUsers}
                 
-                🏆 上周Top用户:
-                ${formatTopUsers(report.topUsers.take(5))}
+                🏆 ${config.timeRange}Top用户:
+                ${formatTopUsers(report.topUsers.take(config.userCount))}
                 
-                🔧 上周Top GPU:
-                ${formatTopGpus(report.topGpus.take(3))}
+                🔧 ${config.timeRange}Top GPU:
+                ${formatTopGpus(report.topGpus.take(config.gpuCount))}
+                
+                📋 ${config.timeRange}Top项目:
+                ${formatTopProjects(report.topProjects.take(config.projectCount))}
                 """.trimIndent()
             }
-            is Map<*, *> -> {
-                """
-                📈 GPU使用周报 - 上周使用情况
-                ====================
-                统计时间: ${LocalDate.now().minusWeeks(1).with(java.time.DayOfWeek.MONDAY)} - ${LocalDate.now().minusWeeks(1).with(java.time.DayOfWeek.SUNDAY)}
-                总任务数: ${report["totalTasks"]}
-                总运行时间: ${formatTime((report["totalRuntime"] as Int))}
-                活跃用户: ${report["activeUsers"]}
-                
-                🏆 上周Top用户:
-                ${formatTopUsers((report["topUsers"] as List<*>).take(5))}
-                
-                🔧 上周Top GPU:
-                ${formatTopGpus((report["topGpus"] as List<*>).take(3))}
-                """.trimIndent()
-            }
-            else -> "❌ 未知的报告格式"
-        }
-    }
-
-    /**
-     * 格式化月报消息
-     */
-    private fun formatMonthlyReport(report: Any): String {
-        return when (report) {
             is com.khm.group.center.datatype.statistics.MonthlyReport -> {
                 """
-                📈 GPU使用月报 - 上月使用情况
+                ${config.title} - ${config.timeRange} 使用情况
                 ====================
                 统计时间: ${report.periodStartDate} - ${report.periodEndDate}
                 总任务数: ${report.totalTasks}
                 总运行时间: ${formatTime(report.totalRuntime)}
                 活跃用户: ${report.activeUsers}
                 
-                🏆 上月Top用户:
-                ${formatTopUsers(report.topUsers.take(10))}
+                🏆 ${config.timeRange}Top用户:
+                ${formatTopUsers(report.topUsers.take(config.userCount))}
                 
-                🔧 上月Top GPU:
-                ${formatTopGpus(report.topGpus.take(5))}
+                🔧 ${config.timeRange}Top GPU:
+                ${formatTopGpus(report.topGpus.take(config.gpuCount))}
                 
-                📋 上月Top项目:
-                ${formatTopProjects(report.topProjects.take(5))}
+                📋 ${config.timeRange}Top项目:
+                ${formatTopProjects(report.topProjects.take(config.projectCount))}
                 """.trimIndent()
             }
-            is Map<*, *> -> {
-                """
-                📈 GPU使用月报 - 上月使用情况
-                ====================
-                统计时间: ${LocalDate.now().minusMonths(1).withDayOfMonth(1)} - ${LocalDate.now().minusMonths(1).withDayOfMonth(LocalDate.now().minusMonths(1).lengthOfMonth())}
-                总任务数: ${report["totalTasks"]}
-                总运行时间: ${formatTime((report["totalRuntime"] as Int))}
-                活跃用户: ${report["activeUsers"]}
-                
-                🏆 上月Top用户:
-                ${formatTopUsers((report["topUsers"] as List<*>).take(10))}
-                
-                🔧 上月Top GPU:
-                ${formatTopGpus((report["topGpus"] as List<*>).take(5))}
-                
-                📋 上月Top项目:
-                ${formatTopProjects((report["topProjects"] as List<*>).take(5))}
-                """.trimIndent()
-            }
-            else -> "❌ 未知的报告格式"
-        }
-    }
-
-    /**
-     * 格式化年报消息
-     */
-    private fun formatYearlyReport(report: Any): String {
-        return when (report) {
             is com.khm.group.center.datatype.statistics.YearlyReport -> {
                 """
-                🎯 GPU使用年报 - 去年年度总结
+                ${config.title} - ${config.timeRange} 使用情况
                 ====================
                 统计时间: ${report.periodStartDate} - ${report.periodEndDate}
                 总任务数: ${report.totalTasks}
                 总运行时间: ${formatTime(report.totalRuntime)}
                 活跃用户: ${report.activeUsers}
                 
-                🏆 去年Top用户:
-                ${formatTopUsers(report.topUsers.take(15))}
+                🏆 ${config.timeRange}Top用户:
+                ${formatTopUsers(report.topUsers.take(config.userCount))}
                 
-                🔧 去年Top GPU:
-                ${formatTopGpus(report.topGpus.take(8))}
+                🔧 ${config.timeRange}Top GPU:
+                ${formatTopGpus(report.topGpus.take(config.gpuCount))}
                 
-                📋 去年Top项目:
-                ${formatTopProjects(report.topProjects.take(10))}
+                📋 ${config.timeRange}Top项目:
+                ${formatTopProjects(report.topProjects.take(config.projectCount))}
                 """.trimIndent()
             }
             is Map<*, *> -> {
+                // 兼容旧的Map格式
+                val periodText = when (reportType) {
+                    "daily" -> "${LocalDate.now().minusDays(1)}"
+                    "weekly" -> "上周"
+                    "monthly" -> "上月"
+                    "yearly" -> "去年"
+                    else -> "统计期间"
+                }
+                
                 """
-                🎯 GPU使用年报 - 去年年度总结
+                ${config.title} - $periodText 使用情况
                 ====================
-                统计时间: ${LocalDate.of(LocalDate.now().year - 1, 1, 1)} - ${LocalDate.of(LocalDate.now().year - 1, 12, 31)}
                 总任务数: ${report["totalTasks"]}
                 总运行时间: ${formatTime((report["totalRuntime"] as Int))}
                 活跃用户: ${report["activeUsers"]}
                 
-                🏆 去年Top用户:
-                ${formatTopUsers((report["topUsers"] as List<*>).take(15))}
+                🏆 Top用户:
+                ${formatTopUsers((report["topUsers"] as List<*>).take(config.userCount))}
                 
-                🔧 去年Top GPU:
-                ${formatTopGpus((report["topGpus"] as List<*>).take(8))}
-                
-                📋 去年Top项目:
-                ${formatTopProjects((report["topProjects"] as List<*>).take(10))}
-                """.trimIndent()
+                🔧 Top GPU:
+                ${formatTopGpus((report["topGpus"] as List<*>).take(config.gpuCount))}
+                """.trimIndent() + if (config.projectCount > 0 && report.containsKey("topProjects")) {
+                    "\n\n📋 Top项目:\n${formatTopProjects((report["topProjects"] as List<*>).take(config.projectCount))}"
+                } else ""
             }
             else -> "❌ 未知的报告格式"
         }
+        
+        return baseContent + formatSleepAnalysis(sleepAnalysis)
     }
-
-    /**
-     * 格式化Top用户列表
-     */
     private fun formatTopUsers(users: List<*>): String {
         return users.joinToString("\n") { user ->
             val u = user as com.khm.group.center.datatype.statistics.UserStatistics
@@ -422,6 +343,63 @@ class ReportPushService {
 
         Files.createDirectories(reportStatusDir)
         Files.writeString(statusFile, objectMapper.writeValueAsString(status))
+    }
+
+    /**
+     * 获取指定时间段的作息时间分析
+     */
+    private fun getSleepAnalysisForPeriod(period: TimePeriod): com.khm.group.center.datatype.statistics.SleepAnalysis? {
+        try {
+            // 使用基础服务（无缓存）进行作息分析
+            val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
+                .getTasksByTimePeriod(period)
+            
+            // 计算时间段的开始和结束时间
+            val currentTime = System.currentTimeMillis() / 1000
+            val startTime = period.getAgoTimestamp(null) / 1000
+            
+            return baseStatisticsService.getSleepAnalysis(tasks, startTime, currentTime)
+        } catch (e: Exception) {
+            println("获取作息时间分析失败: ${e.message}")
+            return null
+        }
+    }
+
+    /**
+     * 格式化作息时间分析结果
+     */
+    private fun formatSleepAnalysis(sleepAnalysis: com.khm.group.center.datatype.statistics.SleepAnalysis?): String {
+        if (sleepAnalysis == null) {
+            return "❌ 作息分析数据获取失败"
+        }
+        
+        val content = StringBuilder()
+        content.append("\n🌙 作息时间分析:\n")
+        content.append("====================\n")
+        content.append("🌃 熬夜任务数: ${sleepAnalysis.totalLateNightTasks}\n")
+        content.append("🌅 早起任务数: ${sleepAnalysis.totalEarlyMorningTasks}\n")
+        content.append("👥 熬夜用户数: ${sleepAnalysis.totalLateNightUsers}\n")
+        content.append("👥 早起用户数: ${sleepAnalysis.totalEarlyMorningUsers}\n")
+        
+        // 添加熬夜冠军信息
+        sleepAnalysis.lateNightChampion?.let { champion ->
+            val championTime = java.time.LocalDateTime.ofInstant(
+                java.time.Instant.ofEpochSecond(champion.taskStartTime),
+                java.time.ZoneId.systemDefault()
+            )
+            content.append("🏆 熬夜冠军: ${champion.taskUser} (${championTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))})\n")
+        }
+        
+        // 添加早起冠军信息
+        sleepAnalysis.earlyMorningChampion?.let { champion ->
+            val championTime = java.time.LocalDateTime.ofInstant(
+                java.time.Instant.ofEpochSecond(champion.taskStartTime),
+                java.time.ZoneId.systemDefault()
+            )
+            content.append("🏆 早起冠军: ${champion.taskUser} (${championTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))})\n")
+        }
+        
+        return content.toString()
     }
 
     /**
