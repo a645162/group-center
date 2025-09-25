@@ -2,9 +2,7 @@ package com.khm.group.center.controller.api.web.dashboard
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.khm.group.center.datatype.response.ClientResponse
-import com.khm.group.center.service.ReportPushService
 import com.khm.group.center.service.StatisticsService
-import com.khm.group.center.task.ReportSchedulerService
 import com.khm.group.center.utils.time.TimePeriod
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,11 +17,6 @@ class StatisticsController {
     @Autowired
     lateinit var statisticsService: StatisticsService
 
-    @Autowired
-    lateinit var reportPushService: ReportPushService
-
-    @Autowired
-    lateinit var reportSchedulerService: ReportSchedulerService
 
     @Autowired
     lateinit var objectMapper: ObjectMapper
@@ -176,81 +169,4 @@ class StatisticsController {
         return result
     }
 
-    @Operation(summary = "立即生成并推送日报")
-    @PostMapping("/push/daily")
-    fun pushDailyReport(): ClientResponse {
-        reportSchedulerService.pushDailyReportNow()
-        
-        val result = ClientResponse()
-        result.result = mapOf(
-            "message" to "Daily report push initiated",
-            "status" to "processing"
-        )
-        return result
-    }
-
-    @Operation(summary = "立即生成并推送周报")
-    @PostMapping("/push/weekly")
-    fun pushWeeklyReport(): ClientResponse {
-        reportSchedulerService.pushWeeklyReportNow()
-        
-        val result = ClientResponse()
-        result.result = mapOf(
-            "message" to "Weekly report push initiated",
-            "status" to "processing"
-        )
-        return result
-    }
-
-    @Operation(summary = "立即生成并推送月报")
-    @PostMapping("/push/monthly")
-    fun pushMonthlyReport(): ClientResponse {
-        reportSchedulerService.pushMonthlyReportNow()
-        
-        val result = ClientResponse()
-        result.result = mapOf(
-            "message" to "Monthly report push initiated",
-            "status" to "processing"
-        )
-        return result
-    }
-
-    @Operation(summary = "立即生成并推送年报")
-    @PostMapping("/push/yearly")
-    fun pushYearlyReport(): ClientResponse {
-        reportSchedulerService.pushYearlyReportNow()
-        
-        val result = ClientResponse()
-        result.result = mapOf(
-            "message" to "Yearly report push initiated",
-            "status" to "processing"
-        )
-        return result
-    }
-
-    @Operation(summary = "检查并补推缺失的报告")
-    @PostMapping("/push/missing")
-    fun pushMissingReports(): ClientResponse {
-        reportSchedulerService.checkAndPushMissingReports()
-        
-        val result = ClientResponse()
-        result.result = mapOf(
-            "message" to "Missing reports check initiated",
-            "status" to "processing"
-        )
-        return result
-    }
-
-    @Operation(summary = "立即更新统计缓存")
-    @PostMapping("/cache/update-now")
-    fun updateCacheNow(): ClientResponse {
-        reportSchedulerService.updateStatisticsCache()
-        
-        val result = ClientResponse()
-        result.result = mapOf(
-            "message" to "Cache update initiated",
-            "status" to "processing"
-        )
-        return result
-    }
 }
