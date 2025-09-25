@@ -3,6 +3,7 @@ package com.khm.group.center.service
 import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.statistics.*
 import com.khm.group.center.db.model.client.GpuTaskInfoModel
+import com.khm.group.center.utils.format.NumberFormat
 import com.khm.group.center.utils.time.DateTimeUtils
 import com.khm.group.center.utils.time.TimePeriod
 import org.springframework.stereotype.Component
@@ -102,7 +103,11 @@ class StatisticsAnalyzer {
 
         // 计算平均运行时间
         userMap.values.forEach { user ->
-            user.averageRuntime = if (user.totalTasks > 0) user.totalRuntime.toDouble() / user.totalTasks else 0.0
+            user.averageRuntime = if (user.totalTasks > 0) {
+                NumberFormat.formatAverage(user.totalRuntime.toDouble(), user.totalTasks)
+            } else {
+                0.0
+            }
         }
 
         return userMap.values.filter { it.totalRuntime > 0 }.sortedByDescending { it.totalRuntime }
@@ -140,10 +145,16 @@ class StatisticsAnalyzer {
             if (actualRuntime > 0L) {
                 gpu.totalUsageCount++
                 gpu.totalRuntime += actualRuntime.toInt()
-                gpu.averageUsagePercent =
-                    (gpu.averageUsagePercent * (gpu.totalUsageCount - 1) + task.gpuUsagePercent.toDouble()) / gpu.totalUsageCount
-                gpu.averageMemoryUsage =
-                    (gpu.averageMemoryUsage * (gpu.totalUsageCount - 1) + task.gpuMemoryPercent.toDouble()) / gpu.totalUsageCount
+                gpu.averageUsagePercent = NumberFormat.formatWeightedAverage(
+                    gpu.averageUsagePercent,
+                    gpu.totalUsageCount - 1,
+                    task.gpuUsagePercent.toDouble()
+                )
+                gpu.averageMemoryUsage = NumberFormat.formatWeightedAverage(
+                    gpu.averageMemoryUsage,
+                    gpu.totalUsageCount - 1,
+                    task.gpuMemoryPercent.toDouble()
+                )
                 gpu.totalMemoryUsage += task.taskGpuMemoryGb
             }
         }
@@ -182,8 +193,11 @@ class StatisticsAnalyzer {
                 server.totalTasks++
                 server.totalRuntime += actualRuntime.toInt()
                 server.activeUsers.add(task.taskUser)
-                server.gpuUtilization =
-                    (server.gpuUtilization * (server.totalTasks - 1) + task.gpuUsagePercent.toDouble()) / server.totalTasks
+                server.gpuUtilization = NumberFormat.formatWeightedAverage(
+                    server.gpuUtilization,
+                    server.totalTasks - 1,
+                    task.gpuUsagePercent.toDouble()
+                )
             }
         }
 
@@ -225,8 +239,11 @@ class StatisticsAnalyzer {
         }
 
         projectMap.values.forEach { project ->
-            project.averageRuntime =
-                if (project.totalTasks > 0) project.totalRuntime.toDouble() / project.totalTasks else 0.0
+            project.averageRuntime = if (project.totalTasks > 0) {
+                NumberFormat.formatAverage(project.totalRuntime.toDouble(), project.totalTasks)
+            } else {
+                0.0
+            }
         }
 
         return projectMap.values.filter { it.totalRuntime > 0 }.sortedByDescending { it.totalRuntime }
@@ -256,7 +273,7 @@ class StatisticsAnalyzer {
             dailyStat.totalTasks++
             dailyStat.totalRuntime += task.taskRunningTimeInSeconds
             dailyStat.activeUsers.add(task.taskUser)
-            dailyStat.peakGpuUsage = maxOf(dailyStat.peakGpuUsage, task.gpuUsagePercent.toDouble())
+            dailyStat.peakGpuUsage = maxOf(dailyStat.peakGpuUsage, NumberFormat.formatDouble(task.gpuUsagePercent.toDouble()))
         }
 
         return TimeTrendStatistics(
@@ -265,8 +282,12 @@ class StatisticsAnalyzer {
             totalTasks = tasks.size,
             totalRuntime = tasks.sumOf { it.taskRunningTimeInSeconds },
             totalUsers = tasks.map { it.taskUser }.distinct().size,
-            averageDailyTasks = if (dailyStats.isNotEmpty()) tasks.size / dailyStats.size else 0,
-            averageDailyRuntime = if (dailyStats.isNotEmpty()) tasks.sumOf { it.taskRunningTimeInSeconds } / dailyStats.size else 0
+            averageDailyTasks = if (dailyStats.isNotEmpty()) (tasks.size / dailyStats.size).toInt() else 0,
+            averageDailyRuntime = if (dailyStats.isNotEmpty()) {
+                NumberFormat.formatAverage(tasks.sumOf { it.taskRunningTimeInSeconds }.toDouble(), dailyStats.size).toInt()
+            } else {
+                0
+            }
         )
     }
 
@@ -479,8 +500,16 @@ class StatisticsAnalyzer {
                     totalTasks = dailyStats.sumOf { it.totalTasks },
                     totalRuntime = dailyStats.sumOf { it.totalRuntime },
                     activeUsers = dailyStats.flatMap { it.activeUsers }.distinct().size,
-                    averageDailyTasks = if (dailyStats.isNotEmpty()) dailyStats.sumOf { it.totalTasks } / dailyStats.size else 0,
-                    averageDailyRuntime = if (dailyStats.isNotEmpty()) dailyStats.sumOf { it.totalRuntime } / dailyStats.size else 0
+                    averageDailyTasks = if (dailyStats.isNotEmpty()) {
+                        NumberFormat.formatAverage(dailyStats.sumOf { it.totalTasks }.toDouble(), dailyStats.size).toInt()
+                    } else {
+                        0
+                    },
+                    averageDailyRuntime = if (dailyStats.isNotEmpty()) {
+                        NumberFormat.formatAverage(dailyStats.sumOf { it.totalRuntime }.toDouble(), dailyStats.size).toInt()
+                    } else {
+                        0
+                    }
                 )
             }
 
@@ -505,8 +534,16 @@ class StatisticsAnalyzer {
             topGpus = gpuStats.take(20),
             topProjects = projectStats.take(15),
             monthlyStats = monthlyStats.sortedBy { it.month.value },
-            averageMonthlyTasks = if (actualTasks > 0) (actualTasks / 12).toInt() else 0,
-            averageMonthlyRuntime = if (actualTasks > 0) (totalActualRuntime / 12).toInt() else 0
+            averageMonthlyTasks = if (actualTasks > 0) {
+                NumberFormat.formatAverage(actualTasks.toDouble(), 12).toInt()
+            } else {
+                0
+            },
+            averageMonthlyRuntime = if (actualTasks > 0) {
+                NumberFormat.formatAverage(totalActualRuntime.toDouble(), 12).toInt()
+            } else {
+                0
+            }
         )
     }
 }

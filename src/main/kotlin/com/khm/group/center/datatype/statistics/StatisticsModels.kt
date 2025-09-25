@@ -1,5 +1,6 @@
 package com.khm.group.center.datatype.statistics
 
+import com.khm.group.center.utils.format.NumberFormat
 import java.time.LocalDate
 import java.time.Month
 
@@ -15,6 +16,8 @@ data class UserStatistics(
     var favoriteProject: String
 ) {
     val successRate: Double get() = if (totalTasks > 0) successTasks * 100.0 / totalTasks else 0.0
+    val formattedAverageRuntime: Double get() = NumberFormat.formatDouble(averageRuntime)
+    val formattedSuccessRate: Double get() = NumberFormat.formatDouble(successRate)
 }
 
 // GPU统计数据结构
@@ -26,7 +29,11 @@ data class GpuStatistics(
     var averageUsagePercent: Double,
     var averageMemoryUsage: Double,
     var totalMemoryUsage: Double
-)
+) {
+    val formattedAverageUsagePercent: Double get() = NumberFormat.formatDouble(averageUsagePercent)
+    val formattedAverageMemoryUsage: Double get() = NumberFormat.formatDouble(averageMemoryUsage)
+    val formattedTotalMemoryUsage: Double get() = NumberFormat.formatDouble(totalMemoryUsage)
+}
 
 // 服务器统计数据结构
 data class ServerStatistics(
@@ -37,6 +44,7 @@ data class ServerStatistics(
     var gpuUtilization: Double
 ) {
     val activeUsersCount: Int get() = activeUsers.size
+    val formattedGpuUtilization: Double get() = NumberFormat.formatDouble(gpuUtilization)
 }
 
 // 项目统计数据结构
@@ -48,6 +56,7 @@ data class ProjectStatistics(
     var averageRuntime: Double
 ) {
     val activeUsersCount: Int get() = activeUsers.size
+    val formattedAverageRuntime: Double get() = NumberFormat.formatDouble(averageRuntime)
 }
 
 // 每日统计数据结构
@@ -59,6 +68,7 @@ data class DailyStats(
     var peakGpuUsage: Double
 ) {
     val activeUsersCount: Int get() = activeUsers.size
+    val formattedPeakGpuUsage: Double get() = NumberFormat.formatDouble(peakGpuUsage)
 }
 
 // 时间趋势统计数据结构
@@ -86,7 +96,9 @@ data class DailyReport(
     val serverStats: List<ServerStatistics>,
     val successRate: Double,
     val refreshTime: java.time.LocalDateTime = java.time.LocalDateTime.now()
-)
+) {
+    val formattedSuccessRate: Double get() = NumberFormat.formatDouble(successRate)
+}
 // 周报数据结构
 data class WeeklyReport(
     val startDate: LocalDate,

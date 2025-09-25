@@ -155,7 +155,7 @@ class GpuTaskAnalyse {
             user.personUseTime += task.taskRunningTimeInSeconds
 
             // 统计用户最喜欢的GPU（累计统计）
-            val gpuKey = "${task.taskGpuName}_${task.serverName}"
+            "${task.taskGpuName}_${task.serverName}"
             val existingGpuSummary = user.gpuModelUseTime.find {
                 it.gpuName == task.taskGpuName && it.machineName == task.serverName
             }
