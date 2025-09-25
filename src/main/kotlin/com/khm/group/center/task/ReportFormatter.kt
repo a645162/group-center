@@ -144,9 +144,17 @@ object ReportFormatter {
     }
 
     /**
-     * 生成日报标题
+     * 生成今日日报标题
      */
-    fun generateDailyTitle(): String {
+    fun generateTodayTitle(): String {
+        val today = LocalDateTime.now()
+        return "GPU使用日报 - ${today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}"
+    }
+
+    /**
+     * 生成昨日日报标题
+     */
+    fun generateYesterdayTitle(): String {
         val yesterday = LocalDateTime.now().minusDays(1)
         return "GPU使用日报 - ${yesterday.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}"
     }

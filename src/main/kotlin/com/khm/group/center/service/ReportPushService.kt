@@ -34,25 +34,44 @@ class ReportPushService {
     private val reportStatusDir: Path = Paths.get("Config/Program/Report")
 
     /**
-     * 推送日报到指定群组（昨天的完整日报，昨天凌晨12点到今天凌晨12点）
+     * 推送今日日报到指定群组（今天凌晨12点到明天凌晨12点）
      */
-    fun pushDailyReport(date: LocalDate = LocalDate.now().minusDays(1)) {
-        if (!ConfigEnvironment.REPORT_DAILY_ENABLE) {
-            println("日报推送已禁用，跳过推送")
-            return
-        }
-        
-        val report = statisticsService.getDailyReport(date)
-        val sleepAnalysis = getSleepAnalysisForPeriod(TimePeriod.ONE_DAY)
-        val message = generateReportString(report, "daily", sleepAnalysis)
-
-        // 推送到短期群（日报）
-        GroupPusher.pushToShortTermGroup(message)
-
-        // 记录推送状态
-        recordPushStatus("daily", date)
-    }
-
+    fun pushTodayReport() {
+         if (!ConfigEnvironment.REPORT_DAILY_ENABLE) {
+             println("日报推送已禁用，跳过推送")
+             return
+         }
+         
+         val report = statisticsService.getTodayReport()
+         val sleepAnalysis = getSleepAnalysisForPeriod(TimePeriod.ONE_DAY)
+         val message = generateReportString(report, "today", sleepAnalysis)
+ 
+         // 推送到短期群（日报）
+         GroupPusher.pushToShortTermGroup(message)
+ 
+         // 记录推送状态
+         recordPushStatus("today", LocalDate.now())
+     }
+ 
+     /**
+      * 推送昨日日报到指定群组（昨天凌晨12点到今天凌晨12点）
+      */
+     fun pushYesterdayReport() {
+         if (!ConfigEnvironment.REPORT_DAILY_ENABLE) {
+             println("日报推送已禁用，跳过推送")
+             return
+         }
+         
+         val report = statisticsService.getYesterdayReport()
+         val sleepAnalysis = getSleepAnalysisForPeriod(TimePeriod.ONE_DAY)
+         val message = generateReportString(report, "yesterday", sleepAnalysis)
+ 
+         // 推送到短期群（日报）
+         GroupPusher.pushToShortTermGroup(message)
+ 
+         // 记录推送状态
+         recordPushStatus("yesterday", LocalDate.now().minusDays(1))
+     }
     /**
      * 推送周报到指定群组
      */
@@ -119,10 +138,15 @@ class ReportPushService {
     fun checkAndPushMissingReports() {
         val today = LocalDate.now()
 
-        // 检查日报（检查昨天的日报是否已推送）
+        // 检查今日日报（检查今天的日报是否已推送）
+        if (!isReportPushed("today", today)) {
+            pushTodayReport()
+        }
+
+        // 检查昨日日报（检查昨天的日报是否已推送）
         val yesterday = today.minusDays(1)
-        if (!isReportPushed("daily", yesterday)) {
-            pushDailyReport(yesterday)
+        if (!isReportPushed("yesterday", yesterday)) {
+            pushYesterdayReport()
         }
 
         // 检查周报（每周一检查上周的周报）
@@ -164,13 +188,14 @@ class ReportPushService {
     /**
      * 统一生成报告字符串
      * @param report 报告数据
-     * @param reportType 报告类型（daily, weekly, monthly, yearly）
+     * @param reportType 报告类型（today, yesterday, weekly, monthly, yearly）
      * @param sleepAnalysis 作息分析数据（可选）
      * @return 格式化后的报告字符串
      */
     private fun generateReportString(report: Any, reportType: String, sleepAnalysis: com.khm.group.center.datatype.statistics.SleepAnalysis? = null): String {
         val config = when (reportType) {
-            "daily" -> ReportConfig("📊 GPU使用日报", "最近24小时", 3, 3, 0)
+            "today" -> ReportConfig("📊 GPU使用日报", "今日", 3, 3, 0)
+            "yesterday" -> ReportConfig("📊 GPU使用日报", "昨日", 3, 3, 0)
             "weekly" -> ReportConfig("📈 GPU使用周报", "上周", 5, 3, 3)
             "monthly" -> ReportConfig("📈 GPU使用月报", "上月", 10, 5, 5)
             "yearly" -> ReportConfig("🎯 GPU使用年报", "去年", 15, 8, 10)
@@ -257,7 +282,8 @@ class ReportPushService {
             is Map<*, *> -> {
                 // 兼容旧的Map格式
                 val periodText = when (reportType) {
-                    "daily" -> "${LocalDate.now().minusDays(1)}"
+                    "today" -> "${LocalDate.now()}"
+                    "yesterday" -> "${LocalDate.now().minusDays(1)}"
                     "weekly" -> "上周"
                     "monthly" -> "上月"
                     "yearly" -> "去年"

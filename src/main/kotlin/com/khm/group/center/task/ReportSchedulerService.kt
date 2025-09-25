@@ -19,15 +19,28 @@ class ReportSchedulerService(
 ) {
 
     /**
-     * 每天早上8点生成并推送日报（昨天的日报）
+     * 每天早上8点生成并推送昨日日报（昨天0:00到今天0:00）
      */
     @Scheduled(cron = "0 0 8 * * ?")
-    fun generateAndPushDailyReport() {
+    fun generateAndPushYesterdayReport() {
         try {
-            reportPushService.pushDailyReport()
-            logger.info("✅ Daily report pushed successfully")
+            reportPushService.pushYesterdayReport()
+            logger.info("✅ Yesterday report pushed successfully")
         } catch (e: Exception) {
-            logger.error("❌ Failed to generate daily report: ${e.message}", e)
+            logger.error("❌ Failed to generate yesterday report: ${e.message}", e)
+        }
+    }
+
+    /**
+     * 每天下午4点生成并推送今日日报（今天0:00到明天0:00）
+     */
+    @Scheduled(cron = "0 0 16 * * ?")
+    fun generateAndPushTodayReport() {
+        try {
+            reportPushService.pushTodayReport()
+            logger.info("✅ Today report pushed successfully")
+        } catch (e: Exception) {
+            logger.error("❌ Failed to generate today report: ${e.message}", e)
         }
     }
 
@@ -93,10 +106,17 @@ class ReportSchedulerService(
     }
 
     /**
-     * 立即执行日报推送（用于调试）
+     * 立即执行今日日报推送（用于调试）
      */
-    fun pushDailyReportNow() {
-        reportPushService.pushDailyReport()
+    fun pushTodayReportNow() {
+        reportPushService.pushTodayReport()
+    }
+
+    /**
+     * 立即执行昨日日报推送（用于调试）
+     */
+    fun pushYesterdayReportNow() {
+        reportPushService.pushYesterdayReport()
     }
 
     /**

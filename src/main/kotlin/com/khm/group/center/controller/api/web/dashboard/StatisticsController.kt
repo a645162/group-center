@@ -110,13 +110,20 @@ class StatisticsController {
         return result
     }
 
-    @Operation(summary = "获取日报（按自然日统计）")
-    @GetMapping("/reports/daily")
-    fun getDailyReport(
-        @RequestParam(required = false)
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?
-    ): ClientResponse {
-        val report = cachedStatisticsService.getDailyReport(date ?: LocalDate.now())
+    @Operation(summary = "获取今日日报（今天0:00到明天0:00）")
+    @GetMapping("/reports/today")
+    fun getTodayReport(): ClientResponse {
+        val report = cachedStatisticsService.getTodayReport()
+        
+        val result = ClientResponse()
+        result.result = report
+        return result
+    }
+
+    @Operation(summary = "获取昨日日报（昨天0:00到今天0:00）")
+    @GetMapping("/reports/yesterday")
+    fun getYesterdayReport(): ClientResponse {
+        val report = cachedStatisticsService.getYesterdayReport()
         
         val result = ClientResponse()
         result.result = report

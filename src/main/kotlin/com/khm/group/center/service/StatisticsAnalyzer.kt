@@ -314,20 +314,34 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, startTimestamp, endTimestamp) > 0L
         }
 
+        // 调试日志：输出实际任务时间范围
+        val actualTaskStartTime = if (tasks.isNotEmpty()) {
+            val minStartTime = tasks.minOf { it.taskStartTime }
+            val minStartDateTime = DateTimeUtils.convertTimestampToDateTime(minStartTime)
+            println("DEBUG: 实际任务最早启动时间: ${minStartDateTime} (时间戳: $minStartTime)")
+            minStartDateTime
+        } else {
+            startTime
+        }
+
+        val actualTaskEndTime = if (tasks.isNotEmpty()) {
+            val maxEndTime = tasks.maxOf { it.taskFinishTime }
+            val maxEndDateTime = DateTimeUtils.convertTimestampToDateTime(maxEndTime)
+            println("DEBUG: 实际任务最晚结束时间: ${maxEndDateTime} (时间戳: $maxEndTime)")
+            maxEndDateTime
+        } else {
+            endTime
+        }
+
+        println("DEBUG: 统计区间: $startTime - $endTime")
+        println("DEBUG: 实际任务时间: $actualTaskStartTime - $actualTaskEndTime")
+
         return DailyReport(
             date = LocalDate.now(), // 使用当前日期作为参考
             startTime = startTime,
             endTime = endTime,
-            actualTaskStartTime = if (tasks.isNotEmpty()) {
-                tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
-            } else {
-                startTime
-            },
-            actualTaskEndTime = if (tasks.isNotEmpty()) {
-                tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
-            } else {
-                endTime
-            },
+            actualTaskStartTime = actualTaskStartTime,
+            actualTaskEndTime = actualTaskEndTime,
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
@@ -381,8 +395,8 @@ class StatisticsAnalyzer {
 
         return DailyReport(
             date = date,
-            startTime = startTime,
-            endTime = endTime,
+            startTime = DateTimeUtils.convertTimestampToDateTime(periodStart),
+            endTime = DateTimeUtils.convertTimestampToDateTime(periodEnd),
             actualTaskStartTime = if (tasks.isNotEmpty()) {
                 tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
             } else {

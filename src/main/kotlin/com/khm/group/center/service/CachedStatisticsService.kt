@@ -279,42 +279,80 @@ class CachedStatisticsService {
     }
 
     /**
-     * 获取日报数据（带缓存，整点时间范围：昨天0:00到今天0:00）
+     * 获取今日日报数据（带缓存，整点时间范围：今天0:00到明天0:00）
      */
-    fun getDailyReport(date: LocalDate = LocalDate.now().minusDays(1)): DailyReport {
-        val cacheKey = "daily_report_${date}"
-        
-        // 尝试从缓存获取
-        val cached: DailyReport? = cacheManager.getCachedData(cacheKey)
-        if (cached != null) {
-            logger.info("✅ 缓存命中，从缓存获取日报（${date}）")
-            return cached
-        }
-
-        logger.info("🔄 缓存未命中，重新计算日报（${date}）")
-        
-        // 清除所有旧的日报缓存
-        val clearedCount = cacheManager.clearCacheByType("daily_report")
-        if (clearedCount > 0) {
-            logger.info("🗑️ 清除旧的日报缓存：${clearedCount}个")
-        }
-        
-        // 使用整点时间范围
-        val (startTime, endTime) = HourlyTimeUtils.getDailyRoundedRange()
-        
-        val tasks = gpuTaskQuery.queryTasks(
-            timePeriod = TimePeriod.ONE_DAY,
-            startTime = startTime,
-            endTime = endTime
-        )
-        val report = baseStatisticsService.generateDailyReport(tasks, date)
-
-        // 存储到缓存
-        cacheManager.putCachedData(cacheKey, report, CACHE_DURATION)
-        logger.info("💾 新日报已缓存（${date}，时间范围：${startTime} - ${endTime}）")
-        return report
-    }
-
+    fun getTodayReport(): DailyReport {
+         val date = LocalDate.now()
+         val cacheKey = "today_report_${date}"
+         
+         // 尝试从缓存获取
+         val cached: DailyReport? = cacheManager.getCachedData(cacheKey)
+         if (cached != null) {
+             logger.info("✅ 缓存命中，从缓存获取今日日报（${date}）")
+             return cached
+         }
+ 
+         logger.info("🔄 缓存未命中，重新计算今日日报（${date}）")
+         
+         // 清除所有旧的今日日报缓存
+         val clearedCount = cacheManager.clearCacheByType("today_report")
+         if (clearedCount > 0) {
+             logger.info("🗑️ 清除旧的今日日报缓存：${clearedCount}个")
+         }
+         
+         // 使用整点时间范围
+         val (startTime, endTime) = HourlyTimeUtils.getTodayRoundedRange()
+         
+         val tasks = gpuTaskQuery.queryTasks(
+             timePeriod = TimePeriod.ONE_DAY,
+             startTime = startTime,
+             endTime = endTime
+         )
+         val report = baseStatisticsService.generate24HourReport(tasks, startTime, endTime)
+ 
+         // 存储到缓存
+         cacheManager.putCachedData(cacheKey, report, CACHE_DURATION)
+         logger.info("💾 新今日日报已缓存（${date}，时间范围：${startTime} - ${endTime}）")
+         return report
+     }
+ 
+     /**
+      * 获取昨日日报数据（带缓存，整点时间范围：昨天0:00到今天0:00）
+      */
+     fun getYesterdayReport(): DailyReport {
+         val date = LocalDate.now().minusDays(1)
+         val cacheKey = "yesterday_report_${date}"
+         
+         // 尝试从缓存获取
+         val cached: DailyReport? = cacheManager.getCachedData(cacheKey)
+         if (cached != null) {
+             logger.info("✅ 缓存命中，从缓存获取昨日日报（${date}）")
+             return cached
+         }
+ 
+         logger.info("🔄 缓存未命中，重新计算昨日日报（${date}）")
+         
+         // 清除所有旧的昨日日报缓存
+         val clearedCount = cacheManager.clearCacheByType("yesterday_report")
+         if (clearedCount > 0) {
+             logger.info("🗑️ 清除旧的昨日日报缓存：${clearedCount}个")
+         }
+         
+         // 使用整点时间范围
+         val (startTime, endTime) = HourlyTimeUtils.getYesterdayRoundedRange()
+         
+         val tasks = gpuTaskQuery.queryTasks(
+             timePeriod = TimePeriod.ONE_DAY,
+             startTime = startTime,
+             endTime = endTime
+         )
+         val report = baseStatisticsService.generate24HourReport(tasks, startTime, endTime)
+ 
+         // 存储到缓存
+         cacheManager.putCachedData(cacheKey, report, CACHE_DURATION)
+         logger.info("💾 新昨日日报已缓存（${date}，时间范围：${startTime} - ${endTime}）")
+         return report
+     }
     /**
      * 获取周报数据（带缓存，整点时间范围：上周一0:00到本周一0:00）
      */
@@ -446,7 +484,8 @@ class CachedStatisticsService {
         // 预加载常用统计数据
         getUserStatistics(TimePeriod.ONE_WEEK)
         getGpuStatistics(TimePeriod.ONE_WEEK)
-        getDailyReport()
+        getTodayReport()
+        getYesterdayReport()
         get24HourReport()
         get48HourReport()
         get72HourReport()

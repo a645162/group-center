@@ -34,10 +34,24 @@ object HourlyTimeUtils {
     }
 
     /**
-     * 获取日报的整点时间范围（昨天0:00到今天0:00）
+     * 获取今日日报的整点时间范围（今天0:00到明天0:00）
      * @return Pair(开始时间戳, 结束时间戳) 单位：秒
      */
-    fun getDailyRoundedRange(): Pair<Long, Long> {
+    fun getTodayRoundedRange(): Pair<Long, Long> {
+        val today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS)
+        val tomorrow = today.plusDays(1)
+        
+        val startTime = today.atZone(ZoneId.systemDefault()).toEpochSecond()
+        val endTime = tomorrow.atZone(ZoneId.systemDefault()).toEpochSecond()
+        
+        return Pair(startTime, endTime)
+    }
+
+    /**
+     * 获取昨日日报的整点时间范围（昨天0:00到今天0:00）
+     * @return Pair(开始时间戳, 结束时间戳) 单位：秒
+     */
+    fun getYesterdayRoundedRange(): Pair<Long, Long> {
         val today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS)
         val yesterday = today.minusDays(1)
         

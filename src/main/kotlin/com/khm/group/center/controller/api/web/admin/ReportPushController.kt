@@ -13,14 +13,27 @@ class ReportPushController(
     private val reportSchedulerService: ReportSchedulerService
 ) {
 
-    @Operation(summary = "立即推送日报")
-    @PostMapping("/daily/now")
-    fun pushDailyReportNow(): ClientResponse {
-        reportSchedulerService.pushDailyReportNow()
+    @Operation(summary = "立即推送今日日报")
+    @PostMapping("/today/now")
+    fun pushTodayReportNow(): ClientResponse {
+        reportSchedulerService.pushTodayReportNow()
         
         val result = ClientResponse()
         result.result = mapOf(
-            "message" to "Daily report pushed successfully",
+            "message" to "Today report pushed successfully",
+            "status" to "completed"
+        )
+        return result
+    }
+
+    @Operation(summary = "立即推送昨日日报")
+    @PostMapping("/yesterday/now")
+    fun pushYesterdayReportNow(): ClientResponse {
+        reportSchedulerService.pushYesterdayReportNow()
+        
+        val result = ClientResponse()
+        result.result = mapOf(
+            "message" to "Yesterday report pushed successfully",
             "status" to "completed"
         )
         return result
