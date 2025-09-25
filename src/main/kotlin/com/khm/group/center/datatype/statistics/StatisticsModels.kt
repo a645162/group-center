@@ -98,6 +98,7 @@ data class WeeklyReport(
     val activeUsers: Int,
     val topUsers: List<UserStatistics>,
     val topGpus: List<GpuStatistics>,
+    val topProjects: List<ProjectStatistics>,
     val dailyTrend: List<DailyStats>,
     val averageDailyTasks: Int,
     val averageDailyRuntime: Int,

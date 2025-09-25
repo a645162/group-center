@@ -12,42 +12,51 @@ object ReportFormatter {
     /**
      * 格式化日报消息
      */
-    fun formatDailyReport(report: Map<String, Any>): String {
-        val date = report["date"] as String
-        val totalTasks = report["totalTasks"] as Int
-        val totalUsers = report["totalUsers"] as Int
-        val totalRuntime = report["totalRuntime"] as Int
-        val topUsers = report["topUsers"] as List<*>
-        val topGpus = report["topGpus"] as List<*>
+     fun formatDailyReport(report: Map<String, Any>): String {
+         val date = report["date"] as String
+         val totalTasks = report["totalTasks"] as Int
+         val totalUsers = report["totalUsers"] as Int
+         val totalRuntime = report["totalRuntime"] as Int
+         val topUsers = report["topUsers"] as List<*>
+         val topGpus = report["topGpus"] as List<*>
+         val topProjects = report["topProjects"] as List<*>?
+ 
+         val content = StringBuilder()
+         content.append("📊 日报统计\n\n")
+         content.append("📅 日期: $date\n")
+         content.append("🎯 总任务数: $totalTasks\n")
+         content.append("👥 活跃用户数: $totalUsers\n")
+         content.append("⏱️ 总运行时间: ${formatTime(totalRuntime)}\n\n")
+ 
+         if (topUsers.isNotEmpty()) {
+             content.append("🏆 活跃用户Top5:\n")
+             topUsers.take(5).forEachIndexed { index, user ->
+                 content.append("${index + 1}. 用户: ${user.toString()}\n")
+             }
+             content.append("\n")
+         }
+ 
+         if (topGpus.isNotEmpty()) {
+             content.append("💻 GPU使用Top5:\n")
+             topGpus.take(5).forEachIndexed { index, gpu ->
+                 content.append("${index + 1}. ${gpu.toString()}\n")
+             }
+             content.append("\n")
+         }
+ 
+         if (topProjects != null && topProjects.isNotEmpty()) {
+             content.append("📋 项目使用Top5:\n")
+             topProjects.take(5).forEachIndexed { index, project ->
+                 content.append("${index + 1}. ${project.toString()}\n")
+             }
+         }
+ 
+       return content.toString()
+   }
 
-        val content = StringBuilder()
-        content.append("📊 日报统计\n\n")
-        content.append("📅 日期: $date\n")
-        content.append("🎯 总任务数: $totalTasks\n")
-        content.append("👥 活跃用户数: $totalUsers\n")
-        content.append("⏱️ 总运行时间: ${formatTime(totalRuntime)}\n\n")
-
-        if (topUsers.isNotEmpty()) {
-            content.append("🏆 活跃用户Top5:\n")
-            topUsers.take(5).forEachIndexed { index, user ->
-                content.append("${index + 1}. 用户: ${user.toString()}\n")
-            }
-            content.append("\n")
-        }
-
-        if (topGpus.isNotEmpty()) {
-            content.append("💻 GPU使用Top5:\n")
-            topGpus.take(5).forEachIndexed { index, gpu ->
-                content.append("${index + 1}. ${gpu.toString()}\n")
-            }
-        }
-
-        return content.toString()
-    }
-
-    /**
-     * 格式化周报消息
-     */
+   /**
+    * 格式化周报消息
+    */
     fun formatWeeklyReport(report: Map<String, Any>): String {
         return formatPeriodReport(report, "周报")
     }
@@ -75,6 +84,7 @@ object ReportFormatter {
         val totalRuntime = report["totalRuntime"] as Int
         val topUsers = report["topUsers"] as List<*>
         val topGpus = report["topGpus"] as List<*>
+        val topProjects = report["topProjects"] as List<*>?
 
         val content = StringBuilder()
         content.append("📊 $periodName 统计\n\n")
@@ -94,6 +104,14 @@ object ReportFormatter {
             content.append("💻 GPU使用Top10:\n")
             topGpus.take(10).forEachIndexed { index, gpu ->
                 content.append("${index + 1}. ${gpu.toString()}\n")
+            }
+            content.append("\n")
+        }
+
+        if (topProjects != null && topProjects.isNotEmpty()) {
+            content.append("📋 项目使用Top10:\n")
+            topProjects.take(10).forEachIndexed { index, project ->
+                content.append("${index + 1}. ${project.toString()}\n")
             }
         }
 

@@ -377,6 +377,7 @@ class StatisticsAnalyzer {
 
         val userStats = analyzeUserStatistics(tasks, periodStart, periodEnd)
         val gpuStats = analyzeGpuStatistics(tasks, periodStart, periodEnd)
+        val projectStats = analyzeProjectStatistics(tasks, periodStart, periodEnd)
         val timeTrend = analyzeTimeTrendStatistics(tasks, TimePeriod.ONE_WEEK)
 
         // 计算实际的总运行时间（考虑时间重叠）
@@ -388,7 +389,6 @@ class StatisticsAnalyzer {
         val actualTasks = tasks.count { task ->
             calculateActualRuntimeInPeriod(task, periodStart, periodEnd) > 0L
         }
-
         return WeeklyReport(
             startDate = LocalDate.now().minusDays(7),
             endDate = LocalDate.now(),
@@ -399,6 +399,7 @@ class StatisticsAnalyzer {
             activeUsers = tasks.map { it.taskUser }.distinct().size,
             topUsers = userStats.take(10),
             topGpus = gpuStats.take(10),
+            topProjects = projectStats.take(10),
             dailyTrend = timeTrend.dailyStats,
             averageDailyTasks = if (actualTasks > 0) (actualTasks / 7).toInt() else 0,
             averageDailyRuntime = if (actualTasks > 0) (totalActualRuntime / 7).toInt() else 0
