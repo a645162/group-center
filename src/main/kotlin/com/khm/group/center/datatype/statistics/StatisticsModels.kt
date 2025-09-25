@@ -87,6 +87,8 @@ data class DailyReport(
     val date: LocalDate,
     val startTime: java.time.LocalDateTime,
     val endTime: java.time.LocalDateTime,
+    val actualTaskStartTime: java.time.LocalDateTime, // 实际任务最早开始时间
+    val actualTaskEndTime: java.time.LocalDateTime,   // 实际任务最晚结束时间
     val totalTasks: Int,
     val totalRuntime: Int,
     val activeUsers: Int,

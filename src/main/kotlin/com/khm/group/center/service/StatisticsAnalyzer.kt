@@ -318,6 +318,16 @@ class StatisticsAnalyzer {
             date = LocalDate.now(), // 使用当前日期作为参考
             startTime = startTime,
             endTime = endTime,
+            actualTaskStartTime = if (tasks.isNotEmpty()) {
+                tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+            } else {
+                startTime
+            },
+            actualTaskEndTime = if (tasks.isNotEmpty()) {
+                tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+            } else {
+                endTime
+            },
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
@@ -332,13 +342,13 @@ class StatisticsAnalyzer {
     }
 
     /**
-     * 生成日报（按自然日统计）
+     * 生成日报（按自然日统计，整点时间范围：昨天0:00到今天0:00）
      */
     fun generateDailyReport(tasks: List<GpuTaskInfoModel>, date: LocalDate): DailyReport {
-        // 计算自然日的开始和结束时间（秒）
+        // 计算自然日的开始和结束时间（秒）- 使用整点时间
         val periodStart = LocalDateTime.of(date, java.time.LocalTime.MIN)
             .atZone(ZoneId.systemDefault()).toEpochSecond()
-        val periodEnd = LocalDateTime.of(date, java.time.LocalTime.MAX)
+        val periodEnd = LocalDateTime.of(date.plusDays(1), java.time.LocalTime.MIN)
             .atZone(ZoneId.systemDefault()).toEpochSecond()
 
         val userStats = analyzeUserStatistics(tasks, periodStart, periodEnd)
@@ -356,7 +366,7 @@ class StatisticsAnalyzer {
         val endTime = if (tasks.isNotEmpty()) {
             tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
         } else {
-            LocalDateTime.of(date, java.time.LocalTime.MAX)
+            LocalDateTime.of(date.plusDays(1), java.time.LocalTime.MIN)
         }
 
         // 计算实际的总运行时间（考虑时间重叠）
@@ -373,6 +383,16 @@ class StatisticsAnalyzer {
             date = date,
             startTime = startTime,
             endTime = endTime,
+            actualTaskStartTime = if (tasks.isNotEmpty()) {
+                tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+            } else {
+                LocalDateTime.of(date, java.time.LocalTime.MIN)
+            },
+            actualTaskEndTime = if (tasks.isNotEmpty()) {
+                tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+            } else {
+                LocalDateTime.of(date.plusDays(1), java.time.LocalTime.MIN)
+            },
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,

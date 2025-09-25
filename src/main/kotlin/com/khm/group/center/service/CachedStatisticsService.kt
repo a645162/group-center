@@ -4,6 +4,7 @@ import com.khm.group.center.datatype.statistics.*
 import com.khm.group.center.db.model.client.GpuTaskInfoModel
 import com.khm.group.center.db.query.GpuTaskQuery
 import com.khm.group.center.utils.cache.CacheManager
+import com.khm.group.center.utils.time.HourlyTimeUtils
 import com.khm.group.center.utils.time.TimePeriod
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -143,12 +144,12 @@ class CachedStatisticsService {
     }
 
     /**
-     * 获取24小时报告数据（带缓存）
+     * 获取24小时报告数据（带缓存，向后取整整小时）
+     * 例如：现在是14:10，统计昨天15:00到今天15:00
      */
     fun get24HourReport(): DailyReport {
         val cacheKey = "24hour_report"
-        val currentTime = System.currentTimeMillis()
-        val currentHour = currentTime / (60 * 60 * 1000) // 当前小时数
+        val currentHour = HourlyTimeUtils.getCurrentHour()
         
         // 检查缓存有效性
         val cached: DailyReport? = cacheManager.getCachedData(cacheKey)
@@ -168,45 +169,44 @@ class CachedStatisticsService {
             logger.info("🗑️ 清除旧的24小时报告缓存：${clearedCount}个")
         }
         
-        val currentTimeSeconds = currentTime / 1000
-        val startTime = currentTimeSeconds - 24 * 60 * 60 // 24小时前
+        // 使用向后取整的整小时时间范围
+        val (startTime, endTime) = HourlyTimeUtils.getRoundedHourRange(24)
 
         val tasks = gpuTaskQuery.queryTasks(
             timePeriod = TimePeriod.ONE_DAY,
             startTime = startTime,
-            endTime = currentTimeSeconds
+            endTime = endTime
         )
 
-        val report = baseStatisticsService.generate24HourReport(tasks, startTime, currentTimeSeconds)
+        val report = baseStatisticsService.generate24HourReport(tasks, startTime, endTime)
 
         // 存储到缓存
         cacheManager.putCachedData(cacheKey, report, HOURLY_REPORT_CACHE_DURATION)
         cacheManager.putCachedData("${cacheKey}_hour", currentHour, HOURLY_REPORT_CACHE_DURATION)
-        logger.info("💾 新24小时报告已缓存（当前小时：${currentHour}）")
+        logger.info("💾 新24小时报告已缓存（当前小时：${currentHour}，时间范围：${startTime} - ${endTime}）")
         
         return report
     }
 
     /**
-     * 获取48小时报告数据（带缓存）
+     * 获取48小时报告数据（带缓存，向后取整整小时）
+     * 例如：现在是14:10，统计前天15:00到今天15:00
      */
     fun get48HourReport(): DailyReport {
         val cacheKey = "48hour_report"
-        val currentTime = System.currentTimeMillis()
-        val currentHour = currentTime / (60 * 60 * 1000)
-        val currentMinute = (currentTime % (60 * 60 * 1000)) / (60 * 1000)
+        val currentHour = HourlyTimeUtils.getCurrentHour()
         
         // 检查缓存有效性
         val cached: DailyReport? = cacheManager.getCachedData(cacheKey)
         if (cached != null) {
             val cachedHour = cacheManager.getCachedData<Long>("${cacheKey}_hour")
-            if (cachedHour != null && cachedHour == currentHour && currentMinute >= 5) {
-                logger.info("✅ 缓存命中，从缓存获取48小时报告（当前小时：${currentHour}，分钟：${currentMinute}）")
+            if (cachedHour != null && cachedHour == currentHour) {
+                logger.info("✅ 缓存命中，从缓存获取48小时报告（当前小时：${currentHour}）")
                 return cached
             }
         }
 
-        logger.info("🔄 缓存未命中，重新计算48小时报告（当前小时：${currentHour}，分钟：${currentMinute}）")
+        logger.info("🔄 缓存未命中，重新计算48小时报告（当前小时：${currentHour}）")
         
         // 清除所有旧的48小时报告缓存
         val clearedCount = cacheManager.clearCacheByType("48hour_report")
@@ -214,45 +214,44 @@ class CachedStatisticsService {
             logger.info("🗑️ 清除旧的48小时报告缓存：${clearedCount}个")
         }
         
-        val currentTimeSeconds = currentTime / 1000
-        val startTime = currentTimeSeconds - 48 * 60 * 60
+        // 使用向后取整的整小时时间范围
+        val (startTime, endTime) = HourlyTimeUtils.getRoundedHourRange(48)
 
         val tasks = gpuTaskQuery.queryTasks(
             timePeriod = TimePeriod.ONE_DAY,
             startTime = startTime,
-            endTime = currentTimeSeconds
+            endTime = endTime
         )
 
-        val report = baseStatisticsService.generate24HourReport(tasks, startTime, currentTimeSeconds)
+        val report = baseStatisticsService.generate24HourReport(tasks, startTime, endTime)
 
         // 存储到缓存
         cacheManager.putCachedData(cacheKey, report, HOURLY_REPORT_CACHE_DURATION)
         cacheManager.putCachedData("${cacheKey}_hour", currentHour, HOURLY_REPORT_CACHE_DURATION)
-        logger.info("💾 新48小时报告已缓存（当前小时：${currentHour}）")
+        logger.info("💾 新48小时报告已缓存（当前小时：${currentHour}，时间范围：${startTime} - ${endTime}）")
         
         return report
     }
 
     /**
-     * 获取72小时报告数据（带缓存）
+     * 获取72小时报告数据（带缓存，向后取整整小时）
+     * 例如：现在是14:10，统计大前天15:00到今天15:00
      */
     fun get72HourReport(): DailyReport {
         val cacheKey = "72hour_report"
-        val currentTime = System.currentTimeMillis()
-        val currentHour = currentTime / (60 * 60 * 1000)
-        val currentMinute = (currentTime % (60 * 60 * 1000)) / (60 * 1000)
+        val currentHour = HourlyTimeUtils.getCurrentHour()
         
         // 检查缓存有效性
         val cached: DailyReport? = cacheManager.getCachedData(cacheKey)
         if (cached != null) {
             val cachedHour = cacheManager.getCachedData<Long>("${cacheKey}_hour")
-            if (cachedHour != null && cachedHour == currentHour && currentMinute >= 10) {
-                logger.info("✅ 缓存命中，从缓存获取72小时报告（当前小时：${currentHour}，分钟：${currentMinute}）")
+            if (cachedHour != null && cachedHour == currentHour) {
+                logger.info("✅ 缓存命中，从缓存获取72小时报告（当前小时：${currentHour}）")
                 return cached
             }
         }
 
-        logger.info("🔄 缓存未命中，重新计算72小时报告（当前小时：${currentHour}，分钟：${currentMinute}）")
+        logger.info("🔄 缓存未命中，重新计算72小时报告（当前小时：${currentHour}）")
         
         // 清除所有旧的72小时报告缓存
         val clearedCount = cacheManager.clearCacheByType("72hour_report")
@@ -260,27 +259,27 @@ class CachedStatisticsService {
             logger.info("🗑️ 清除旧的72小时报告缓存：${clearedCount}个")
         }
         
-        val currentTimeSeconds = currentTime / 1000
-        val startTime = currentTimeSeconds - 72 * 60 * 60
+        // 使用向后取整的整小时时间范围
+        val (startTime, endTime) = HourlyTimeUtils.getRoundedHourRange(72)
 
         val tasks = gpuTaskQuery.queryTasks(
             timePeriod = TimePeriod.ONE_DAY,
             startTime = startTime,
-            endTime = currentTimeSeconds
+            endTime = endTime
         )
 
-        val report = baseStatisticsService.generate24HourReport(tasks, startTime, currentTimeSeconds)
+        val report = baseStatisticsService.generate24HourReport(tasks, startTime, endTime)
 
         // 存储到缓存
         cacheManager.putCachedData(cacheKey, report, HOURLY_REPORT_CACHE_DURATION)
         cacheManager.putCachedData("${cacheKey}_hour", currentHour, HOURLY_REPORT_CACHE_DURATION)
-        logger.info("💾 新72小时报告已缓存（当前小时：${currentHour}）")
+        logger.info("💾 新72小时报告已缓存（当前小时：${currentHour}，时间范围：${startTime} - ${endTime}）")
         
         return report
     }
 
     /**
-     * 获取日报数据（带缓存）
+     * 获取日报数据（带缓存，整点时间范围：昨天0:00到今天0:00）
      */
     fun getDailyReport(date: LocalDate = LocalDate.now().minusDays(1)): DailyReport {
         val cacheKey = "daily_report_${date}"
@@ -300,17 +299,24 @@ class CachedStatisticsService {
             logger.info("🗑️ 清除旧的日报缓存：${clearedCount}个")
         }
         
-        val tasks = gpuTaskQuery.queryTasks(TimePeriod.ONE_WEEK)
+        // 使用整点时间范围
+        val (startTime, endTime) = HourlyTimeUtils.getDailyRoundedRange()
+        
+        val tasks = gpuTaskQuery.queryTasks(
+            timePeriod = TimePeriod.ONE_DAY,
+            startTime = startTime,
+            endTime = endTime
+        )
         val report = baseStatisticsService.generateDailyReport(tasks, date)
 
         // 存储到缓存
         cacheManager.putCachedData(cacheKey, report, CACHE_DURATION)
-        logger.info("💾 新日报已缓存（${date}）")
+        logger.info("💾 新日报已缓存（${date}，时间范围：${startTime} - ${endTime}）")
         return report
     }
 
     /**
-     * 获取周报数据（带缓存）
+     * 获取周报数据（带缓存，整点时间范围：上周一0:00到本周一0:00）
      */
     fun getWeeklyReport(): WeeklyReport {
         val currentDate = LocalDate.now()
@@ -331,16 +337,24 @@ class CachedStatisticsService {
             logger.info("🗑️ 清除旧的周报缓存：${clearedCount}个")
         }
         
-        val tasks = gpuTaskQuery.queryTasks(TimePeriod.ONE_MONTH)
+        // 使用整点时间范围
+        val (startTime, endTime) = HourlyTimeUtils.getWeeklyRoundedRange()
+        
+        val tasks = gpuTaskQuery.queryTasks(
+            timePeriod = TimePeriod.ONE_WEEK,
+            startTime = startTime,
+            endTime = endTime
+        )
         val report = baseStatisticsService.generateWeeklyReport(tasks)
 
         // 存储到缓存
         cacheManager.putCachedData(cacheKey, report, CACHE_DURATION)
-        logger.info("💾 新周报已缓存（${currentDate}）")
+        logger.info("💾 新周报已缓存（${currentDate}，时间范围：${startTime} - ${endTime}）")
         return report
     }
+
     /**
-     * 获取月报数据（带缓存）
+     * 获取月报数据（带缓存，整点时间范围：上月1号0:00到本月1号0:00）
      */
     fun getMonthlyReport(): MonthlyReport {
         val currentMonth = LocalDate.now().monthValue
@@ -361,17 +375,24 @@ class CachedStatisticsService {
             logger.info("🗑️ 清除旧的月报缓存：${clearedCount}个")
         }
         
-        val tasks = gpuTaskQuery.queryTasks(TimePeriod.SIX_MONTH)
+        // 使用整点时间范围
+        val (startTime, endTime) = HourlyTimeUtils.getMonthlyRoundedRange()
+        
+        val tasks = gpuTaskQuery.queryTasks(
+            timePeriod = TimePeriod.ONE_MONTH,
+            startTime = startTime,
+            endTime = endTime
+        )
         val report = baseStatisticsService.generateMonthlyReport(tasks)
 
         // 存储到缓存
         cacheManager.putCachedData(cacheKey, report, CACHE_DURATION)
-        logger.info("💾 新月报已缓存（${currentMonth}月）")
+        logger.info("💾 新月报已缓存（${currentMonth}月，时间范围：${startTime} - ${endTime}）")
         return report
     }
 
     /**
-     * 获取年报数据（带缓存）
+     * 获取年报数据（带缓存，整点时间范围：去年1月1号0:00到今年1月1号0:00）
      */
     fun getYearlyReport(): YearlyReport {
         val currentYear = LocalDate.now().year
@@ -392,12 +413,19 @@ class CachedStatisticsService {
             logger.info("🗑️ 清除旧的年报缓存：${clearedCount}个")
         }
         
-        val tasks = gpuTaskQuery.queryTasks(TimePeriod.ONE_YEAR)
+        // 使用整点时间范围
+        val (startTime, endTime) = HourlyTimeUtils.getYearlyRoundedRange()
+        
+        val tasks = gpuTaskQuery.queryTasks(
+            timePeriod = TimePeriod.ONE_YEAR,
+            startTime = startTime,
+            endTime = endTime
+        )
         val report = baseStatisticsService.generateYearlyReport(tasks)
 
         // 存储到缓存
         cacheManager.putCachedData(cacheKey, report, CACHE_DURATION)
-        logger.info("💾 新年报已缓存（${currentYear}年）")
+        logger.info("💾 新年报已缓存（${currentYear}年，时间范围：${startTime} - ${endTime}）")
         return report
     }
 

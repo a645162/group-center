@@ -181,7 +181,8 @@ class ReportPushService {
                 """
                 ${config.title} - ${report.date} 使用情况
                 ====================
-                统计时间: ${formatDateTime(report.startTime)} - ${formatDateTime(report.endTime)}
+                统计区间: ${formatDateTime(report.startTime)} - ${formatDateTime(report.endTime)}
+                实际任务时间: ${formatDateTime(report.actualTaskStartTime)} - ${formatDateTime(report.actualTaskEndTime)}
                 总任务数: ${report.totalTasks}
                 总运行时间: ${formatTime(report.totalRuntime)}
                 活跃用户: ${report.activeUsers}
