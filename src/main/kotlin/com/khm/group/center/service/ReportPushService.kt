@@ -43,7 +43,8 @@ class ReportPushService {
          }
          
          val report = statisticsService.getTodayReport()
-         val sleepAnalysis = getSleepAnalysisForPeriod(TimePeriod.ONE_DAY)
+         // 使用基础服务（无缓存）进行作息分析，基于今日报告的实际时间范围
+         val sleepAnalysis = getSleepAnalysisForReport(report)
          val message = generateReportString(report, "today", sleepAnalysis)
  
          // 推送到短期群（日报）
@@ -63,7 +64,8 @@ class ReportPushService {
          }
          
          val report = statisticsService.getYesterdayReport()
-         val sleepAnalysis = getSleepAnalysisForPeriod(TimePeriod.ONE_DAY)
+         // 使用基础服务（无缓存）进行作息分析，基于昨日报告的实际时间范围
+         val sleepAnalysis = getSleepAnalysisForReport(report)
          val message = generateReportString(report, "yesterday", sleepAnalysis)
  
          // 推送到短期群（日报）
@@ -388,6 +390,60 @@ class ReportPushService {
             return baseStatisticsService.getSleepAnalysis(tasks, startTime, currentTime)
         } catch (e: Exception) {
             println("获取作息时间分析失败: ${e.message}")
+            return null
+        }
+    }
+
+    /**
+     * 获取基于报告时间范围的作息时间分析
+     */
+    private fun getSleepAnalysisForReport(report: Any): com.khm.group.center.datatype.statistics.SleepAnalysis? {
+        try {
+            when (report) {
+                is com.khm.group.center.datatype.statistics.DailyReport -> {
+                    // 使用基础服务（无缓存）进行作息分析，基于报告的实际时间范围
+                    val startTimestamp = report.startTime.atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
+                    val endTimestamp = report.endTime.atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
+                    
+                    val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
+                        .getTasksByCustomPeriod(startTimestamp, endTimestamp)
+                    
+                    return baseStatisticsService.getSleepAnalysis(tasks, startTimestamp, endTimestamp)
+                }
+                is com.khm.group.center.datatype.statistics.WeeklyReport -> {
+                    // 对于周报，使用周报的时间范围进行作息分析
+                    val startTimestamp = report.periodStartDate.atStartOfDay(java.time.ZoneId.systemDefault()).toEpochSecond()
+                    val endTimestamp = report.periodEndDate.atTime(23, 59, 59).atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
+                    
+                    val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
+                        .getTasksByCustomPeriod(startTimestamp, endTimestamp)
+                    
+                    return baseStatisticsService.getSleepAnalysis(tasks, startTimestamp, endTimestamp)
+                }
+                is com.khm.group.center.datatype.statistics.MonthlyReport -> {
+                    // 对于月报，使用月报的时间范围进行作息分析
+                    val startTimestamp = report.periodStartDate.atStartOfDay(java.time.ZoneId.systemDefault()).toEpochSecond()
+                    val endTimestamp = report.periodEndDate.atTime(23, 59, 59).atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
+                    
+                    val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
+                        .getTasksByCustomPeriod(startTimestamp, endTimestamp)
+                    
+                    return baseStatisticsService.getSleepAnalysis(tasks, startTimestamp, endTimestamp)
+                }
+                is com.khm.group.center.datatype.statistics.YearlyReport -> {
+                    // 对于年报，使用年报的时间范围进行作息分析
+                    val startTimestamp = report.periodStartDate.atStartOfDay(java.time.ZoneId.systemDefault()).toEpochSecond()
+                    val endTimestamp = report.periodEndDate.atTime(23, 59, 59).atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
+                    
+                    val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
+                        .getTasksByCustomPeriod(startTimestamp, endTimestamp)
+                    
+                    return baseStatisticsService.getSleepAnalysis(tasks, startTimestamp, endTimestamp)
+                }
+                else -> return null
+            }
+        } catch (e: Exception) {
+            println("获取报告作息时间分析失败: ${e.message}")
             return null
         }
     }

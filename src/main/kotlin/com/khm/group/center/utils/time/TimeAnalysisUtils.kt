@@ -19,9 +19,9 @@ class TimeAnalysisUtils {
         
         // 时间边界定义（小时）
         const val LATE_NIGHT_START_HOUR = 0  // 凌晨0点
-        const val LATE_NIGHT_END_HOUR = 4    // 凌晨4点
-        const val EARLY_MORNING_START_HOUR = 4   // 凌晨4点
-        const val EARLY_MORNING_END_HOUR = 10    // 上午10点
+        const val LATE_NIGHT_END_HOUR = 4    // 凌晨4点（不含4点）
+        const val EARLY_MORNING_START_HOUR = 4   // 凌晨4点（含4点）
+        const val EARLY_MORNING_END_HOUR = 10    // 上午10点（不含10点）
     }
 
     /**
@@ -32,7 +32,7 @@ class TimeAnalysisUtils {
     }
 
     /**
-     * 判断是否为熬夜时间（00:00-04:00之间）
+     * 判断是否为熬夜时间（00:00-04:00之间，不含4点）
      * @param startTime 任务启动时间（秒）
      * @return 是否为熬夜
      */
@@ -43,7 +43,7 @@ class TimeAnalysisUtils {
     }
 
     /**
-     * 判断是否为早起时间（04:00-10:00之间）
+     * 判断是否为早起时间（04:00-10:00之间，含4点不含10点）
      * @param startTime 任务启动时间（秒）
      * @return 是否为早起
      */
@@ -54,7 +54,7 @@ class TimeAnalysisUtils {
     }
 
     /**
-     * 判断是否为正常时间（10:00-24:00之间）
+     * 判断是否为正常时间（10:00-24:00之间，以及00:00之前的正常时间）
      * @param startTime 任务启动时间（秒）
      * @return 是否为正常时间
      */

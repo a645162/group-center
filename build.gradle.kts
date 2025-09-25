@@ -30,7 +30,7 @@ group = "com.khm.group"
 version = "1.3.5-SNAPSHOT"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_24
 }
 
 fun isNonStable(version: String): Boolean {
@@ -211,7 +211,7 @@ tasks.named(
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_21)
+        jvmTarget.set(JvmTarget.JVM_24)
         apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
     }
 }

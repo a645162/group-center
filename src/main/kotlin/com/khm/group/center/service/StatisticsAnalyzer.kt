@@ -336,8 +336,11 @@ class StatisticsAnalyzer {
         println("DEBUG: 统计区间: $startTime - $endTime")
         println("DEBUG: 实际任务时间: $actualTaskStartTime - $actualTaskEndTime")
 
+        // 根据开始时间确定报告日期（使用自然日，即开始时间对应的日期）
+        val reportDate = DateTimeUtils.convertTimestampToDateTime(startTimestamp).toLocalDate()
+        
         return DailyReport(
-            date = LocalDate.now(), // 使用当前日期作为参考
+            date = reportDate, // 使用根据时间范围确定的自然日
             startTime = startTime,
             endTime = endTime,
             actualTaskStartTime = actualTaskStartTime,
