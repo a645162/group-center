@@ -172,7 +172,6 @@ object ReportFormatter {
     fun formatSleepAnalysis(sleepAnalysis: SleepAnalysis): String {
         val content = StringBuilder()
         content.append("\n\n🌙 作息时间分析:\n")
-        content.append("====================\n")
         content.append("🌃 熬夜任务数: ${sleepAnalysis.totalLateNightTasks}\n")
         content.append("🌅 早起任务数: ${sleepAnalysis.totalEarlyMorningTasks}\n")
         content.append("👥 熬夜用户数: ${sleepAnalysis.totalLateNightUsers}\n")
@@ -196,6 +195,7 @@ object ReportFormatter {
             content.append("🏆 早起冠军: ${champion.taskUser} (${championTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))})\n")
         }
         
+        content.append("====================\n")
         return content.toString()
     }
 

@@ -205,13 +205,18 @@ class GpuTaskAnalyse {
 
     private fun generateDailyReport(tasks: List<GpuTaskInfoModel>): Map<String, Any> {
         val todayTasks = tasks.filter { task ->
-            val taskDate = Date(task.taskStartTime * 1000)
-            val today = Date()
-            taskDate.date == today.date && taskDate.month == today.month && taskDate.year == today.year
+            val taskCalendar = java.util.Calendar.getInstance().apply {
+                timeInMillis = task.taskStartTime * 1000
+            }
+            val todayCalendar = java.util.Calendar.getInstance()
+            
+            taskCalendar.get(java.util.Calendar.DAY_OF_MONTH) == todayCalendar.get(java.util.Calendar.DAY_OF_MONTH) &&
+            taskCalendar.get(java.util.Calendar.MONTH) == todayCalendar.get(java.util.Calendar.MONTH) &&
+            taskCalendar.get(java.util.Calendar.YEAR) == todayCalendar.get(java.util.Calendar.YEAR)
         }
 
         return mapOf(
-            "date" to Date().toString(),
+            "date" to java.time.LocalDate.now().toString(),
             "totalTasks" to todayTasks.size,
             "totalUsers" to todayTasks.map { it.taskUser }.distinct().size,
             "totalRuntime" to todayTasks.sumOf { it.taskRunningTimeInSeconds },

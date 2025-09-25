@@ -92,20 +92,22 @@ class BotPushService {
             inputStream?.use { stream ->
                 val config = yaml.load<Map<String, Any>>(stream)
                 val groups = config["bot"] as? Map<*, *>
-                val groupList = groups?.get("groups") as? List<Map<String, Any>>
+                val groupList = groups?.get("groups") as? List<*>
 
                 groupList?.forEach { groupConfig ->
-                    val botGroup = BotGroupConfig().apply {
-                        name = groupConfig["name"] as? String ?: ""
-                        type = groupConfig["type"] as? String ?: ""
-                        weComGroupBotKey = groupConfig["weComGroupBotKey"] as? String ?: ""
-                        larkGroupBotId = groupConfig["larkGroupBotId"] as? String ?: ""
-                        larkGroupBotKey = groupConfig["larkGroupBotKey"] as? String ?: ""
-                        enable = groupConfig["enable"] as? Boolean ?: true
-                    }
+                    if (groupConfig is Map<*, *>) {
+                        val botGroup = BotGroupConfig().apply {
+                            name = (groupConfig["name"] as? String) ?: ""
+                            type = (groupConfig["type"] as? String) ?: ""
+                            weComGroupBotKey = (groupConfig["weComGroupBotKey"] as? String) ?: ""
+                            larkGroupBotId = (groupConfig["larkGroupBotId"] as? String) ?: ""
+                            larkGroupBotKey = (groupConfig["larkGroupBotKey"] as? String) ?: ""
+                            enable = (groupConfig["enable"] as? Boolean) ?: true
+                        }
 
-                    // 更新或添加配置
-                    addOrUpdateBotGroup(botGroup)
+                        // 更新或添加配置
+                        addOrUpdateBotGroup(botGroup)
+                    }
                 }
             }
         } catch (e: Exception) {
