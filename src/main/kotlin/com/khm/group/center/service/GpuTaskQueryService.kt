@@ -96,19 +96,39 @@ class GpuTaskQueryService {
         // 先查询总数
         val totalCount = gpuTaskInfoMapper.selectCount(queryWrapper).toLong()
         
+        // 计算总页数
+        val totalPages = if (totalCount == 0L) 1 else 
+            ((totalCount - 1) / pagination.pageSize + 1).toInt()
+        
+        // 修正页码，确保在有效范围内
+        val correctedPage = if (pagination.page > totalPages) {
+            logger.warn("页码 ${pagination.page} 超出范围（总页数：$totalPages），自动修正为最后一页")
+            totalPages
+        } else if (pagination.page < 1) {
+            logger.warn("页码 ${pagination.page} 无效，自动修正为第一页")
+            1
+        } else {
+            pagination.page
+        }
+        
+        // 计算修正后的偏移量
+        val correctedOffset = (correctedPage - 1) * pagination.pageSize
+        
         // 手动设置分页参数
-        queryWrapper.last("LIMIT ${pagination.getOffset()}, ${pagination.pageSize}")
+        queryWrapper.last("LIMIT $correctedOffset, ${pagination.pageSize}")
         
         // 查询当前页数据
         val records = gpuTaskInfoMapper.selectList(queryWrapper)
         
         // 创建分页结果
         val page = Page<GpuTaskInfoModel>(
-            pagination.page.toLong(),
+            correctedPage.toLong(),
             pagination.pageSize.toLong(),
             totalCount
         )
         page.records = records
+        
+        logger.debug("分页查询结果: 总数=$totalCount, 总页数=$totalPages, 当前页=$correctedPage, 返回记录数=${records.size}")
         
         return page
     }
