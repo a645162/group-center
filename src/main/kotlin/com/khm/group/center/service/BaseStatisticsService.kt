@@ -68,31 +68,45 @@ interface BaseStatisticsService {
     /**
      * 生成日报（按自然日统计，无缓存）
      * @param tasks 任务列表
-     * @param date 日期
+     * @param date 日期（可选，默认昨天）
      * @return 报告
      */
-    fun generateDailyReport(tasks: List<GpuTaskInfoModel>, date: LocalDate): Report
+    fun generateDailyReport(tasks: List<GpuTaskInfoModel>, date: LocalDate? = null): Report
+
+    /**
+     * 生成指定日期范围的日报（无缓存）
+     * @param tasks 任务列表
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 报告
+     */
+    fun generateDailyReport(tasks: List<GpuTaskInfoModel>, startDate: LocalDate, endDate: LocalDate): Report
 
     /**
      * 生成周报（无缓存）
      * @param tasks 任务列表
+     * @param year 年份（可选，默认当前年）
+     * @param week 周数（可选，默认当前周）
      * @return 报告
      */
-    fun generateWeeklyReport(tasks: List<GpuTaskInfoModel>): Report
+    fun generateWeeklyReport(tasks: List<GpuTaskInfoModel>, year: Int? = null, week: Int? = null): Report
 
     /**
      * 生成月报（无缓存）
      * @param tasks 任务列表
+     * @param year 年份（可选，默认当前年）
+     * @param month 月份（可选，默认当前月）
      * @return 报告
      */
-    fun generateMonthlyReport(tasks: List<GpuTaskInfoModel>): Report
+    fun generateMonthlyReport(tasks: List<GpuTaskInfoModel>, year: Int? = null, month: Int? = null): Report
 
     /**
      * 生成年报（无缓存）
      * @param tasks 任务列表
+     * @param year 年份（可选，默认当前年）
      * @return 报告
      */
-    fun generateYearlyReport(tasks: List<GpuTaskInfoModel>): Report
+    fun generateYearlyReport(tasks: List<GpuTaskInfoModel>, year: Int? = null): Report
 
     /**
      * 获取作息时间分析（无缓存）
