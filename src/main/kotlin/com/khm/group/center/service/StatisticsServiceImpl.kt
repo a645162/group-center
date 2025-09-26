@@ -52,20 +52,30 @@ class StatisticsServiceImpl : BaseStatisticsService {
         return statisticsAnalyzer.generate24HourReport(tasks, startTimestamp, endTimestamp)
     }
 
-    override fun generateDailyReport(tasks: List<GpuTaskInfoModel>, date: LocalDate): Report {
-        return statisticsAnalyzer.generateDailyReport(tasks, date)
+    override fun generateDailyReport(tasks: List<GpuTaskInfoModel>, date: LocalDate?): Report {
+        val targetDate = date ?: LocalDate.now().minusDays(1)
+        return statisticsAnalyzer.generateDailyReport(tasks, targetDate)
     }
 
-    override fun generateWeeklyReport(tasks: List<GpuTaskInfoModel>): Report {
-        return statisticsAnalyzer.generateWeeklyReport(tasks)
+    override fun generateDailyReport(tasks: List<GpuTaskInfoModel>, startDate: LocalDate, endDate: LocalDate): Report {
+        return statisticsAnalyzer.generateDailyReport(tasks, startDate, endDate)
     }
 
-    override fun generateMonthlyReport(tasks: List<GpuTaskInfoModel>): Report {
-        return statisticsAnalyzer.generateMonthlyReport(tasks)
+    override fun generateWeeklyReport(tasks: List<GpuTaskInfoModel>, year: Int?, week: Int?): Report {
+        val targetYear = year ?: LocalDate.now().year
+        val targetWeek = week ?: LocalDate.now().get(java.time.temporal.WeekFields.ISO.weekOfYear())
+        return statisticsAnalyzer.generateWeeklyReport(tasks, targetYear, targetWeek)
     }
 
-    override fun generateYearlyReport(tasks: List<GpuTaskInfoModel>): Report {
-        return statisticsAnalyzer.generateYearlyReport(tasks)
+    override fun generateMonthlyReport(tasks: List<GpuTaskInfoModel>, year: Int?, month: Int?): Report {
+        val targetYear = year ?: LocalDate.now().year
+        val targetMonth = month ?: LocalDate.now().monthValue
+        return statisticsAnalyzer.generateMonthlyReport(tasks, targetYear, targetMonth)
+    }
+
+    override fun generateYearlyReport(tasks: List<GpuTaskInfoModel>, year: Int?): Report {
+        val targetYear = year ?: LocalDate.now().year
+        return statisticsAnalyzer.generateYearlyReport(tasks, targetYear)
     }
 
     override fun getCustomPeriodStatistics(tasks: List<GpuTaskInfoModel>, startTime: Long, endTime: Long): Report {
