@@ -62,20 +62,38 @@ class StatisticsServiceImpl : BaseStatisticsService {
     }
 
     override fun generateWeeklyReport(tasks: List<GpuTaskInfoModel>, year: Int?, week: Int?): Report {
-        val targetYear = year ?: LocalDate.now().year
-        val targetWeek = week ?: LocalDate.now().get(java.time.temporal.WeekFields.ISO.weekOfYear())
-        return statisticsAnalyzer.generateWeeklyReport(tasks, targetYear, targetWeek)
+        return if (year != null || week != null) {
+            // 如果指定了年份或周数，使用指定周的报告
+            val targetYear = year ?: LocalDate.now().year
+            val targetWeek = week ?: LocalDate.now().get(java.time.temporal.WeekFields.ISO.weekOfYear())
+            statisticsAnalyzer.generateWeeklyReport(tasks, targetYear, targetWeek)
+        } else {
+            // 如果没有指定年份和周数，默认生成上周的报告
+            statisticsAnalyzer.generateWeeklyReport(tasks)
+        }
     }
 
     override fun generateMonthlyReport(tasks: List<GpuTaskInfoModel>, year: Int?, month: Int?): Report {
-        val targetYear = year ?: LocalDate.now().year
-        val targetMonth = month ?: LocalDate.now().monthValue
-        return statisticsAnalyzer.generateMonthlyReport(tasks, targetYear, targetMonth)
+        return if (year != null || month != null) {
+            // 如果指定了年份或月份，使用指定月份的报告
+            val targetYear = year ?: LocalDate.now().year
+            val targetMonth = month ?: LocalDate.now().monthValue
+            statisticsAnalyzer.generateMonthlyReport(tasks, targetYear, targetMonth)
+        } else {
+            // 如果没有指定年份和月份，默认生成上个月的报告
+            statisticsAnalyzer.generateMonthlyReport(tasks)
+        }
     }
 
     override fun generateYearlyReport(tasks: List<GpuTaskInfoModel>, year: Int?): Report {
-        val targetYear = year ?: LocalDate.now().year
-        return statisticsAnalyzer.generateYearlyReport(tasks, targetYear)
+        return if (year != null) {
+            // 如果指定了年份，使用指定年份的报告
+            val targetYear = year
+            statisticsAnalyzer.generateYearlyReport(tasks, targetYear)
+        } else {
+            // 如果没有指定年份，默认生成去年的报告
+            statisticsAnalyzer.generateYearlyReport(tasks)
+        }
     }
 
     override fun getCustomPeriodStatistics(tasks: List<GpuTaskInfoModel>, startTime: Long, endTime: Long): Report {

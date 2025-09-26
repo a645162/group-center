@@ -305,7 +305,7 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, startTimestamp, endTimestamp) > 0L
         }
 
-        // 计算实际任务时间范围
+        // 计算实际任务时间范围 - 取所有任务的最早开始时间和最晚结束时间
         val actualTaskStartTime = if (tasks.isNotEmpty()) {
             val minStartTime = tasks.minOf { it.taskStartTime }
             DateTimeUtils.convertTimestampToDateTime(minStartTime)
@@ -370,15 +370,17 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, periodStart, periodEnd) > 0L
         }
 
-        // 计算实际任务时间范围
+        // 计算实际任务时间范围 - 取所有任务的最早开始时间和最晚结束时间
         val actualTaskStartTime = if (tasks.isNotEmpty()) {
-            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+            val minStartTime = tasks.minOf { it.taskStartTime }
+            DateTimeUtils.convertTimestampToDateTime(minStartTime)
         } else {
             LocalDateTime.of(date, java.time.LocalTime.MIN)
         }
 
         val actualTaskEndTime = if (tasks.isNotEmpty()) {
-            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+            val maxEndTime = tasks.maxOf { it.taskFinishTime }
+            DateTimeUtils.convertTimestampToDateTime(maxEndTime)
         } else {
             LocalDateTime.of(date.plusDays(1), java.time.LocalTime.MIN)
         }
@@ -430,15 +432,17 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, periodStart, periodEnd) > 0L
         }
 
-        // 计算实际任务时间范围
+        // 计算实际任务时间范围 - 取所有任务的最早开始时间和最晚结束时间
         val actualTaskStartTime = if (tasks.isNotEmpty()) {
-            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+            val minStartTime = tasks.minOf { it.taskStartTime }
+            DateTimeUtils.convertTimestampToDateTime(minStartTime)
         } else {
             LocalDateTime.of(lastWeekStart, java.time.LocalTime.MIN)
         }
 
         val actualTaskEndTime = if (tasks.isNotEmpty()) {
-            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+            val maxEndTime = tasks.maxOf { it.taskFinishTime }
+            DateTimeUtils.convertTimestampToDateTime(maxEndTime)
         } else {
             LocalDateTime.of(lastWeekEnd, java.time.LocalTime.MAX)
         }
@@ -487,15 +491,17 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, periodStart, periodEnd) > 0L
         }
 
-        // 计算实际任务时间范围
+        // 计算实际任务时间范围 - 取所有任务的最早开始时间和最晚结束时间
         val actualTaskStartTime = if (tasks.isNotEmpty()) {
-            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+            val minStartTime = tasks.minOf { it.taskStartTime }
+            DateTimeUtils.convertTimestampToDateTime(minStartTime)
         } else {
             LocalDateTime.of(lastMonthStart, java.time.LocalTime.MIN)
         }
 
         val actualTaskEndTime = if (tasks.isNotEmpty()) {
-            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+            val maxEndTime = tasks.maxOf { it.taskFinishTime }
+            DateTimeUtils.convertTimestampToDateTime(maxEndTime)
         } else {
             LocalDateTime.of(lastMonthEnd, java.time.LocalTime.MAX)
         }
@@ -544,15 +550,17 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, periodStart, periodEnd) > 0L
         }
 
-        // 计算实际任务时间范围
+        // 计算实际任务时间范围 - 取所有任务的最早开始时间和最晚结束时间
         val actualTaskStartTime = if (tasks.isNotEmpty()) {
-            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+            val minStartTime = tasks.minOf { it.taskStartTime }
+            DateTimeUtils.convertTimestampToDateTime(minStartTime)
         } else {
             LocalDateTime.of(lastYearStart, java.time.LocalTime.MIN)
         }
 
         val actualTaskEndTime = if (tasks.isNotEmpty()) {
-            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+            val maxEndTime = tasks.maxOf { it.taskFinishTime }
+            DateTimeUtils.convertTimestampToDateTime(maxEndTime)
         } else {
             LocalDateTime.of(lastYearEnd, java.time.LocalTime.MAX)
         }
@@ -594,15 +602,17 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, startTime, endTime) > 0L
         }
 
-        // 计算实际任务时间范围
+        // 计算实际任务时间范围 - 取所有任务的最早开始时间和最晚结束时间
         val actualTaskStartTime = if (tasks.isNotEmpty()) {
-            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+            val minStartTime = tasks.minOf { it.taskStartTime }
+            DateTimeUtils.convertTimestampToDateTime(minStartTime)
         } else {
             DateTimeUtils.convertTimestampToDateTime(startTime)
         }
 
         val actualTaskEndTime = if (tasks.isNotEmpty()) {
-            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+            val maxEndTime = tasks.maxOf { it.taskFinishTime }
+            DateTimeUtils.convertTimestampToDateTime(maxEndTime)
         } else {
             DateTimeUtils.convertTimestampToDateTime(endTime)
         }
@@ -658,15 +668,17 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, periodStart, periodEnd) > 0L
         }
 
-        // 计算实际任务时间范围
+        // 计算实际任务时间范围 - 取所有任务的最早开始时间和最晚结束时间
         val actualTaskStartTime = if (tasks.isNotEmpty()) {
-            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+            val minStartTime = tasks.minOf { it.taskStartTime }
+            DateTimeUtils.convertTimestampToDateTime(minStartTime)
         } else {
             LocalDateTime.of(startDate, java.time.LocalTime.MIN)
         }
 
         val actualTaskEndTime = if (tasks.isNotEmpty()) {
-            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+            val maxEndTime = tasks.maxOf { it.taskFinishTime }
+            DateTimeUtils.convertTimestampToDateTime(maxEndTime)
         } else {
             LocalDateTime.of(endDate, java.time.LocalTime.MAX)
         }
@@ -731,15 +743,17 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, periodStart, periodEnd) > 0L
         }
 
-        // 计算实际任务时间范围
+        // 计算实际任务时间范围 - 取所有任务的最早开始时间和最晚结束时间
         val actualTaskStartTime = if (tasks.isNotEmpty()) {
-            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+            val minStartTime = tasks.minOf { it.taskStartTime }
+            DateTimeUtils.convertTimestampToDateTime(minStartTime)
         } else {
             LocalDateTime.of(monthStart, java.time.LocalTime.MIN)
         }
 
         val actualTaskEndTime = if (tasks.isNotEmpty()) {
-            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+            val maxEndTime = tasks.maxOf { it.taskFinishTime }
+            DateTimeUtils.convertTimestampToDateTime(maxEndTime)
         } else {
             LocalDateTime.of(monthEnd, java.time.LocalTime.MAX)
         }
@@ -793,15 +807,17 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, periodStart, periodEnd) > 0L
         }
 
-        // 计算实际任务时间范围
+        // 计算实际任务时间范围 - 取所有任务的最早开始时间和最晚结束时间
         val actualTaskStartTime = if (tasks.isNotEmpty()) {
-            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+            val minStartTime = tasks.minOf { it.taskStartTime }
+            DateTimeUtils.convertTimestampToDateTime(minStartTime)
         } else {
             LocalDateTime.of(weekStart, java.time.LocalTime.MIN)
         }
 
         val actualTaskEndTime = if (tasks.isNotEmpty()) {
-            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+            val maxEndTime = tasks.maxOf { it.taskFinishTime }
+            DateTimeUtils.convertTimestampToDateTime(maxEndTime)
         } else {
             LocalDateTime.of(weekEnd, java.time.LocalTime.MAX)
         }
@@ -852,15 +868,17 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, periodStart, periodEnd) > 0L
         }
 
-        // 计算实际任务时间范围
+        // 计算实际任务时间范围 - 取所有任务的最早开始时间和最晚结束时间
         val actualTaskStartTime = if (tasks.isNotEmpty()) {
-            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+            val minStartTime = tasks.minOf { it.taskStartTime }
+            DateTimeUtils.convertTimestampToDateTime(minStartTime)
         } else {
             LocalDateTime.of(yearStart, java.time.LocalTime.MIN)
         }
 
         val actualTaskEndTime = if (tasks.isNotEmpty()) {
-            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+            val maxEndTime = tasks.maxOf { it.taskFinishTime }
+            DateTimeUtils.convertTimestampToDateTime(maxEndTime)
         } else {
             LocalDateTime.of(yearEnd, java.time.LocalTime.MAX)
         }
