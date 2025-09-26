@@ -313,95 +313,184 @@ class CachedStatisticsService {
     /**
      * 获取周报数据（带缓存）
      * @param year 年份（可选，默认当前年）
-     * @param week 周数（可选，默认当前周）
+     * @param week 周数（可选，默认上周）
      */
     fun getWeeklyReport(year: Int? = null, week: Int? = null): Report {
-        val targetYear = year ?: LocalDate.now().year
-        val targetWeek = week ?: LocalDate.now().get(java.time.temporal.WeekFields.ISO.weekOfYear())
-        val cacheKey = "weekly_report_${targetYear}_${targetWeek}"
-        
-        // 尝试从缓存获取
-        val cached: Report? = reportCacheManager.getCachedData(cacheKey)
-        if (cached != null) {
-            logger.info("✅ 缓存命中，从缓存获取周报（${targetYear}年第${targetWeek}周）")
-            return cached
+        return if (year != null || week != null) {
+            // 如果指定了年份或周数，使用指定周的报告
+            val targetYear = year ?: LocalDate.now().year
+            val targetWeek = week ?: LocalDate.now().get(java.time.temporal.WeekFields.ISO.weekOfYear())
+            val cacheKey = "weekly_report_${targetYear}_${targetWeek}"
+            
+            // 尝试从缓存获取
+            val cached: Report? = reportCacheManager.getCachedData(cacheKey)
+            if (cached != null) {
+                logger.info("✅ 缓存命中，从缓存获取周报（${targetYear}年第${targetWeek}周）")
+                return cached
+            }
+
+            logger.info("🔄 缓存未命中，重新计算周报（${targetYear}年第${targetWeek}周）")
+            
+            val tasks = gpuTaskQuery.queryTasks(
+                timePeriod = TimePeriod.ONE_WEEK,
+                startTime = getWeekStartTime(targetYear, targetWeek),
+                endTime = getWeekEndTime(targetYear, targetWeek)
+            )
+            val report = baseStatisticsService.generateWeeklyReport(tasks, targetYear, targetWeek)
+
+            // 存储到缓存（历史数据永不过期）
+            reportCacheManager.putCachedData(cacheKey, report)
+            logger.info("💾 新周报已缓存（${targetYear}年第${targetWeek}周）")
+            report
+        } else {
+            // 如果没有指定年份和周数，默认生成上周的报告
+            val lastWeek = LocalDate.now().minusWeeks(1)
+            val targetYear = lastWeek.year
+            val targetWeek = lastWeek.get(java.time.temporal.WeekFields.ISO.weekOfYear())
+            val cacheKey = "weekly_report_${targetYear}_${targetWeek}"
+            
+            // 尝试从缓存获取
+            val cached: Report? = reportCacheManager.getCachedData(cacheKey)
+            if (cached != null) {
+                logger.info("✅ 缓存命中，从缓存获取周报（${targetYear}年第${targetWeek}周）")
+                return cached
+            }
+
+            logger.info("🔄 缓存未命中，重新计算周报（${targetYear}年第${targetWeek}周）")
+            
+            val tasks = gpuTaskQuery.queryTasks(
+                timePeriod = TimePeriod.ONE_WEEK,
+                startTime = getWeekStartTime(targetYear, targetWeek),
+                endTime = getWeekEndTime(targetYear, targetWeek)
+            )
+            val report = baseStatisticsService.generateWeeklyReport(tasks, targetYear, targetWeek)
+
+            // 存储到缓存（历史数据永不过期）
+            reportCacheManager.putCachedData(cacheKey, report)
+            logger.info("💾 新周报已缓存（${targetYear}年第${targetWeek}周）")
+            report
         }
-
-        logger.info("🔄 缓存未命中，重新计算周报（${targetYear}年第${targetWeek}周）")
-        
-        val tasks = gpuTaskQuery.queryTasks(
-            timePeriod = TimePeriod.ONE_WEEK,
-            startTime = getWeekStartTime(targetYear, targetWeek),
-            endTime = getWeekEndTime(targetYear, targetWeek)
-        )
-        val report = baseStatisticsService.generateWeeklyReport(tasks, targetYear, targetWeek)
-
-        // 存储到缓存（历史数据永不过期）
-        reportCacheManager.putCachedData(cacheKey, report)
-        logger.info("💾 新周报已缓存（${targetYear}年第${targetWeek}周）")
-        return report
     }
 
     /**
      * 获取月报数据（带缓存）
      * @param year 年份（可选，默认当前年）
-     * @param month 月份（可选，默认当前月）
+     * @param month 月份（可选，默认上个月）
      */
     fun getMonthlyReport(year: Int? = null, month: Int? = null): Report {
-        val targetYear = year ?: LocalDate.now().year
-        val targetMonth = month ?: LocalDate.now().monthValue
-        val cacheKey = "monthly_report_${targetYear}_${targetMonth}"
-        
-        // 尝试从缓存获取
-        val cached: Report? = reportCacheManager.getCachedData(cacheKey)
-        if (cached != null) {
-            logger.info("✅ 缓存命中，从缓存获取月报（${targetYear}年${targetMonth}月）")
-            return cached
+        return if (year != null || month != null) {
+            // 如果指定了年份或月份，使用指定月份的报告
+            val targetYear = year ?: LocalDate.now().year
+            val targetMonth = month ?: LocalDate.now().monthValue
+            val cacheKey = "monthly_report_${targetYear}_${targetMonth}"
+            
+            // 尝试从缓存获取
+            val cached: Report? = reportCacheManager.getCachedData(cacheKey)
+            if (cached != null) {
+                logger.info("✅ 缓存命中，从缓存获取月报（${targetYear}年${targetMonth}月）")
+                return cached
+            }
+
+            logger.info("🔄 缓存未命中，重新计算月报（${targetYear}年${targetMonth}月）")
+            
+            val tasks = gpuTaskQuery.queryTasks(
+                timePeriod = TimePeriod.ONE_MONTH,
+                startTime = getMonthStartTime(targetYear, targetMonth),
+                endTime = getMonthEndTime(targetYear, targetMonth)
+            )
+            val report = baseStatisticsService.generateMonthlyReport(tasks, targetYear, targetMonth)
+
+            // 存储到缓存（历史数据永不过期）
+            reportCacheManager.putCachedData(cacheKey, report)
+            logger.info("💾 新月报已缓存（${targetYear}年${targetMonth}月）")
+            report
+        } else {
+            // 如果没有指定年份和月份，默认生成上个月的报告
+            val lastMonth = LocalDate.now().minusMonths(1)
+            val targetYear = lastMonth.year
+            val targetMonth = lastMonth.monthValue
+            val cacheKey = "monthly_report_${targetYear}_${targetMonth}"
+            
+            // 尝试从缓存获取
+            val cached: Report? = reportCacheManager.getCachedData(cacheKey)
+            if (cached != null) {
+                logger.info("✅ 缓存命中，从缓存获取月报（${targetYear}年${targetMonth}月）")
+                return cached
+            }
+
+            logger.info("🔄 缓存未命中，重新计算月报（${targetYear}年${targetMonth}月）")
+            
+            val tasks = gpuTaskQuery.queryTasks(
+                timePeriod = TimePeriod.ONE_MONTH,
+                startTime = getMonthStartTime(targetYear, targetMonth),
+                endTime = getMonthEndTime(targetYear, targetMonth)
+            )
+            val report = baseStatisticsService.generateMonthlyReport(tasks, targetYear, targetMonth)
+
+            // 存储到缓存（历史数据永不过期）
+            reportCacheManager.putCachedData(cacheKey, report)
+            logger.info("💾 新月报已缓存（${targetYear}年${targetMonth}月）")
+            report
         }
-
-        logger.info("🔄 缓存未命中，重新计算月报（${targetYear}年${targetMonth}月）")
-        
-        val tasks = gpuTaskQuery.queryTasks(
-            timePeriod = TimePeriod.ONE_MONTH,
-            startTime = getMonthStartTime(targetYear, targetMonth),
-            endTime = getMonthEndTime(targetYear, targetMonth)
-        )
-        val report = baseStatisticsService.generateMonthlyReport(tasks, targetYear, targetMonth)
-
-        // 存储到缓存（历史数据永不过期）
-        reportCacheManager.putCachedData(cacheKey, report)
-        logger.info("💾 新月报已缓存（${targetYear}年${targetMonth}月）")
-        return report
     }
 
     /**
      * 获取年报数据（带缓存）
-     * @param year 年份（可选，默认当前年）
+     * @param year 年份（可选，默认去年）
      */
     fun getYearlyReport(year: Int? = null): Report {
-        val targetYear = year ?: LocalDate.now().year
-        val cacheKey = "yearly_report_${targetYear}"
-        
-        // 尝试从缓存获取
-        val cached: Report? = reportCacheManager.getCachedData(cacheKey)
-        if (cached != null) {
-            logger.info("✅ 缓存命中，从缓存获取年报（${targetYear}年）")
-            return cached
+        return if (year != null) {
+            // 如果指定了年份，使用指定年份的报告
+            val targetYear = year
+            val cacheKey = "yearly_report_${targetYear}"
+            
+            // 尝试从缓存获取
+            val cached: Report? = reportCacheManager.getCachedData(cacheKey)
+            if (cached != null) {
+                logger.info("✅ 缓存命中，从缓存获取年报（${targetYear}年）")
+                return cached
+            }
+
+            logger.info("🔄 缓存未命中，重新计算年报（${targetYear}年）")
+            
+            val tasks = gpuTaskQuery.queryTasks(
+                timePeriod = TimePeriod.ONE_YEAR,
+                startTime = getYearStartTime(targetYear),
+                endTime = getYearEndTime(targetYear)
+            )
+            val report = baseStatisticsService.generateYearlyReport(tasks, targetYear)
+
+            // 存储到缓存（历史数据永不过期）
+            reportCacheManager.putCachedData(cacheKey, report)
+            logger.info("💾 新年报已缓存（${targetYear}年）")
+            report
+        } else {
+            // 如果没有指定年份，默认生成去年的报告
+            val lastYear = LocalDate.now().minusYears(1)
+            val targetYear = lastYear.year
+            val cacheKey = "yearly_report_${targetYear}"
+            
+            // 尝试从缓存获取
+            val cached: Report? = reportCacheManager.getCachedData(cacheKey)
+            if (cached != null) {
+                logger.info("✅ 缓存命中，从缓存获取年报（${targetYear}年）")
+                return cached
+            }
+
+            logger.info("🔄 缓存未命中，重新计算年报（${targetYear}年）")
+            
+            val tasks = gpuTaskQuery.queryTasks(
+                timePeriod = TimePeriod.ONE_YEAR,
+                startTime = getYearStartTime(targetYear),
+                endTime = getYearEndTime(targetYear)
+            )
+            val report = baseStatisticsService.generateYearlyReport(tasks, targetYear)
+
+            // 存储到缓存（历史数据永不过期）
+            reportCacheManager.putCachedData(cacheKey, report)
+            logger.info("💾 新年报已缓存（${targetYear}年）")
+            report
         }
-
-        logger.info("🔄 缓存未命中，重新计算年报（${targetYear}年）")
-        
-        val tasks = gpuTaskQuery.queryTasks(
-            timePeriod = TimePeriod.ONE_YEAR,
-            startTime = getYearStartTime(targetYear),
-            endTime = getYearEndTime(targetYear)
-        )
-        val report = baseStatisticsService.generateYearlyReport(tasks, targetYear)
-
-        // 存储到缓存（历史数据永不过期）
-        reportCacheManager.putCachedData(cacheKey, report)
-        logger.info("💾 新年报已缓存（${targetYear}年）")
-        return report
     }
 
     /**
