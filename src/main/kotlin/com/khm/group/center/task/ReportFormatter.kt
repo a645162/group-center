@@ -11,112 +11,60 @@ import java.time.format.DateTimeFormatter
 object ReportFormatter {
 
     /**
-     * 格式化日报消息（包含作息时间分析）
+     * 格式化报告消息（包含作息时间分析）
      */
-      fun formatDailyReport(report: Map<String, Any>, sleepAnalysis: SleepAnalysis? = null): String {
-          val date = report["date"] as String
-          val totalTasks = report["totalTasks"] as Int
-          val totalUsers = report["totalUsers"] as Int
-          val totalRuntime = report["totalRuntime"] as Int
-          val topUsers = report["topUsers"] as List<*>
-          val topGpus = report["topGpus"] as List<*>
-          val topProjects = report["topProjects"] as List<*>?
- 
-          val content = StringBuilder()
-          content.append("📊 日报统计\n\n")
-          content.append("📅 日期: $date\n")
-          content.append("🎯 总任务数: $totalTasks\n")
-          content.append("👥 活跃用户数: $totalUsers\n")
-          content.append("⏱️ 总运行时间: ${formatTime(totalRuntime)}\n\n")
- 
-          if (topUsers.isNotEmpty()) {
-              content.append("🏆 活跃用户Top5:\n")
-              topUsers.take(5).forEachIndexed { index, user ->
-                  content.append("${index + 1}. 用户: ${user.toString()}\n")
-              }
-              content.append("\n")
-          }
- 
-          if (topGpus.isNotEmpty()) {
-              content.append("💻 GPU使用Top5:\n")
-              topGpus.take(5).forEachIndexed { index, gpu ->
-                  content.append("${index + 1}. ${gpu.toString()}\n")
-              }
-              content.append("\n")
-          }
- 
-          if (topProjects != null && topProjects.isNotEmpty()) {
-              content.append("📋 项目使用Top5:\n")
-              topProjects.take(5).forEachIndexed { index, project ->
-                  content.append("${index + 1}. ${project.toString()}\n")
-              }
-          }
- 
-          // 添加作息时间分析
-          if (sleepAnalysis != null) {
-              content.append(formatSleepAnalysis(sleepAnalysis))
-          }
- 
-        return content.toString()
-    }
-   /**
-    * 格式化周报消息（包含作息时间分析）
-    */
-   fun formatWeeklyReport(report: Map<String, Any>, sleepAnalysis: SleepAnalysis? = null): String {
-       return formatPeriodReport(report, "周报", sleepAnalysis)
-   }
-
-   /**
-    * 格式化月报消息（包含作息时间分析）
-    */
-   fun formatMonthlyReport(report: Map<String, Any>, sleepAnalysis: SleepAnalysis? = null): String {
-       return formatPeriodReport(report, "月报", sleepAnalysis)
-   }
-
-   /**
-    * 格式化年报消息（包含作息时间分析）
-    */
-   fun formatYearlyReport(report: Map<String, Any>, sleepAnalysis: SleepAnalysis? = null): String {
-       return formatPeriodReport(report, "年报", sleepAnalysis)
-   }
-
-    /**
-     * 格式化周期性报告消息（包含作息时间分析）
-     */
-    private fun formatPeriodReport(report: Map<String, Any>, periodName: String, sleepAnalysis: SleepAnalysis? = null): String {
-        val totalTasks = report["totalTasks"] as Int
-        val totalUsers = report["totalUsers"] as Int
-        val totalRuntime = report["totalRuntime"] as Int
-        val topUsers = report["topUsers"] as List<*>
-        val topGpus = report["topGpus"] as List<*>
-        val topProjects = report["topProjects"] as List<*>?
-
+    fun formatReport(report: com.khm.group.center.datatype.statistics.Report, sleepAnalysis: SleepAnalysis? = null): String {
         val content = StringBuilder()
-        content.append("📊 $periodName 统计\n\n")
-        content.append("🎯 总任务数: $totalTasks\n")
-        content.append("👥 活跃用户数: $totalUsers\n")
-        content.append("⏱️ 总运行时间: ${formatTime(totalRuntime)}\n\n")
+        content.append("${report.title} - ${report.getTimeRangeDescription()} 使用情况\n\n")
+        content.append("📅 统计时间: ${report.periodStartDate} - ${report.periodEndDate}\n")
+        content.append("🎯 总任务数: ${report.totalTasks}\n")
+        content.append("👥 活跃用户数: ${report.activeUsers}\n")
+        content.append("⏱️ 总运行时间: ${formatTime(report.totalRuntime)}\n\n")
 
-        if (topUsers.isNotEmpty()) {
-            content.append("🏆 活跃用户Top10:\n")
-            topUsers.take(10).forEachIndexed { index, user ->
-                content.append("${index + 1}. ${user.toString()}\n")
+        if (report.topUsers.isNotEmpty()) {
+            val userCount = when (report.reportType) {
+                com.khm.group.center.datatype.statistics.ReportType.TODAY, com.khm.group.center.datatype.statistics.ReportType.YESTERDAY -> 3
+                com.khm.group.center.datatype.statistics.ReportType.WEEKLY -> 5
+                com.khm.group.center.datatype.statistics.ReportType.MONTHLY -> 10
+                com.khm.group.center.datatype.statistics.ReportType.YEARLY -> 15
+                com.khm.group.center.datatype.statistics.ReportType.CUSTOM -> 5
+            }
+            content.append("🏆 Top用户:\n")
+            report.topUsers.take(userCount).forEachIndexed { index, user ->
+                content.append("${index + 1}. ${user.userName}: ${formatTime(user.totalRuntime)} (${user.totalTasks} tasks)\n")
             }
             content.append("\n")
         }
 
-        if (topGpus.isNotEmpty()) {
-            content.append("💻 GPU使用Top10:\n")
-            topGpus.take(10).forEachIndexed { index, gpu ->
-                content.append("${index + 1}. ${gpu.toString()}\n")
+        if (report.topGpus.isNotEmpty()) {
+            val gpuCount = when (report.reportType) {
+                com.khm.group.center.datatype.statistics.ReportType.TODAY, com.khm.group.center.datatype.statistics.ReportType.YESTERDAY -> 3
+                com.khm.group.center.datatype.statistics.ReportType.WEEKLY -> 3
+                com.khm.group.center.datatype.statistics.ReportType.MONTHLY -> 5
+                com.khm.group.center.datatype.statistics.ReportType.YEARLY -> 8
+                com.khm.group.center.datatype.statistics.ReportType.CUSTOM -> 3
+            }
+            content.append("🔧 Top GPU:\n")
+            report.topGpus.take(gpuCount).forEachIndexed { index, gpu ->
+                content.append("${index + 1}. ${gpu.gpuName}@${gpu.serverName}: ${formatTime(gpu.totalRuntime)}\n")
             }
             content.append("\n")
         }
 
-        if (topProjects != null && topProjects.isNotEmpty()) {
-            content.append("📋 项目使用Top10:\n")
-            topProjects.take(10).forEachIndexed { index, project ->
-                content.append("${index + 1}. ${project.toString()}\n")
+        if (report.topProjects.isNotEmpty()) {
+            val projectCount = when (report.reportType) {
+                com.khm.group.center.datatype.statistics.ReportType.TODAY, com.khm.group.center.datatype.statistics.ReportType.YESTERDAY -> 0
+                com.khm.group.center.datatype.statistics.ReportType.WEEKLY -> 3
+                com.khm.group.center.datatype.statistics.ReportType.MONTHLY -> 5
+                com.khm.group.center.datatype.statistics.ReportType.YEARLY -> 10
+                com.khm.group.center.datatype.statistics.ReportType.CUSTOM -> 3
+            }
+            if (projectCount > 0) {
+                content.append("📋 Top项目:\n")
+                report.topProjects.take(projectCount).forEachIndexed { index, project ->
+                    content.append("${index + 1}. ${project.projectName}: ${formatTime(project.totalRuntime)} (${project.totalTasks} tasks)\n")
+                }
+                content.append("\n")
             }
         }
 
@@ -187,20 +135,20 @@ object ReportFormatter {
         
         // 添加熬夜冠军信息
         sleepAnalysis.lateNightChampion?.let { champion ->
-            val championTime = java.time.LocalDateTime.ofInstant(
+            val championTime = LocalDateTime.ofInstant(
                 java.time.Instant.ofEpochSecond(champion.taskStartTime),
                 java.time.ZoneId.systemDefault()
             )
-            content.append("🏆 熬夜冠军: ${champion.taskUser} (${championTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))})\n")
+            content.append("🏆 熬夜冠军: ${champion.taskUser} (${championTime.format(DateTimeFormatter.ofPattern("HH:mm"))})\n")
         }
         
         // 添加早起冠军信息
         sleepAnalysis.earlyMorningChampion?.let { champion ->
-            val championTime = java.time.LocalDateTime.ofInstant(
+            val championTime = LocalDateTime.ofInstant(
                 java.time.Instant.ofEpochSecond(champion.taskStartTime),
                 java.time.ZoneId.systemDefault()
             )
-            content.append("🏆 早起冠军: ${champion.taskUser} (${championTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))})\n")
+            content.append("🏆 早起冠军: ${champion.taskUser} (${championTime.format(DateTimeFormatter.ofPattern("HH:mm"))})\n")
         }
         
         content.append("====================\n")

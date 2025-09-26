@@ -2,25 +2,72 @@ package com.khm.group.center.datatype.statistics
 
 import com.khm.group.center.utils.format.NumberFormat
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.Month
 
-// 用户统计数据结构
+/**
+ * 报告类型枚举
+ * 定义不同类型的统计报告
+ */
+enum class ReportType {
+    TODAY,           // 今日日报
+    YESTERDAY,       // 昨日日报
+    WEEKLY,          // 周报（上周）
+    MONTHLY,         // 月报（上月）
+    YEARLY,          // 年报（去年）
+    CUSTOM           // 自定义时间段报告
+}
+
+/**
+ * 统一的报告数据结构
+ * 替代原有的 DailyReport, WeeklyReport, MonthlyReport, YearlyReport, CustomPeriodStatistics
+ */
+data class Report(
+    val reportType: ReportType,                    // 报告类型
+    val title: String,                             // 报告标题
+    val periodStartDate: LocalDate,                // 统计开始日期
+    val periodEndDate: LocalDate,                  // 统计结束日期
+    val startTime: LocalDateTime,                  // 统计开始时间
+    val endTime: LocalDateTime,                    // 统计结束时间
+    val actualTaskStartTime: LocalDateTime,        // 实际任务最早开始时间
+    val actualTaskEndTime: LocalDateTime,          // 实际任务最晚结束时间
+    val totalTasks: Int,                           // 总任务数
+    val totalRuntime: Int,                         // 总运行时间（秒）
+    val activeUsers: Int,                          // 活跃用户数
+    val topUsers: List<UserStatistics>,            // Top用户列表
+    val topGpus: List<GpuStatistics>,              // Top GPU列表
+    val topProjects: List<ProjectStatistics>,      // Top项目列表
+    val sleepAnalysis: SleepAnalysis?,             // 作息分析数据（可选）
+    val refreshTime: LocalDateTime = LocalDateTime.now()  // 报告生成时间
+) {
+    /**
+     * 获取报告的时间范围描述
+     */
+    fun getTimeRangeDescription(): String {
+        return when (reportType) {
+            ReportType.TODAY -> "今日"
+            ReportType.YESTERDAY -> "昨日"
+            ReportType.WEEKLY -> "上周"
+            ReportType.MONTHLY -> "上月"
+            ReportType.YEARLY -> "去年"
+            ReportType.CUSTOM -> "自定义时间段"
+        }
+    }
+}
+
+// 用户统计数据结构（简化版，移除成功率相关字段）
 data class UserStatistics(
     val userName: String,
     var totalTasks: Int,
     var totalRuntime: Int,
-    var successTasks: Int,
-    var failedTasks: Int,
     var averageRuntime: Double,
     var favoriteGpu: String,
     var favoriteProject: String
 ) {
-    val successRate: Double get() = if (totalTasks > 0) successTasks * 100.0 / totalTasks else 0.0
     val formattedAverageRuntime: Double get() = NumberFormat.formatDouble(averageRuntime)
-    val formattedSuccessRate: Double get() = NumberFormat.formatDouble(successRate)
 }
 
-// GPU统计数据结构
+// GPU统计数据结构（保持不变）
 data class GpuStatistics(
     val gpuName: String,
     val serverName: String,
@@ -47,7 +94,7 @@ data class ServerStatistics(
     val formattedGpuUtilization: Double get() = NumberFormat.formatDouble(gpuUtilization)
 }
 
-// 项目统计数据结构
+// 项目统计数据结构（保持不变）
 data class ProjectStatistics(
     val projectName: String,
     var totalRuntime: Int,
@@ -59,7 +106,23 @@ data class ProjectStatistics(
     val formattedAverageRuntime: Double get() = NumberFormat.formatDouble(averageRuntime)
 }
 
-// 每日统计数据结构
+// 作息分析数据结构（保持不变）
+data class SleepAnalysis(
+    val lateNightTasks: List<com.khm.group.center.db.model.client.GpuTaskInfoModel>,
+    val earlyMorningTasks: List<com.khm.group.center.db.model.client.GpuTaskInfoModel>,
+    val lateNightChampion: com.khm.group.center.db.model.client.GpuTaskInfoModel?, // 熬夜冠军（最晚启动）
+    val earlyMorningChampion: com.khm.group.center.db.model.client.GpuTaskInfoModel?, // 早起冠军（最早启动）
+    val totalLateNightTasks: Int,
+    val totalEarlyMorningTasks: Int,
+    val lateNightUsers: Set<String>, // 熬夜用户集合
+    val earlyMorningUsers: Set<String>, // 早起用户集合
+    val refreshTime: LocalDateTime = LocalDateTime.now()
+) {
+    val totalLateNightUsers: Int get() = lateNightUsers.size
+    val totalEarlyMorningUsers: Int get() = earlyMorningUsers.size
+}
+
+// 以下为保留的辅助数据结构，用于趋势分析等场景
 data class DailyStats(
     val date: LocalDate,
     var totalTasks: Int,
@@ -71,7 +134,6 @@ data class DailyStats(
     val formattedPeakGpuUsage: Double get() = NumberFormat.formatDouble(peakGpuUsage)
 }
 
-// 时间趋势统计数据结构
 data class TimeTrendStatistics(
     val period: com.khm.group.center.utils.time.TimePeriod,
     val dailyStats: List<DailyStats>,
@@ -81,128 +143,3 @@ data class TimeTrendStatistics(
     val averageDailyTasks: Int,
     val averageDailyRuntime: Int
 )
-
-// 日报数据结构
-data class DailyReport(
-    val date: LocalDate,
-    val startTime: java.time.LocalDateTime,
-    val endTime: java.time.LocalDateTime,
-    val actualTaskStartTime: java.time.LocalDateTime, // 实际任务最早开始时间
-    val actualTaskEndTime: java.time.LocalDateTime,   // 实际任务最晚结束时间
-    val totalTasks: Int,
-    val totalRuntime: Int,
-    val activeUsers: Int,
-    val topUsers: List<UserStatistics>,
-    val topGpus: List<GpuStatistics>,
-    val topProjects: List<ProjectStatistics>,
-    val serverStats: List<ServerStatistics>,
-    val successRate: Double,
-    val refreshTime: java.time.LocalDateTime = java.time.LocalDateTime.now()
-) {
-    val formattedSuccessRate: Double get() = NumberFormat.formatDouble(successRate)
-}
-// 周报数据结构
-data class WeeklyReport(
-    val startDate: LocalDate,
-    val endDate: LocalDate,
-    val periodStartDate: LocalDate,
-    val periodEndDate: LocalDate,
-    val totalTasks: Int,
-    val totalRuntime: Int,
-    val activeUsers: Int,
-    val topUsers: List<UserStatistics>,
-    val topGpus: List<GpuStatistics>,
-    val topProjects: List<ProjectStatistics>,
-    val dailyTrend: List<DailyStats>,
-    val averageDailyTasks: Int,
-    val averageDailyRuntime: Int,
-    val refreshTime: java.time.LocalDateTime = java.time.LocalDateTime.now()
-)
-
-// 周统计数据结构
-data class WeeklyStats(
-    val startDate: LocalDate,
-    val endDate: LocalDate,
-    val totalTasks: Int,
-    val totalRuntime: Int,
-    val activeUsers: Int
-)
-
-// 月报数据结构
-data class MonthlyReport(
-    val month: Month,
-    val year: Int,
-    val periodStartDate: LocalDate,
-    val periodEndDate: LocalDate,
-    val totalTasks: Int,
-    val totalRuntime: Int,
-    val activeUsers: Int,
-    val topUsers: List<UserStatistics>,
-    val topGpus: List<GpuStatistics>,
-    val topProjects: List<ProjectStatistics>,
-    val weeklyTrend: List<WeeklyStats>,
-    val averageWeeklyTasks: Int,
-    val averageWeeklyRuntime: Int,
-    val refreshTime: java.time.LocalDateTime = java.time.LocalDateTime.now()
-)
-
-// 月统计数据结构
-data class MonthlyStats(
-    val month: Month,
-    val totalTasks: Int,
-    val totalRuntime: Int,
-    val activeUsers: Int,
-    val averageDailyTasks: Int,
-    val averageDailyRuntime: Int
-)
-
-// 年报数据结构
-data class YearlyReport(
-    val year: Int,
-    val periodStartDate: LocalDate,
-    val periodEndDate: LocalDate,
-    val totalTasks: Int,
-    val totalRuntime: Int,
-    val activeUsers: Int,
-    val topUsers: List<UserStatistics>,
-    val topGpus: List<GpuStatistics>,
-    val topProjects: List<ProjectStatistics>,
-    val monthlyStats: List<MonthlyStats>,
-    val averageMonthlyTasks: Int,
-    val averageMonthlyRuntime: Int,
-    val refreshTime: java.time.LocalDateTime = java.time.LocalDateTime.now()
-)
-
-// 作息分析数据结构
-data class SleepAnalysis(
-    val lateNightTasks: List<com.khm.group.center.db.model.client.GpuTaskInfoModel>,
-    val earlyMorningTasks: List<com.khm.group.center.db.model.client.GpuTaskInfoModel>,
-    val lateNightChampion: com.khm.group.center.db.model.client.GpuTaskInfoModel?, // 熬夜冠军（最晚启动）
-    val earlyMorningChampion: com.khm.group.center.db.model.client.GpuTaskInfoModel?, // 早起冠军（最早启动）
-    val totalLateNightTasks: Int,
-    val totalEarlyMorningTasks: Int,
-    val lateNightUsers: Set<String>, // 熬夜用户集合
-    val earlyMorningUsers: Set<String>, // 早起用户集合
-    val refreshTime: java.time.LocalDateTime = java.time.LocalDateTime.now()
-) {
-    val totalLateNightUsers: Int get() = lateNightUsers.size
-    val totalEarlyMorningUsers: Int get() = earlyMorningUsers.size
-}
-
-// 自定义时间段统计数据结构
-data class CustomPeriodStatistics(
-    val startTime: java.time.LocalDateTime,
-    val endTime: java.time.LocalDateTime,
-    val totalTasks: Int,
-    val totalRuntime: Int,
-    val activeUsers: Int,
-    val userStats: List<UserStatistics>,
-    val gpuStats: List<GpuStatistics>,
-    val serverStats: List<ServerStatistics>,
-    val projectStats: List<ProjectStatistics>,
-    val sleepAnalysis: SleepAnalysis?,
-    val successRate: Double,
-    val refreshTime: java.time.LocalDateTime = java.time.LocalDateTime.now()
-) {
-    val formattedSuccessRate: Double get() = NumberFormat.formatDouble(successRate)
-}

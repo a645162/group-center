@@ -147,12 +147,12 @@ class CachedStatisticsService {
      * 获取24小时报告数据（带缓存，向后取整整小时）
      * 例如：现在是14:10，统计昨天15:00到今天15:00
      */
-    fun get24HourReport(): DailyReport {
+    fun get24HourReport(): Report {
         val cacheKey = "24hour_report"
         val currentHour = HourlyTimeUtils.getCurrentHour()
         
         // 检查缓存有效性
-        val cached: DailyReport? = cacheManager.getCachedData(cacheKey)
+        val cached: Report? = cacheManager.getCachedData(cacheKey)
         if (cached != null) {
             val cachedHour = cacheManager.getCachedData<Long>("${cacheKey}_hour")
             if (cachedHour != null && cachedHour == currentHour) {
@@ -192,12 +192,12 @@ class CachedStatisticsService {
      * 获取48小时报告数据（带缓存，向后取整整小时）
      * 例如：现在是14:10，统计前天15:00到今天15:00
      */
-    fun get48HourReport(): DailyReport {
+    fun get48HourReport(): Report {
         val cacheKey = "48hour_report"
         val currentHour = HourlyTimeUtils.getCurrentHour()
         
         // 检查缓存有效性
-        val cached: DailyReport? = cacheManager.getCachedData(cacheKey)
+        val cached: Report? = cacheManager.getCachedData(cacheKey)
         if (cached != null) {
             val cachedHour = cacheManager.getCachedData<Long>("${cacheKey}_hour")
             if (cachedHour != null && cachedHour == currentHour) {
@@ -237,12 +237,12 @@ class CachedStatisticsService {
      * 获取72小时报告数据（带缓存，向后取整整小时）
      * 例如：现在是14:10，统计大前天15:00到今天15:00
      */
-    fun get72HourReport(): DailyReport {
+    fun get72HourReport(): Report {
         val cacheKey = "72hour_report"
         val currentHour = HourlyTimeUtils.getCurrentHour()
         
         // 检查缓存有效性
-        val cached: DailyReport? = cacheManager.getCachedData(cacheKey)
+        val cached: Report? = cacheManager.getCachedData(cacheKey)
         if (cached != null) {
             val cachedHour = cacheManager.getCachedData<Long>("${cacheKey}_hour")
             if (cachedHour != null && cachedHour == currentHour) {
@@ -281,35 +281,35 @@ class CachedStatisticsService {
     /**
      * 获取今日日报数据（带缓存，整点时间范围：今天0:00到明天0:00）
      */
-    fun getTodayReport(): DailyReport {
+     fun getTodayReport(): Report {
          val date = LocalDate.now()
          val cacheKey = "today_report_${date}"
-         
+          
          // 尝试从缓存获取
-         val cached: DailyReport? = cacheManager.getCachedData(cacheKey)
+         val cached: Report? = cacheManager.getCachedData(cacheKey)
          if (cached != null) {
              logger.info("✅ 缓存命中，从缓存获取今日日报（${date}）")
              return cached
          }
- 
+  
          logger.info("🔄 缓存未命中，重新计算今日日报（${date}）")
-         
+          
          // 清除所有旧的今日日报缓存
          val clearedCount = cacheManager.clearCacheByType("today_report")
          if (clearedCount > 0) {
              logger.info("🗑️ 清除旧的今日日报缓存：${clearedCount}个")
          }
-         
+          
          // 使用整点时间范围
          val (startTime, endTime) = HourlyTimeUtils.getTodayRoundedRange()
-         
+          
          val tasks = gpuTaskQuery.queryTasks(
              timePeriod = TimePeriod.ONE_DAY,
              startTime = startTime,
              endTime = endTime
          )
          val report = baseStatisticsService.generate24HourReport(tasks, startTime, endTime)
- 
+  
          // 存储到缓存
          cacheManager.putCachedData(cacheKey, report, CACHE_DURATION)
          logger.info("💾 新今日日报已缓存（${date}，时间范围：${startTime} - ${endTime}）")
@@ -319,35 +319,35 @@ class CachedStatisticsService {
      /**
       * 获取昨日日报数据（带缓存，整点时间范围：昨天0:00到今天0:00）
       */
-     fun getYesterdayReport(): DailyReport {
+     fun getYesterdayReport(): Report {
          val date = LocalDate.now().minusDays(1)
          val cacheKey = "yesterday_report_${date}"
-         
+          
          // 尝试从缓存获取
-         val cached: DailyReport? = cacheManager.getCachedData(cacheKey)
+         val cached: Report? = cacheManager.getCachedData(cacheKey)
          if (cached != null) {
              logger.info("✅ 缓存命中，从缓存获取昨日日报（${date}）")
              return cached
          }
- 
+  
          logger.info("🔄 缓存未命中，重新计算昨日日报（${date}）")
-         
+          
          // 清除所有旧的昨日日报缓存
          val clearedCount = cacheManager.clearCacheByType("yesterday_report")
          if (clearedCount > 0) {
              logger.info("🗑️ 清除旧的昨日日报缓存：${clearedCount}个")
          }
-         
+          
          // 使用整点时间范围
          val (startTime, endTime) = HourlyTimeUtils.getYesterdayRoundedRange()
-         
+          
          val tasks = gpuTaskQuery.queryTasks(
              timePeriod = TimePeriod.ONE_DAY,
              startTime = startTime,
              endTime = endTime
          )
          val report = baseStatisticsService.generate24HourReport(tasks, startTime, endTime)
- 
+  
          // 存储到缓存
          cacheManager.putCachedData(cacheKey, report, CACHE_DURATION)
          logger.info("💾 新昨日日报已缓存（${date}，时间范围：${startTime} - ${endTime}）")
@@ -356,12 +356,12 @@ class CachedStatisticsService {
     /**
      * 获取周报数据（带缓存，整点时间范围：上周一0:00到本周一0:00）
      */
-    fun getWeeklyReport(): WeeklyReport {
+    fun getWeeklyReport(): Report {
         val currentDate = LocalDate.now()
         val cacheKey = "weekly_report_${currentDate}"
         
         // 尝试从缓存获取
-        val cached: WeeklyReport? = cacheManager.getCachedData(cacheKey)
+        val cached: Report? = cacheManager.getCachedData(cacheKey)
         if (cached != null) {
             logger.info("✅ 缓存命中，从缓存获取周报（${currentDate}）")
             return cached
@@ -394,12 +394,12 @@ class CachedStatisticsService {
     /**
      * 获取月报数据（带缓存，整点时间范围：上月1号0:00到本月1号0:00）
      */
-    fun getMonthlyReport(): MonthlyReport {
+    fun getMonthlyReport(): Report {
         val currentMonth = LocalDate.now().monthValue
         val cacheKey = "monthly_report_${currentMonth}"
         
         // 尝试从缓存获取
-        val cached: MonthlyReport? = cacheManager.getCachedData(cacheKey)
+        val cached: Report? = cacheManager.getCachedData(cacheKey)
         if (cached != null) {
             logger.info("✅ 缓存命中，从缓存获取月报（${currentMonth}月）")
             return cached
@@ -432,12 +432,12 @@ class CachedStatisticsService {
     /**
      * 获取年报数据（带缓存，整点时间范围：去年1月1号0:00到今年1月1号0:00）
      */
-    fun getYearlyReport(): YearlyReport {
+    fun getYearlyReport(): Report {
         val currentYear = LocalDate.now().year
         val cacheKey = "yearly_report_${currentYear}"
         
         // 尝试从缓存获取
-        val cached: YearlyReport? = cacheManager.getCachedData(cacheKey)
+        val cached: Report? = cacheManager.getCachedData(cacheKey)
         if (cached != null) {
             logger.info("✅ 缓存命中，从缓存获取年报（${currentYear}年）")
             return cached

@@ -203,17 +203,18 @@ class ReportPushService {
             "yearly" -> ReportConfig("🎯 GPU使用年报", "去年", 15, 8, 10)
             else -> ReportConfig("📊 GPU使用报告", "统计期间", 3, 3, 3)
         }
+        
         val baseContent = when (report) {
-            is com.khm.group.center.datatype.statistics.DailyReport -> {
+            is com.khm.group.center.datatype.statistics.Report -> {
                 """
-                ${config.title} - ${report.date} 使用情况
+                ${report.title} - ${report.getTimeRangeDescription()} 使用情况
                 ====================
+                统计时间: ${report.periodStartDate} - ${report.periodEndDate}
                 统计区间: ${formatDateTime(report.startTime)} - ${formatDateTime(report.endTime)}
                 实际任务时间: ${formatDateTime(report.actualTaskStartTime)} - ${formatDateTime(report.actualTaskEndTime)}
                 总任务数: ${report.totalTasks}
                 总运行时间: ${formatTime(report.totalRuntime)}
                 活跃用户: ${report.activeUsers}
-                任务成功率: ${"%.1f".format(report.successRate)}%
                 
                 🏆 Top用户:
                 ${formatTopUsers(report.topUsers.take(config.userCount))}
@@ -223,63 +224,6 @@ class ReportPushService {
                 """.trimIndent() + if (config.projectCount > 0 && report.topProjects.isNotEmpty()) {
                     "\n\n📋 Top项目:\n${formatTopProjects(report.topProjects.take(config.projectCount))}"
                 } else ""
-            }
-            is com.khm.group.center.datatype.statistics.WeeklyReport -> {
-                """
-                ${config.title} - ${config.timeRange} 使用情况
-                ====================
-                统计时间: ${report.periodStartDate} - ${report.periodEndDate}
-                总任务数: ${report.totalTasks}
-                总运行时间: ${formatTime(report.totalRuntime)}
-                活跃用户: ${report.activeUsers}
-                
-                🏆 ${config.timeRange}Top用户:
-                ${formatTopUsers(report.topUsers.take(config.userCount))}
-                
-                🔧 ${config.timeRange}Top GPU:
-                ${formatTopGpus(report.topGpus.take(config.gpuCount))}
-                
-                📋 ${config.timeRange}Top项目:
-                ${formatTopProjects(report.topProjects.take(config.projectCount))}
-                """.trimIndent()
-            }
-            is com.khm.group.center.datatype.statistics.MonthlyReport -> {
-                """
-                ${config.title} - ${config.timeRange} 使用情况
-                ====================
-                统计时间: ${report.periodStartDate} - ${report.periodEndDate}
-                总任务数: ${report.totalTasks}
-                总运行时间: ${formatTime(report.totalRuntime)}
-                活跃用户: ${report.activeUsers}
-                
-                🏆 ${config.timeRange}Top用户:
-                ${formatTopUsers(report.topUsers.take(config.userCount))}
-                
-                🔧 ${config.timeRange}Top GPU:
-                ${formatTopGpus(report.topGpus.take(config.gpuCount))}
-                
-                📋 ${config.timeRange}Top项目:
-                ${formatTopProjects(report.topProjects.take(config.projectCount))}
-                """.trimIndent()
-            }
-            is com.khm.group.center.datatype.statistics.YearlyReport -> {
-                """
-                ${config.title} - ${config.timeRange} 使用情况
-                ====================
-                统计时间: ${report.periodStartDate} - ${report.periodEndDate}
-                总任务数: ${report.totalTasks}
-                总运行时间: ${formatTime(report.totalRuntime)}
-                活跃用户: ${report.activeUsers}
-                
-                🏆 ${config.timeRange}Top用户:
-                ${formatTopUsers(report.topUsers.take(config.userCount))}
-                
-                🔧 ${config.timeRange}Top GPU:
-                ${formatTopGpus(report.topGpus.take(config.gpuCount))}
-                
-                📋 ${config.timeRange}Top项目:
-                ${formatTopProjects(report.topProjects.take(config.projectCount))}
-                """.trimIndent()
             }
             is Map<*, *> -> {
                 // 兼容旧的Map格式
@@ -380,7 +324,7 @@ class ReportPushService {
     private fun getSleepAnalysisForPeriod(period: TimePeriod): com.khm.group.center.datatype.statistics.SleepAnalysis? {
         try {
             // 使用基础服务（无缓存）进行作息分析
-            val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
+            val tasks = (baseStatisticsService as StatisticsServiceImpl)
                 .getTasksByTimePeriod(period)
             
             // 计算时间段的开始和结束时间
@@ -400,42 +344,12 @@ class ReportPushService {
     private fun getSleepAnalysisForReport(report: Any): com.khm.group.center.datatype.statistics.SleepAnalysis? {
         try {
             when (report) {
-                is com.khm.group.center.datatype.statistics.DailyReport -> {
+                is com.khm.group.center.datatype.statistics.Report -> {
                     // 使用基础服务（无缓存）进行作息分析，基于报告的实际时间范围
                     val startTimestamp = report.startTime.atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
                     val endTimestamp = report.endTime.atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
                     
-                    val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
-                        .getTasksByCustomPeriod(startTimestamp, endTimestamp)
-                    
-                    return baseStatisticsService.getSleepAnalysis(tasks, startTimestamp, endTimestamp)
-                }
-                is com.khm.group.center.datatype.statistics.WeeklyReport -> {
-                    // 对于周报，使用周报的时间范围进行作息分析
-                    val startTimestamp = report.periodStartDate.atStartOfDay(java.time.ZoneId.systemDefault()).toEpochSecond()
-                    val endTimestamp = report.periodEndDate.atTime(23, 59, 59).atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
-                    
-                    val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
-                        .getTasksByCustomPeriod(startTimestamp, endTimestamp)
-                    
-                    return baseStatisticsService.getSleepAnalysis(tasks, startTimestamp, endTimestamp)
-                }
-                is com.khm.group.center.datatype.statistics.MonthlyReport -> {
-                    // 对于月报，使用月报的时间范围进行作息分析
-                    val startTimestamp = report.periodStartDate.atStartOfDay(java.time.ZoneId.systemDefault()).toEpochSecond()
-                    val endTimestamp = report.periodEndDate.atTime(23, 59, 59).atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
-                    
-                    val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
-                        .getTasksByCustomPeriod(startTimestamp, endTimestamp)
-                    
-                    return baseStatisticsService.getSleepAnalysis(tasks, startTimestamp, endTimestamp)
-                }
-                is com.khm.group.center.datatype.statistics.YearlyReport -> {
-                    // 对于年报，使用年报的时间范围进行作息分析
-                    val startTimestamp = report.periodStartDate.atStartOfDay(java.time.ZoneId.systemDefault()).toEpochSecond()
-                    val endTimestamp = report.periodEndDate.atTime(23, 59, 59).atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
-                    
-                    val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
+                    val tasks = (baseStatisticsService as StatisticsServiceImpl)
                         .getTasksByCustomPeriod(startTimestamp, endTimestamp)
                     
                     return baseStatisticsService.getSleepAnalysis(tasks, startTimestamp, endTimestamp)
@@ -469,7 +383,7 @@ class ReportPushService {
                 java.time.Instant.ofEpochSecond(champion.taskStartTime),
                 java.time.ZoneId.systemDefault()
             )
-            content.append("🏆 熬夜冠军: ${champion.taskUser} (${championTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))})\n")
+            content.append("🏆 熬夜冠军: ${champion.taskUser} (${championTime.format(DateTimeFormatter.ofPattern("HH:mm"))})\n")
         }
         
         // 添加早起冠军信息
@@ -478,7 +392,7 @@ class ReportPushService {
                 java.time.Instant.ofEpochSecond(champion.taskStartTime),
                 java.time.ZoneId.systemDefault()
             )
-            content.append("🏆 早起冠军: ${champion.taskUser} (${championTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))})\n")
+            content.append("🏆 早起冠军: ${champion.taskUser} (${championTime.format(DateTimeFormatter.ofPattern("HH:mm"))})\n")
         }
         
         content.append("====================\n")

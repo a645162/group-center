@@ -61,47 +61,38 @@ interface BaseStatisticsService {
      * @param tasks 任务列表
      * @param startTimestamp 开始时间戳（秒）
      * @param endTimestamp 结束时间戳（秒）
-     * @return 日报
+     * @return 报告
      */
-    fun generate24HourReport(tasks: List<GpuTaskInfoModel>, startTimestamp: Long, endTimestamp: Long): DailyReport
+    fun generate24HourReport(tasks: List<GpuTaskInfoModel>, startTimestamp: Long, endTimestamp: Long): Report
 
     /**
      * 生成日报（按自然日统计，无缓存）
      * @param tasks 任务列表
      * @param date 日期
-     * @return 日报
+     * @return 报告
      */
-    fun generateDailyReport(tasks: List<GpuTaskInfoModel>, date: LocalDate): DailyReport
+    fun generateDailyReport(tasks: List<GpuTaskInfoModel>, date: LocalDate): Report
 
     /**
      * 生成周报（无缓存）
      * @param tasks 任务列表
-     * @return 周报
+     * @return 报告
      */
-    fun generateWeeklyReport(tasks: List<GpuTaskInfoModel>): WeeklyReport
+    fun generateWeeklyReport(tasks: List<GpuTaskInfoModel>): Report
 
     /**
      * 生成月报（无缓存）
      * @param tasks 任务列表
-     * @return 月报
+     * @return 报告
      */
-    fun generateMonthlyReport(tasks: List<GpuTaskInfoModel>): MonthlyReport
+    fun generateMonthlyReport(tasks: List<GpuTaskInfoModel>): Report
 
     /**
      * 生成年报（无缓存）
      * @param tasks 任务列表
-     * @return 年报
+     * @return 报告
      */
-    fun generateYearlyReport(tasks: List<GpuTaskInfoModel>): YearlyReport
-
-    /**
-     * 获取自定义时间段统计（无缓存）
-     * @param tasks 任务列表
-     * @param startTime 开始时间（秒）
-     * @param endTime 结束时间（秒）
-     * @return 自定义时间段统计
-     */
-    fun getCustomPeriodStatistics(tasks: List<GpuTaskInfoModel>, startTime: Long, endTime: Long): CustomPeriodStatistics
+    fun generateYearlyReport(tasks: List<GpuTaskInfoModel>): Report
 
     /**
      * 获取作息时间分析（无缓存）
@@ -111,4 +102,13 @@ interface BaseStatisticsService {
      * @return 作息分析结果
      */
     fun getSleepAnalysis(tasks: List<GpuTaskInfoModel>, startTime: Long, endTime: Long): SleepAnalysis
+
+    /**
+     * 获取自定义时间段统计（无缓存）
+     * @param tasks 任务列表
+     * @param startTime 开始时间（秒）
+     * @param endTime 结束时间（秒）
+     * @return 报告
+     */
+    fun getCustomPeriodStatistics(tasks: List<GpuTaskInfoModel>, startTime: Long, endTime: Long): Report
 }

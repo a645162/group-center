@@ -48,76 +48,28 @@ class StatisticsServiceImpl : BaseStatisticsService {
         return statisticsAnalyzer.analyzeTimeTrendStatistics(tasks, timePeriod)
     }
 
-    override fun generate24HourReport(tasks: List<GpuTaskInfoModel>, startTimestamp: Long, endTimestamp: Long): DailyReport {
+    override fun generate24HourReport(tasks: List<GpuTaskInfoModel>, startTimestamp: Long, endTimestamp: Long): Report {
         return statisticsAnalyzer.generate24HourReport(tasks, startTimestamp, endTimestamp)
     }
 
-    override fun generateDailyReport(tasks: List<GpuTaskInfoModel>, date: LocalDate): DailyReport {
+    override fun generateDailyReport(tasks: List<GpuTaskInfoModel>, date: LocalDate): Report {
         return statisticsAnalyzer.generateDailyReport(tasks, date)
     }
 
-    override fun generateWeeklyReport(tasks: List<GpuTaskInfoModel>): WeeklyReport {
+    override fun generateWeeklyReport(tasks: List<GpuTaskInfoModel>): Report {
         return statisticsAnalyzer.generateWeeklyReport(tasks)
     }
 
-    override fun generateMonthlyReport(tasks: List<GpuTaskInfoModel>): MonthlyReport {
+    override fun generateMonthlyReport(tasks: List<GpuTaskInfoModel>): Report {
         return statisticsAnalyzer.generateMonthlyReport(tasks)
     }
 
-    override fun generateYearlyReport(tasks: List<GpuTaskInfoModel>): YearlyReport {
+    override fun generateYearlyReport(tasks: List<GpuTaskInfoModel>): Report {
         return statisticsAnalyzer.generateYearlyReport(tasks)
     }
 
-    override fun getCustomPeriodStatistics(tasks: List<GpuTaskInfoModel>, startTime: Long, endTime: Long): CustomPeriodStatistics {
-        // 过滤在时间段内的任务
-        val filteredTasks = tasks.filter { task ->
-            task.taskStartTime >= startTime && task.taskStartTime <= endTime
-        }
-        
-        // 计算各种统计
-        val userStats = getUserStatistics(filteredTasks, startTime, endTime)
-        val gpuStats = getGpuStatistics(filteredTasks, startTime, endTime)
-        val serverStats = getServerStatistics(filteredTasks, startTime, endTime)
-        val projectStats = getProjectStatistics(filteredTasks, startTime, endTime)
-        
-        // 计算作息分析
-        val sleepAnalysis = getSleepAnalysis(filteredTasks, startTime, endTime)
-        
-        // 计算总任务数和运行时间
-        val totalTasks = filteredTasks.size
-        val totalRuntime = filteredTasks.sumOf { it.taskRunningTimeInSeconds }
-        val activeUsers = filteredTasks.map { it.taskUser }.distinct().size
-        
-        // 计算成功率
-        val successRate = if (totalTasks > 0) {
-            filteredTasks.count { it.taskStatus.equals("success", ignoreCase = true) } * 100.0 / totalTasks
-        } else {
-            0.0
-        }
-        
-        // 转换时间格式
-        val startDateTime = LocalDateTime.ofInstant(
-            java.time.Instant.ofEpochSecond(startTime),
-            ZoneId.systemDefault()
-        )
-        val endDateTime = LocalDateTime.ofInstant(
-            java.time.Instant.ofEpochSecond(endTime),
-            ZoneId.systemDefault()
-        )
-        
-        return CustomPeriodStatistics(
-            startTime = startDateTime,
-            endTime = endDateTime,
-            totalTasks = totalTasks,
-            totalRuntime = totalRuntime,
-            activeUsers = activeUsers,
-            userStats = userStats,
-            gpuStats = gpuStats,
-            serverStats = serverStats,
-            projectStats = projectStats,
-            sleepAnalysis = sleepAnalysis,
-            successRate = successRate
-        )
+    override fun getCustomPeriodStatistics(tasks: List<GpuTaskInfoModel>, startTime: Long, endTime: Long): Report {
+        return statisticsAnalyzer.generateCustomPeriodReport(tasks, startTime, endTime)
     }
 
     override fun getSleepAnalysis(tasks: List<GpuTaskInfoModel>, startTime: Long, endTime: Long): SleepAnalysis {
