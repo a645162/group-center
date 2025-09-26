@@ -63,8 +63,6 @@ class StatisticsAnalyzer {
                     userName = userName,
                     totalTasks = 0,
                     totalRuntime = 0,
-                    successTasks = 0,
-                    failedTasks = 0,
                     averageRuntime = 0.0,
                     favoriteGpu = "",
                     favoriteProject = ""
@@ -82,12 +80,6 @@ class StatisticsAnalyzer {
             if (actualRuntime > 0L) {
                 user.totalTasks++
                 user.totalRuntime += actualRuntime.toInt()
-
-                if (task.taskStatus.equals("success", ignoreCase = true)) {
-                    user.successTasks++
-                } else {
-                    user.failedTasks++
-                }
 
                 // 更新最喜欢的GPU（基于实际运行时间）
                 if (user.favoriteGpu.isEmpty() || actualRuntime.toDouble() > user.totalRuntime.toDouble() / user.totalTasks) {
@@ -294,11 +286,10 @@ class StatisticsAnalyzer {
     /**
      * 生成24小时报告
      */
-    fun generate24HourReport(tasks: List<GpuTaskInfoModel>, startTimestamp: Long, endTimestamp: Long): DailyReport {
+    fun generate24HourReport(tasks: List<GpuTaskInfoModel>, startTimestamp: Long, endTimestamp: Long): Report {
         val userStats = analyzeUserStatistics(tasks, startTimestamp, endTimestamp)
         val gpuStats = analyzeGpuStatistics(tasks, startTimestamp, endTimestamp)
         val projectStats = analyzeProjectStatistics(tasks, startTimestamp, endTimestamp)
-        val serverStats = analyzeServerStatistics(tasks, startTimestamp, endTimestamp)
 
         // 计算开始时间和结束时间
         val startTime = DateTimeUtils.convertTimestampToDateTime(startTimestamp)
@@ -314,33 +305,29 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, startTimestamp, endTimestamp) > 0L
         }
 
-        // 调试日志：输出实际任务时间范围
+        // 计算实际任务时间范围
         val actualTaskStartTime = if (tasks.isNotEmpty()) {
             val minStartTime = tasks.minOf { it.taskStartTime }
-            val minStartDateTime = DateTimeUtils.convertTimestampToDateTime(minStartTime)
-            println("DEBUG: 实际任务最早启动时间: ${minStartDateTime} (时间戳: $minStartTime)")
-            minStartDateTime
+            DateTimeUtils.convertTimestampToDateTime(minStartTime)
         } else {
             startTime
         }
 
         val actualTaskEndTime = if (tasks.isNotEmpty()) {
             val maxEndTime = tasks.maxOf { it.taskFinishTime }
-            val maxEndDateTime = DateTimeUtils.convertTimestampToDateTime(maxEndTime)
-            println("DEBUG: 实际任务最晚结束时间: ${maxEndDateTime} (时间戳: $maxEndTime)")
-            maxEndDateTime
+            DateTimeUtils.convertTimestampToDateTime(maxEndTime)
         } else {
             endTime
         }
 
-        println("DEBUG: 统计区间: $startTime - $endTime")
-        println("DEBUG: 实际任务时间: $actualTaskStartTime - $actualTaskEndTime")
-
-        // 根据开始时间确定报告日期（使用自然日，即开始时间对应的日期）
+        // 根据开始时间确定报告日期
         val reportDate = DateTimeUtils.convertTimestampToDateTime(startTimestamp).toLocalDate()
         
-        return DailyReport(
-            date = reportDate, // 使用根据时间范围确定的自然日
+        return Report(
+            reportType = ReportType.CUSTOM,
+            title = "24小时报告",
+            periodStartDate = reportDate,
+            periodEndDate = reportDate,
             startTime = startTime,
             endTime = endTime,
             actualTaskStartTime = actualTaskStartTime,
@@ -351,17 +338,14 @@ class StatisticsAnalyzer {
             topUsers = userStats.take(5),
             topGpus = gpuStats.take(5),
             topProjects = projectStats.take(5),
-            serverStats = serverStats,
-            successRate = if (actualTasks > 0) {
-                tasks.count { it.taskStatus.equals("success", ignoreCase = true) } * 100.0 / actualTasks
-            } else 0.0
+            sleepAnalysis = null
         )
     }
 
     /**
      * 生成日报（按自然日统计，整点时间范围：昨天0:00到今天0:00）
      */
-    fun generateDailyReport(tasks: List<GpuTaskInfoModel>, date: LocalDate): DailyReport {
+    fun generateDailyReport(tasks: List<GpuTaskInfoModel>, date: LocalDate): Report {
         // 计算自然日的开始和结束时间（秒）- 使用整点时间
         val periodStart = LocalDateTime.of(date, java.time.LocalTime.MIN)
             .atZone(ZoneId.systemDefault()).toEpochSecond()
@@ -371,20 +355,10 @@ class StatisticsAnalyzer {
         val userStats = analyzeUserStatistics(tasks, periodStart, periodEnd)
         val gpuStats = analyzeGpuStatistics(tasks, periodStart, periodEnd)
         val projectStats = analyzeProjectStatistics(tasks, periodStart, periodEnd)
-        val serverStats = analyzeServerStatistics(tasks, periodStart, periodEnd)
 
-        // 计算开始时间和结束时间（使用统一的转换函数）
-        val startTime = if (tasks.isNotEmpty()) {
-            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
-        } else {
-            LocalDateTime.of(date, java.time.LocalTime.MIN)
-        }
-
-        val endTime = if (tasks.isNotEmpty()) {
-            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
-        } else {
-            LocalDateTime.of(date.plusDays(1), java.time.LocalTime.MIN)
-        }
+        // 计算开始时间和结束时间
+        val startTime = DateTimeUtils.convertTimestampToDateTime(periodStart)
+        val endTime = DateTimeUtils.convertTimestampToDateTime(periodEnd)
 
         // 计算实际的总运行时间（考虑时间重叠）
         val totalActualRuntime = tasks.sumOf { task ->
@@ -396,37 +370,46 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, periodStart, periodEnd) > 0L
         }
 
-        return DailyReport(
-            date = date,
-            startTime = DateTimeUtils.convertTimestampToDateTime(periodStart),
-            endTime = DateTimeUtils.convertTimestampToDateTime(periodEnd),
-            actualTaskStartTime = if (tasks.isNotEmpty()) {
-                tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
-            } else {
-                LocalDateTime.of(date, java.time.LocalTime.MIN)
-            },
-            actualTaskEndTime = if (tasks.isNotEmpty()) {
-                tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
-            } else {
-                LocalDateTime.of(date.plusDays(1), java.time.LocalTime.MIN)
-            },
+        // 计算实际任务时间范围
+        val actualTaskStartTime = if (tasks.isNotEmpty()) {
+            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+        } else {
+            LocalDateTime.of(date, java.time.LocalTime.MIN)
+        }
+
+        val actualTaskEndTime = if (tasks.isNotEmpty()) {
+            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+        } else {
+            LocalDateTime.of(date.plusDays(1), java.time.LocalTime.MIN)
+        }
+
+        // 确定报告类型
+        val reportType = if (date == LocalDate.now()) ReportType.TODAY else ReportType.YESTERDAY
+        val title = if (date == LocalDate.now()) "GPU使用日报 - 今日" else "GPU使用日报 - 昨日"
+
+        return Report(
+            reportType = reportType,
+            title = title,
+            periodStartDate = date,
+            periodEndDate = date,
+            startTime = startTime,
+            endTime = endTime,
+            actualTaskStartTime = actualTaskStartTime,
+            actualTaskEndTime = actualTaskEndTime,
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
             topUsers = userStats.take(5),
             topGpus = gpuStats.take(5),
             topProjects = projectStats.take(5),
-            serverStats = serverStats,
-            successRate = if (actualTasks > 0) {
-                tasks.count { it.taskStatus.equals("success", ignoreCase = true) } * 100.0 / actualTasks
-            } else 0.0
+            sleepAnalysis = null
         )
     }
 
     /**
      * 生成周报
      */
-    fun generateWeeklyReport(tasks: List<GpuTaskInfoModel>): WeeklyReport {
+    fun generateWeeklyReport(tasks: List<GpuTaskInfoModel>): Report {
         // 计算上周的开始和结束时间（秒）
         val lastWeekStart = LocalDate.now().minusWeeks(1).with(java.time.DayOfWeek.MONDAY)
         val lastWeekEnd = LocalDate.now().minusWeeks(1).with(java.time.DayOfWeek.SUNDAY)
@@ -436,7 +419,6 @@ class StatisticsAnalyzer {
         val userStats = analyzeUserStatistics(tasks, periodStart, periodEnd)
         val gpuStats = analyzeGpuStatistics(tasks, periodStart, periodEnd)
         val projectStats = analyzeProjectStatistics(tasks, periodStart, periodEnd)
-        val timeTrend = analyzeTimeTrendStatistics(tasks, TimePeriod.ONE_WEEK)
 
         // 计算实际的总运行时间（考虑时间重叠）
         val totalActualRuntime = tasks.sumOf { task ->
@@ -447,27 +429,43 @@ class StatisticsAnalyzer {
         val actualTasks = tasks.count { task ->
             calculateActualRuntimeInPeriod(task, periodStart, periodEnd) > 0L
         }
-        return WeeklyReport(
-            startDate = LocalDate.now().minusDays(7),
-            endDate = LocalDate.now(),
+
+        // 计算实际任务时间范围
+        val actualTaskStartTime = if (tasks.isNotEmpty()) {
+            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+        } else {
+            LocalDateTime.of(lastWeekStart, java.time.LocalTime.MIN)
+        }
+
+        val actualTaskEndTime = if (tasks.isNotEmpty()) {
+            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+        } else {
+            LocalDateTime.of(lastWeekEnd, java.time.LocalTime.MAX)
+        }
+
+        return Report(
+            reportType = ReportType.WEEKLY,
+            title = "GPU使用周报 - 上周",
             periodStartDate = lastWeekStart,
             periodEndDate = lastWeekEnd,
+            startTime = DateTimeUtils.convertTimestampToDateTime(periodStart),
+            endTime = DateTimeUtils.convertTimestampToDateTime(periodEnd),
+            actualTaskStartTime = actualTaskStartTime,
+            actualTaskEndTime = actualTaskEndTime,
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
             topUsers = userStats.take(10),
             topGpus = gpuStats.take(10),
             topProjects = projectStats.take(10),
-            dailyTrend = timeTrend.dailyStats,
-            averageDailyTasks = if (actualTasks > 0) (actualTasks / 7).toInt() else 0,
-            averageDailyRuntime = if (actualTasks > 0) (totalActualRuntime / 7).toInt() else 0
+            sleepAnalysis = null
         )
     }
 
     /**
      * 生成月报
      */
-    fun generateMonthlyReport(tasks: List<GpuTaskInfoModel>): MonthlyReport {
+    fun generateMonthlyReport(tasks: List<GpuTaskInfoModel>): Report {
         // 计算上月的开始和结束时间（秒）
         val lastMonth = LocalDate.now().minusMonths(1)
         val lastMonthStart = lastMonth.withDayOfMonth(1)
@@ -478,7 +476,6 @@ class StatisticsAnalyzer {
         val userStats = analyzeUserStatistics(tasks, periodStart, periodEnd)
         val gpuStats = analyzeGpuStatistics(tasks, periodStart, periodEnd)
         val projectStats = analyzeProjectStatistics(tasks, periodStart, periodEnd)
-        val timeTrend = analyzeTimeTrendStatistics(tasks, TimePeriod.ONE_MONTH)
 
         // 计算实际的总运行时间（考虑时间重叠）
         val totalActualRuntime = tasks.sumOf { task ->
@@ -490,35 +487,42 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, periodStart, periodEnd) > 0L
         }
 
-        return MonthlyReport(
-            month = lastMonth.month,
-            year = lastMonth.year,
+        // 计算实际任务时间范围
+        val actualTaskStartTime = if (tasks.isNotEmpty()) {
+            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+        } else {
+            LocalDateTime.of(lastMonthStart, java.time.LocalTime.MIN)
+        }
+
+        val actualTaskEndTime = if (tasks.isNotEmpty()) {
+            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+        } else {
+            LocalDateTime.of(lastMonthEnd, java.time.LocalTime.MAX)
+        }
+
+        return Report(
+            reportType = ReportType.MONTHLY,
+            title = "GPU使用月报 - 上月",
             periodStartDate = lastMonthStart,
             periodEndDate = lastMonthEnd,
+            startTime = DateTimeUtils.convertTimestampToDateTime(periodStart),
+            endTime = DateTimeUtils.convertTimestampToDateTime(periodEnd),
+            actualTaskStartTime = actualTaskStartTime,
+            actualTaskEndTime = actualTaskEndTime,
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
             topUsers = userStats.take(15),
             topGpus = gpuStats.take(15),
             topProjects = projectStats.take(10),
-            weeklyTrend = timeTrend.dailyStats.chunked(7).map { weekStats ->
-                WeeklyStats(
-                    startDate = weekStats.first().date,
-                    endDate = weekStats.last().date,
-                    totalTasks = weekStats.sumOf { it.totalTasks },
-                    totalRuntime = weekStats.sumOf { it.totalRuntime },
-                    activeUsers = weekStats.flatMap { it.activeUsers }.distinct().size
-                )
-            },
-            averageWeeklyTasks = if (actualTasks > 0) (actualTasks / 4).toInt() else 0,
-            averageWeeklyRuntime = if (actualTasks > 0) (totalActualRuntime / 4).toInt() else 0
+            sleepAnalysis = null
         )
     }
 
     /**
      * 生成年报
      */
-    fun generateYearlyReport(tasks: List<GpuTaskInfoModel>): YearlyReport {
+    fun generateYearlyReport(tasks: List<GpuTaskInfoModel>): Report {
         // 计算去年的开始和结束时间（秒）
         val lastYear = LocalDate.now().minusYears(1)
         val lastYearStart = LocalDate.of(lastYear.year, 1, 1)
@@ -529,26 +533,6 @@ class StatisticsAnalyzer {
         val userStats = analyzeUserStatistics(tasks, periodStart, periodEnd)
         val gpuStats = analyzeGpuStatistics(tasks, periodStart, periodEnd)
         val projectStats = analyzeProjectStatistics(tasks, periodStart, periodEnd)
-        val monthlyStats = analyzeTimeTrendStatistics(tasks, TimePeriod.ONE_YEAR).dailyStats
-            .groupBy { it.date.month }
-            .map { (month, dailyStats) ->
-                MonthlyStats(
-                    month = month,
-                    totalTasks = dailyStats.sumOf { it.totalTasks },
-                    totalRuntime = dailyStats.sumOf { it.totalRuntime },
-                    activeUsers = dailyStats.flatMap { it.activeUsers }.distinct().size,
-                    averageDailyTasks = if (dailyStats.isNotEmpty()) {
-                        NumberFormat.formatAverage(dailyStats.sumOf { it.totalTasks }.toDouble(), dailyStats.size).toInt()
-                    } else {
-                        0
-                    },
-                    averageDailyRuntime = if (dailyStats.isNotEmpty()) {
-                        NumberFormat.formatAverage(dailyStats.sumOf { it.totalRuntime }.toDouble(), dailyStats.size).toInt()
-                    } else {
-                        0
-                    }
-                )
-            }
 
         // 计算实际的总运行时间（考虑时间重叠）
         val totalActualRuntime = tasks.sumOf { task ->
@@ -560,27 +544,91 @@ class StatisticsAnalyzer {
             calculateActualRuntimeInPeriod(task, periodStart, periodEnd) > 0L
         }
 
-        return YearlyReport(
-            year = lastYear.year,
+        // 计算实际任务时间范围
+        val actualTaskStartTime = if (tasks.isNotEmpty()) {
+            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+        } else {
+            LocalDateTime.of(lastYearStart, java.time.LocalTime.MIN)
+        }
+
+        val actualTaskEndTime = if (tasks.isNotEmpty()) {
+            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+        } else {
+            LocalDateTime.of(lastYearEnd, java.time.LocalTime.MAX)
+        }
+
+        return Report(
+            reportType = ReportType.YEARLY,
+            title = "GPU使用年报 - 去年",
             periodStartDate = lastYearStart,
             periodEndDate = lastYearEnd,
+            startTime = DateTimeUtils.convertTimestampToDateTime(periodStart),
+            endTime = DateTimeUtils.convertTimestampToDateTime(periodEnd),
+            actualTaskStartTime = actualTaskStartTime,
+            actualTaskEndTime = actualTaskEndTime,
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
             topUsers = userStats.take(20),
             topGpus = gpuStats.take(20),
             topProjects = projectStats.take(15),
-            monthlyStats = monthlyStats.sortedBy { it.month.value },
-            averageMonthlyTasks = if (actualTasks > 0) {
-                NumberFormat.formatAverage(actualTasks.toDouble(), 12).toInt()
-            } else {
-                0
-            },
-            averageMonthlyRuntime = if (actualTasks > 0) {
-                NumberFormat.formatAverage(totalActualRuntime.toDouble(), 12).toInt()
-            } else {
-                0
-            }
+            sleepAnalysis = null
+        )
+    }
+
+    /**
+     * 生成自定义时间段报告
+     */
+    fun generateCustomPeriodReport(tasks: List<GpuTaskInfoModel>, startTime: Long, endTime: Long): Report {
+        val userStats = analyzeUserStatistics(tasks, startTime, endTime)
+        val gpuStats = analyzeGpuStatistics(tasks, startTime, endTime)
+        val projectStats = analyzeProjectStatistics(tasks, startTime, endTime)
+
+        // 计算实际的总运行时间（考虑时间重叠）
+        val totalActualRuntime = tasks.sumOf { task ->
+            calculateActualRuntimeInPeriod(task, startTime, endTime).toInt()
+        }
+
+        // 计算实际的任务数（有实际运行时间的任务）
+        val actualTasks = tasks.count { task ->
+            calculateActualRuntimeInPeriod(task, startTime, endTime) > 0L
+        }
+
+        // 计算实际任务时间范围
+        val actualTaskStartTime = if (tasks.isNotEmpty()) {
+            tasks.minOf { DateTimeUtils.convertTimestampToDateTime(it.taskStartTime) }
+        } else {
+            DateTimeUtils.convertTimestampToDateTime(startTime)
+        }
+
+        val actualTaskEndTime = if (tasks.isNotEmpty()) {
+            tasks.maxOf { DateTimeUtils.convertTimestampToDateTime(it.taskFinishTime) }
+        } else {
+            DateTimeUtils.convertTimestampToDateTime(endTime)
+        }
+
+        // 转换时间格式
+        val startDateTime = DateTimeUtils.convertTimestampToDateTime(startTime)
+        val endDateTime = DateTimeUtils.convertTimestampToDateTime(endTime)
+        val startDate = startDateTime.toLocalDate()
+        val endDate = endDateTime.toLocalDate()
+
+        return Report(
+            reportType = ReportType.CUSTOM,
+            title = "GPU使用报告 - 自定义时间段",
+            periodStartDate = startDate,
+            periodEndDate = endDate,
+            startTime = startDateTime,
+            endTime = endDateTime,
+            actualTaskStartTime = actualTaskStartTime,
+            actualTaskEndTime = actualTaskEndTime,
+            totalTasks = actualTasks,
+            totalRuntime = totalActualRuntime,
+            activeUsers = tasks.map { it.taskUser }.distinct().size,
+            topUsers = userStats.take(10),
+            topGpus = gpuStats.take(10),
+            topProjects = projectStats.take(10),
+            sleepAnalysis = null
         )
     }
 }
