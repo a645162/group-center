@@ -15,7 +15,7 @@ plugins {
     kotlin("plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.serialization") version kotlinVersion
 
-    id("com.github.ben-manes.versions") version "0.53.0"
+    id("com.github.ben-manes.versions") version "0.52.0"
 }
 
 val kotlinVersion = "2.2.20"
@@ -27,7 +27,7 @@ val myBatisVersion = "3.0.5"
 val fastjsonVersion = "2.0.59"
 
 group = "com.khm.group"
-version = "1.3.5-SNAPSHOT"
+version = "1.4.0-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_24
