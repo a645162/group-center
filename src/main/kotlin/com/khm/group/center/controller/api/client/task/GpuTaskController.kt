@@ -80,7 +80,7 @@ class GpuTaskController {
 
         if (isMultiCard && gpuTaskInfo.multiDeviceLocalRank == 0) {
             var waitTimes = 0
-            val waitTimeThreshold = 10;
+            val waitTimeThreshold = 10
 
             // Wait for all the task to be ready
             while (

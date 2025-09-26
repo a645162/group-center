@@ -5,6 +5,8 @@
 *.7z
 *.zip
 
+*.local*
+
 backup/
 
 /logs/

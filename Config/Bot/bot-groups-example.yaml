@@ -1,0 +1,36 @@
+# Bot群配置示例
+# 请复制此文件为 bot-groups.yaml 并填写实际的bot信息
+
+bot:
+  groups:
+    # 报警群 - 用于接收系统报警和重要通知
+    - name: "报警群(管理员)"
+      type: "alarm"
+      weComGroupBotKey: "your-wecom-alarm-bot-key" # 企业微信报警群机器人key
+      larkGroupBotId: "your-lark-alarm-bot-id"     # 飞书报警群机器人ID
+      larkGroupBotKey: "your-lark-alarm-bot-secret" # 飞书报警群机器人密钥
+      enable: true
+
+    # 短期群 - 用于接收日报和周报
+    - name: "日/周报群"
+      type: "shortterm"
+      weComGroupBotKey: "your-wecom-daily-bot-key"
+      larkGroupBotId: "your-lark-daily-bot-id"
+      larkGroupBotKey: "your-lark-daily-bot-secret"
+      enable: true
+
+    # 长期群 - 用于接收月报和年报
+    - name: "年/月报群"
+      type: "longterm"
+      weComGroupBotKey: "your-wecom-monthly-bot-key"
+      larkGroupBotId: "your-lark-monthly-bot-id"
+      larkGroupBotKey: "your-lark-monthly-bot-secret"
+      enable: true
+
+    # 可选：测试群 - 用于测试报告推送功能
+    - name: "测试群"
+      type: "test"
+      weComGroupBotKey: "your-wecom-test-bot-key"
+      larkGroupBotId: "your-lark-test-bot-id"
+      larkGroupBotKey: "your-lark-test-bot-secret"
+      enable: false
