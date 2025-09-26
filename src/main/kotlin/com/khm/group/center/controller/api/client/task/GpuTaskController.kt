@@ -12,7 +12,6 @@ import com.khm.group.center.db.model.client.GpuTaskInfoModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.jetbrains.kotlin.gradle.internal.types.checker.SimpleClassicTypeSystemContext.size
 import org.springframework.beans.factory.annotation.Autowired
 
 
@@ -25,28 +24,36 @@ class GpuTaskController {
     @Operation(summary = "GPU任务变动")
     @RequestMapping("/api/client/gpu_task/info", method = [RequestMethod.POST])
     fun postGpuTaskInfo(@RequestBody gpuTaskInfo: GpuTaskInfo): ClientResponse {
-        newTaskInfoUpdateDb(gpuTaskInfo)
+        // Update DB
+        updateDbByObject(gpuTaskInfo)
+
+        // Create Response Object
+        val responseObj = ClientResponse()
+        responseObj.result = "success"
+        responseObj.isSucceed = true
+        responseObj.isAuthenticated = true
 
         println(
             "Receive task from nvi-notify" +
-                    " ${gpuTaskInfo.taskType}" +
+                    " [${gpuTaskInfo.taskType}]" +
                     " Project:${gpuTaskInfo.projectName}" +
                     " User:${gpuTaskInfo.taskUser}"
         )
+
+        // 新增判断，如果为update类型，只更新数据库，直接返回
+        if (gpuTaskInfo.messageType == "update") {
+            return responseObj
+        }
 
         // Notify in a separate coroutine
         CoroutineScope(Dispatchers.IO).launch {
             newTaskNotify(gpuTaskInfo)
         }
 
-        val responseObj = ClientResponse()
-        responseObj.result = "success"
-        responseObj.isSucceed = true
-        responseObj.isAuthenticated = true
         return responseObj
     }
 
-    private fun newTaskInfoUpdateDb(gpuTaskInfo: GpuTaskInfo) {
+    private fun updateDbByObject(gpuTaskInfo: GpuTaskInfo) {
         if (gpuTaskInfo.taskId.isEmpty()) {
             return
         }
