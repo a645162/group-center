@@ -53,15 +53,20 @@ class ProxyHealthCheckService {
                 val statusCode = response.code
                 val isSuccess = statusCode in 200..399
                 
-                if (isSuccess) {
-                    logger.debug("Proxy ${proxy.nameEng} health check successful, response time: ${responseTime}ms")
-                    updateProxyStatus(proxy, true, responseTime, null)
-                    true
-                } else {
-                    logger.warn("Proxy ${proxy.nameEng} health check failed, status code: $statusCode")
-                    logger.debug("Proxy test details: HTTP proxy accessing HTTPS website, status code=$statusCode")
-                    updateProxyStatus(proxy, false, null, "HTTP status code: $statusCode")
-                    false
+                try {
+                    if (isSuccess) {
+                        logger.debug("Proxy ${proxy.nameEng} health check successful, response time: ${responseTime}ms")
+                        updateProxyStatus(proxy, true, responseTime, null)
+                        true
+                    } else {
+                        logger.warn("Proxy ${proxy.nameEng} health check failed, status code: $statusCode")
+                        logger.debug("Proxy test details: HTTP proxy accessing HTTPS website, status code=$statusCode")
+                        updateProxyStatus(proxy, false, null, "HTTP status code: $statusCode")
+                        false
+                    }
+                } finally {
+                    // 确保响应体被正确关闭，避免连接泄漏
+                    response.close()
                 }
             } catch (e: Exception) {
                 logger.error("Proxy ${proxy.nameEng} health check exception: ${e.message}")

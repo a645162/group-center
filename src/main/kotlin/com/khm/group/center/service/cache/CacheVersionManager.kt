@@ -39,7 +39,7 @@ object CacheVersionManager {
             // 确保目录存在
             if (!Files.exists(cacheDirPath)) {
                 Files.createDirectories(cacheDirPath)
-                logger.info("创建缓存目录: $cacheDirPath")
+                logger.info("Create cache directory: $cacheDirPath")
                 
                 // 创建版本信息文件
                 saveVersionInfo(cacheDirPath)
@@ -49,7 +49,7 @@ object CacheVersionManager {
             // 检查版本兼容性
             return checkVersionCompatibility(cacheDirPath)
         } catch (e: Exception) {
-            logger.error("确保缓存目录失败: $cacheDirPath", e)
+            logger.error("Failed to ensure cache directory: $cacheDirPath", e)
             return false
         }
     }
@@ -100,7 +100,7 @@ object CacheVersionManager {
             
             logger.debug("保存版本信息: $versionFile")
         } catch (e: Exception) {
-            logger.error("保存版本信息失败: $cacheDirPath", e)
+            logger.error("Failed to save version info: $cacheDirPath", e)
         }
     }
     
@@ -117,7 +117,7 @@ object CacheVersionManager {
             val jsonContent = Files.readString(versionFile)
             JSON.parseObject(jsonContent, VersionInfo::class.java)
         } catch (e: Exception) {
-            logger.error("加载版本信息失败: $cacheDirPath", e)
+            logger.error("Failed to load version info: $cacheDirPath", e)
             null
         }
     }

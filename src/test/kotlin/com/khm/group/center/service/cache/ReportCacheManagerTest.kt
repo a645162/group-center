@@ -152,7 +152,7 @@ class ReportCacheManagerTest {
         
         // 测试确保目录存在（使用正确的方法名）
         val dirCreated = ReportCachePathManager.ensureCacheDirectories()
-        assert(dirCreated) { "缓存目录创建失败" }
+        assert(dirCreated) { "Cache directory creation failed" }
         
         // 测试各种报告路径生成
         val todayPath = ReportCachePathManager.getTodayReportPath()

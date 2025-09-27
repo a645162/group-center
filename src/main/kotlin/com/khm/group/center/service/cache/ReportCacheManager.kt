@@ -66,7 +66,7 @@ class ReportCacheManager {
     init {
         // 确保所有缓存目录存在并检查版本兼容性
         ReportCachePathManager.ensureCacheDirectories()
-        logger.info("报告缓存管理器初始化完成")
+        logger.info("Report cache manager initialization completed")
     }
     
     /**
@@ -77,14 +77,14 @@ class ReportCacheManager {
         // 1. 首先尝试从内存缓存获取
         val memoryEntry = memoryCache[cacheKey]
         if (memoryEntry != null && !isExpired(memoryEntry)) {
-            logger.debug("✅ 内存缓存命中: $cacheKey")
+            logger.debug("✅ Memory cache hit: $cacheKey")
             return memoryEntry.data as T
         }
         
         // 2. 如果内存缓存未命中或已过期，尝试从磁盘获取
         val diskData = loadFromDisk<T>(cacheKey)
         if (diskData != null) {
-            logger.debug("✅ 磁盘缓存命中: $cacheKey")
+            logger.debug("✅ Disk cache hit: $cacheKey")
             
             // 将磁盘数据加载到内存缓存
             val expiryTime = getExpiryTime(cacheKey)
@@ -93,7 +93,7 @@ class ReportCacheManager {
             return diskData
         }
         
-        logger.debug("❌ 缓存未命中: $cacheKey")
+        logger.debug("❌ Cache miss: $cacheKey")
         return null
     }
     
@@ -106,12 +106,12 @@ class ReportCacheManager {
         
         // 1. 存储到内存缓存
         memoryCache[cacheKey] = CacheEntry(data as Any, timestamp, expiryTime)
-        logger.debug("💾 数据已存储到内存缓存: $cacheKey")
+        logger.debug("💾 Data stored in memory cache: $cacheKey")
         
         // 2. 根据缓存类型决定是否存储到磁盘
         if (shouldPersistToDisk(cacheKey)) {
             saveToDisk(cacheKey, data)
-            logger.debug("💾 数据已存储到磁盘缓存: $cacheKey")
+            logger.debug("💾 Data stored in disk cache: $cacheKey")
         }
     }
     
@@ -135,7 +135,7 @@ class ReportCacheManager {
             val lastModified = ReportCachePathManager.getCacheFileLastModified(filePath)
             val expiryTime = getExpiryTime(cacheKey)
             if (System.currentTimeMillis() - lastModified > expiryTime) {
-                logger.debug("🗑️ 磁盘缓存已过期，删除文件: $cacheKey")
+                logger.debug("🗑️ Disk cache expired, deleting file: $cacheKey")
                 Files.deleteIfExists(filePath)
                 return null
             }
@@ -154,7 +154,7 @@ class ReportCacheManager {
                 }
             }
         } catch (e: Exception) {
-            logger.error("从磁盘加载缓存数据失败: $cacheKey", e)
+            logger.error("Failed to load cache data from disk: $cacheKey", e)
             null
         }
     }
@@ -174,7 +174,7 @@ class ReportCacheManager {
                 StandardOpenOption.TRUNCATE_EXISTING
             )
         } catch (e: Exception) {
-            logger.error("保存数据到磁盘失败: $cacheKey", e)
+            logger.error("Failed to save data to disk: $cacheKey", e)
         }
     }
     
@@ -293,9 +293,9 @@ class ReportCacheManager {
         try {
             val filePath = ReportCachePathManager.getStatisticsPath(cacheKey)
             Files.deleteIfExists(filePath)
-            logger.debug("🗑️ 清除缓存: $cacheKey")
+            logger.debug("🗑️ Cache cleared: $cacheKey")
         } catch (e: Exception) {
-            logger.error("清除磁盘缓存失败: $cacheKey", e)
+            logger.error("Failed to clear disk cache: $cacheKey", e)
         }
     }
     
@@ -326,15 +326,15 @@ class ReportCacheManager {
                             try {
                                 Files.deleteIfExists(path)
                             } catch (e: Exception) {
-                                logger.warn("删除缓存文件失败: $path", e)
+                                logger.warn("Failed to delete cache file: $path", e)
                             }
                         }
                 }
             }
             
-            logger.info("🗑️ 所有缓存已清除")
+            logger.info("🗑️ All cache cleared")
         } catch (e: Exception) {
-            logger.error("清除所有磁盘缓存失败", e)
+            logger.error("Failed to clear all disk cache", e)
         }
     }
     
@@ -351,7 +351,7 @@ class ReportCacheManager {
             if (isExpired(entry)) {
                 iterator.remove()
                 cleanedCount++
-                logger.debug("🗑️ 清理过期内存缓存: $key")
+                logger.debug("🗑️ Cleanup expired memory cache: $key")
             }
         }
         
@@ -359,7 +359,7 @@ class ReportCacheManager {
         cleanedCount += ReportCachePathManager.cleanupExpiredCache(TimeUnit.DAYS.toMillis(30))
         
         if (cleanedCount > 0) {
-            logger.info("🗑️ 过期缓存清理完成，共清理 ${cleanedCount} 个条目")
+            logger.info("🗑️ Expired cache cleanup completed, total cleaned: ${cleanedCount} entries")
         }
         
         return cleanedCount
