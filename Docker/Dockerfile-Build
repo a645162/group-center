@@ -1,5 +1,9 @@
 # https://hub.docker.com/_/openjdk/tags
-FROM openjdk:26-oraclelinux9
+# FROM openjdk:26-oraclelinux9
+
+# https://graalvm.java.net.cn/latest/getting-started/container-images/
+# https://github.com/graalvm/container/pkgs/container/jdk-community/
+FROM ghcr.io/graalvm/jdk-community:24
 
 # MAINTAINER Haomin Kong
 LABEL maintainer="Haomin Kong"

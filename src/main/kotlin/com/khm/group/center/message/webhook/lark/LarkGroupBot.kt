@@ -13,6 +13,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 class LarkGroupBot(val botId: String, var botKey: String = "") {
     private var webhookUrl: String = "https://open.feishu.cn/open-apis/bot/v2/hook/"
 
+    var isEnable: Boolean = true
+
     init {
         if (botId.startsWith(webhookUrl)) {
             webhookUrl = botId
@@ -36,6 +38,10 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
     data class Content(
         val text: String
     )
+
+    fun isValid(): Boolean {
+        return isEnable && botId.isNotEmpty() && botKey.isNotEmpty()
+    }
 
     fun sendText(content: String): Boolean {
         val finalContent = content.trim()
@@ -75,15 +81,20 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
 
     suspend fun sendTextWithSilentMode(
         text: String,
-        silentModeConfig: SilentModeConfig
+        silentModeConfig: SilentModeConfig?
     ) {
-        println("Try to async send lark group bot text with silent mode for $botId")
-        while (silentModeConfig.isSilentMode()) {
-            // Delay
-            delay(ConfigEnvironment.SilentModeWaitTime)
+        if (silentModeConfig != null) {
+            println("Try to async send lark group bot text with silent mode for $botId")
+            while (silentModeConfig.isSilentMode()) {
+                // Delay
+                delay(ConfigEnvironment.SilentModeWaitTime)
+            }
+            sendText(text)
+            println("Sent lark group bot text with silent mode for $botId")
+        } else {
+            println("Sent lark group bot text with silent mode for $botId")
+            sendText(text)
         }
-        sendText(text)
-        println("Sent lark group bot text with silent mode for $botId")
     }
 
     companion object {

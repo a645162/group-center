@@ -32,24 +32,29 @@ logging:
       max-file-size: 10MB
       max-history: 7
 
-# https://blog.csdn.net/weixin_42703501/article/details/139587100
-# https://www.jobrunr.io/en/documentation/configuration/spring/
-org:
-  jobrunr:
-    background-job-server:
-      enabled: true
-    dashboard:
-      # 开启jobrunr web控制面板
-      enabled: true
-      # jobrunr web管理端口
-      port: 15092
-#      # web管理用户名 不设置则访问web管理不需要认证
-#      username: admin
-#      # web管理密码
-#      password: admin
-#  database:
-#    type: sql #使用数据源类型默认sql
-#    skip-create: false #跳过自动建表 默认false
-#    database-name: # 指定数据库名称,默认使用主数据源中数据库。如果不想把jobrunr的表与业务数据库放在一起需要配置
-#    table-prefix: # jobrunr相关表的名字前缀 默认
-#    datasource: # 如果存在多个数据源，想让jobrunr使用指定数据源。默认使用主数据源 spring.datasource
+# Bot配置文件路径
+bot:
+  config:
+    file: Config/Bot/bot-groups.yaml
+
+# # https://blog.csdn.net/weixin_42703501/article/details/139587100
+# # https://www.jobrunr.io/en/documentation/configuration/spring/
+# org:
+#   jobrunr:
+#     background-job-server:
+#       enabled: true
+#     dashboard:
+#       # 开启jobrunr web控制面板
+#       enabled: true
+#       # jobrunr web管理端口
+#       port: 15092
+# #      # web管理用户名 不设置则访问web管理不需要认证
+# #      username: admin
+# #      # web管理密码
+# #      password: admin
+# #  database:
+# #    type: sql #使用数据源类型默认sql
+# #    skip-create: false #跳过自动建表 默认false
+# #    database-name: # 指定数据库名称,默认使用主数据源中数据库。如果不想把jobrunr的表与业务数据库放在一起需要配置
+# #    table-prefix: # jobrunr相关表的名字前缀 默认
+# #    datasource: # 如果存在多个数据源，想让jobrunr使用指定数据源。默认使用主数据源 spring.datasource

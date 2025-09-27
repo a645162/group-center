@@ -49,6 +49,89 @@
 
 ### 报表(TODO)
 
+## 新功能：统计分析与Bot推送
+
+### 数据存储
+- **位置**: MySQL数据库 `gpu_task_info` 表
+- **缓存机制**: 内存缓存，1小时自动更新
+- **统计维度**: 用户、GPU、时间周期
+
+### 统计功能
+支持以下统计指标：
+- 用户统计：任务启动次数、运行时间、最常用GPU
+- GPU统计：使用频率、使用时间、平均使用率
+- 时间统计：日报、周报、月报、年报
+
+### RESTful API接口
+
+#### 统计接口
+```
+GET /web/dashboard/stats/users?timePeriod=ONE_WEEK
+GET /web/dashboard/stats/gpus?timePeriod=ONE_WEEK
+GET /web/dashboard/reports/daily
+GET /web/dashboard/reports/weekly
+GET /web/dashboard/reports/monthly
+GET /web/dashboard/reports/yearly
+POST /web/dashboard/cache/clear
+```
+
+#### Bot推送接口
+```
+GET /web/bot/groups
+POST /web/bot/groups
+POST /web/bot/push/{type}
+POST /web/bot/push/group/{groupName}
+POST /web/bot/push/alarm
+POST /web/bot/push/daily
+POST /web/bot/push/weekly
+POST /web/bot/push/monthly
+POST /web/bot/push/yearly
+```
+
+### Bot群配置
+在 `src/main/resources/bot-groups.yaml` 中配置：
+```yaml
+bot:
+  groups:
+    - name: "报警群"
+      type: "alarm"
+      weComGroupBotKey: "your-wecom-key"
+      larkGroupBotId: "your-lark-id"
+      larkGroupBotKey: "your-lark-key"
+      enable: true
+```
+
+### 自动定时任务
+- **日报**: 每天早上8点自动生成并推送
+- **周报**: 每周一早上9点自动推送
+- **月报**: 每月1号早上10点自动推送
+- **年报**: 每年1月1号早上11点自动推送
+- **缓存更新**: 每小时自动更新统计缓存
+
+### 使用示例
+
+#### 获取用户统计
+```bash
+curl "http://localhost:8080/web/dashboard/stats/users?timePeriod=ONE_WEEK"
+```
+
+#### 推送报警消息
+```bash
+curl -X POST "http://localhost:8080/web/bot/push/alarm?title=系统报警&content=GPU使用率过高"
+```
+
+#### 配置Bot群
+```bash
+curl -X POST "http://localhost:8080/web/bot/groups" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "日报群",
+    "type": "daily",
+    "weComGroupBotKey": "your-key",
+    "enable": true
+  }'
+```
+
 画个饼，初步计划集成JimuReport积木报表。
 
 #### JimuReport积木报表

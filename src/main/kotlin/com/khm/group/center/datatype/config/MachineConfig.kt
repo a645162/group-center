@@ -15,6 +15,12 @@ class MachineConfig : MachineBaseConfig() {
 
     var webhook: AllWebHookServer = AllWebHookServer()
 
+    // 保活相关字段
+    var lastPingTime: Long? = null  // 最后一次成功ping的时间戳
+    var lastHeartbeatTime: Long? = null  // 最后一次agent心跳时间戳
+    var pingStatus: Boolean = false  // 当前ping状态
+    var agentStatus: Boolean = false  // agent在线状态
+
     fun toFrontEndMachine(): FrontEndMachine {
         val frontEndMachine = FrontEndMachine(
             machineName = name,

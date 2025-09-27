@@ -22,6 +22,7 @@ services:
       - db
     volumes:
       - ./Config:/usr/local/group-center/Config
+      - ./Cache:/usr/local/group-center/Cache
       # - ./src/main/resources/application-docker.yml:/usr/local/group-center/application.yml
       - ./Data/Log:/usr/local/group-center/logs
     environment:

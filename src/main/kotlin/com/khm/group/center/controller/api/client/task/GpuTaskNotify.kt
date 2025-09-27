@@ -51,7 +51,7 @@ class GpuTaskNotify(
         if (isRecordCorrect && !isContinuous) {
             sendGpuWarningMessage(
                 "GPU使用非连续警告",
-                "检测到GPU使用不连续：${gpuIdList.joinToString(",")}。建议使用连续的GPU以获得更好的性能。"
+                "检测到GPU使用不连续：${gpuIdList.joinToString(",")}。\n\n建议使用连续的GPU以获得更好的性能。"
             )
         }
 
@@ -72,7 +72,7 @@ class GpuTaskNotify(
                     "跨NUMA节点警告",
                     "使用GPU卡${gpuIdList.joinToString(",")}" +
                             "跨越NUMA节点边界(边界在GPU${numa1MaxId}/${numa1MaxId + 1}之间)。" +
-                            "这可能影响性能，建议在同一NUMA节点内使用GPU。"
+                            "\n\n这可能影响性能，建议在同一NUMA节点内使用GPU。"
                 )
             }
         }

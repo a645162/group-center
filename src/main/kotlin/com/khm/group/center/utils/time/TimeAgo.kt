@@ -32,6 +32,13 @@ class TimeAgo {
             return calendar.time
         }
 
+        fun getOneDayAgoDate(currentTime: Date): Date {
+            val calendar = Calendar.getInstance()
+            calendar.time = currentTime
+            calendar.add(Calendar.DATE, -1)
+            return calendar.time
+        }
+
         fun getOneWeekAgoDate(currentTime: Date): Date {
             val calendar = Calendar.getInstance()
             calendar.time = currentTime

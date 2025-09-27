@@ -5,8 +5,8 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 
 plugins {
-    val kotlinVersion = "2.2.10"
-    val springBootVersion = "3.5.5"
+    val kotlinVersion = "2.2.20"
+    val springBootVersion = "3.5.6"
 
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
@@ -18,19 +18,19 @@ plugins {
     id("com.github.ben-manes.versions") version "0.52.0"
 }
 
-val kotlinVersion = "2.2.10"
-// val kotlinVersionPrevious = "2.1.21"
+val kotlinVersion = "2.2.20"
+// val kotlinVersionPrevious = "2.2.10"
 
-val springBootVersion = "3.5.5"
+val springBootVersion = "3.5.6"
 val myBatisVersion = "3.0.5"
 
-val fastjsonVersion = "2.0.58"
+val fastjsonVersion = "2.0.59"
 
 group = "com.khm.group"
-version = "1.3.4-SNAPSHOT"
+version = "1.4.0-SNAPSHOT"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_24
 }
 
 fun isNonStable(version: String): Boolean {
@@ -71,7 +71,7 @@ dependencies {
     // https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
@@ -98,12 +98,12 @@ dependencies {
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Task
-    // https://mvnrepository.com/artifact/org.jobrunr/jobrunr
-    implementation("org.jobrunr:jobrunr:8.0.2")
-    // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-kotlin-1.7-support
-    implementation("org.jobrunr:jobrunr-kotlin-1.7-support:7.2.0")
-    // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-spring-boot-starter
-    implementation("org.jobrunr:jobrunr-spring-boot-starter:5.3.3")
+    // // https://mvnrepository.com/artifact/org.jobrunr/jobrunr
+    // implementation("org.jobrunr:jobrunr:8.0.2")
+    // // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-kotlin-1.7-support
+    // implementation("org.jobrunr:jobrunr-kotlin-1.7-support:7.2.0")
+    // // https://mvnrepository.com/artifact/org.jobrunr/jobrunr-spring-boot-starter
+    // implementation("org.jobrunr:jobrunr-spring-boot-starter:5.3.3")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Security and Crypto
@@ -124,7 +124,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:5.1.0")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
-    implementation("com.larksuite.oapi:oapi-sdk:2.4.23")
+    implementation("com.larksuite.oapi:oapi-sdk:2.4.24")
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
@@ -144,7 +144,7 @@ dependencies {
     // Dev Tools
     // Lombok for Java
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    compileOnly("org.projectlombok:lombok:1.18.38")
+    compileOnly("org.projectlombok:lombok:1.18.42")
 
     // Docker
     // runtimeOnly("org.springframework.boot:spring-boot-docker-compose")
@@ -179,6 +179,8 @@ dependencies {
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:${myBatisVersion}")
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    // testImplementation("io.mockk:mockk:1.13.12")
 }
 
 // Output Program Version
@@ -209,7 +211,7 @@ tasks.named(
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_21)
+        jvmTarget.set(JvmTarget.JVM_24)
         apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
     }
 }

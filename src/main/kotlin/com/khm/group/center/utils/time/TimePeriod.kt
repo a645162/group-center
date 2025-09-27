@@ -4,6 +4,7 @@ import java.util.*
 import kotlin.time.times
 
 enum class TimePeriod {
+    ONE_DAY,
     ONE_WEEK,
     ONE_MONTH,
     SIX_MONTH,
@@ -15,6 +16,7 @@ enum class TimePeriod {
         val timePeriod = this
 
         return when (timePeriod) {
+            ONE_DAY -> "One Day"
             ONE_WEEK -> "One Week"
             ONE_MONTH -> "One Month"
             SIX_MONTH -> "Six Months"
@@ -29,6 +31,7 @@ enum class TimePeriod {
         val finalCurrentTime = currentTime ?: Date()
 
         return when (timePeriod) {
+            ONE_DAY -> TimeAgo.getOneDayAgoDate(finalCurrentTime)
             ONE_WEEK -> TimeAgo.getOneWeekAgoDate(finalCurrentTime)
             ONE_MONTH -> TimeAgo.getOneMonthAgoDate(finalCurrentTime)
             SIX_MONTH -> TimeAgo.getSixMonthAgoDate(finalCurrentTime)
@@ -46,6 +49,7 @@ enum class TimePeriod {
         val timePeriod = this
 
         return when (timePeriod) {
+            ONE_DAY -> 24
             ONE_WEEK -> 24 * 7
             ONE_MONTH -> 24 * 30
             SIX_MONTH -> 24 * 30 * 6

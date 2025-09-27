@@ -30,6 +30,15 @@ class ConfigEnvironment {
         // 10min
         var SilentModeWaitTime: Long = 1000 * 60 * 5
 
+        // 多卡过滤开关
+        var FILTER_MULTI_GPU_TASKS: Boolean = true
+
+        // 报告推送开关
+        var REPORT_DAILY_ENABLE: Boolean = true
+        var REPORT_WEEKLY_ENABLE: Boolean = true
+        var REPORT_MONTHLY_ENABLE: Boolean = true
+        var REPORT_YEARLY_ENABLE: Boolean = true
+
         fun getEnvStr(key: String, defaultValue: String = ""): String {
             val uppercaseKey = key.trim().uppercase()
 
@@ -179,6 +188,30 @@ class ConfigEnvironment {
             GROUP_BOT_AT_ENABLE = getEnvBool(
                 "GROUP_BOT_AT_ENABLE",
                 GROUP_BOT_AT_ENABLE
+            )
+
+            // 初始化多卡过滤开关
+            FILTER_MULTI_GPU_TASKS = getEnvBool(
+                "FILTER_MULTI_GPU_TASKS",
+                FILTER_MULTI_GPU_TASKS
+            )
+
+            // 初始化报告推送开关
+            REPORT_DAILY_ENABLE = getEnvBool(
+                "REPORT_DAILY_ENABLE",
+                REPORT_DAILY_ENABLE
+            )
+            REPORT_WEEKLY_ENABLE = getEnvBool(
+                "REPORT_WEEKLY_ENABLE",
+                REPORT_WEEKLY_ENABLE
+            )
+            REPORT_MONTHLY_ENABLE = getEnvBool(
+                "REPORT_MONTHLY_ENABLE",
+                REPORT_MONTHLY_ENABLE
+            )
+            REPORT_YEARLY_ENABLE = getEnvBool(
+                "REPORT_YEARLY_ENABLE",
+                REPORT_YEARLY_ENABLE
             )
         }
     }
