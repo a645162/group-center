@@ -21,7 +21,7 @@ import java.time.LocalDateTime
  */
 @RestController
 @RequestMapping("/web/open/gpu-tasks")
-@Tag(name = "GPU任务查询", description = "公开的GPU任务查询接口，支持多字段灵活查询和分页")
+@Tag(name = "GPU Task Query", description = "Public GPU task query interface, supports multi-field flexible query and pagination")
 @Slf4jKt
 class GpuTaskQueryController {
 
@@ -32,8 +32,16 @@ class GpuTaskQueryController {
      * 高级查询接口（POST方式，支持复杂查询）
      */
     @Operation(
-        summary = "GPU任务高级查询",
-        description = "支持多字段、多种匹配方式、时间范围、逻辑组合的灵活查询"
+        summary = "GPU Task Advanced Query",
+        description = """
+            Advanced GPU task query with flexible filtering, time range, and logical combinations.
+            Supports complex query conditions including:
+            - Multiple field filters with different operators (equals, like, contains, etc.)
+            - Time range filtering (start time and end time)
+            - Pagination with customizable page size and sorting
+            - Logical combinations (AND/OR) of multiple conditions
+            - Statistics inclusion option for query results
+        """
     )
     @PostMapping("/query")
     fun queryGpuTasks(@RequestBody request: GpuTaskQueryRequest): ClientResponse {
@@ -53,23 +61,27 @@ class GpuTaskQueryController {
      * 简单查询接口（GET方式，支持常用查询参数）
      */
     @Operation(
-        summary = "GPU任务简单查询",
-        description = "支持常用字段的简单查询，通过URL参数传递"
+        summary = "GPU Task Simple Query",
+        description = """
+            Simple GPU task query with commonly used parameters via URL query string.
+            Provides basic filtering capabilities for quick searches without complex request body.
+            Supports filtering by user, project, device, task type, and time range.
+        """
     )
     @GetMapping("/query")
     fun queryGpuTasksSimple(
-        @Parameter(description = "用户名") @RequestParam(required = false) userName: String?,
-        @Parameter(description = "项目名（模糊匹配）") @RequestParam(required = false) projectName: String?,
-        @Parameter(description = "设备名") @RequestParam(required = false) deviceName: String?,
-        @Parameter(description = "任务类型") @RequestParam(required = false) taskType: String?,
-        @Parameter(description = "是否多卡任务") @RequestParam(required = false) isMultiGpu: Boolean?,
-        @Parameter(description = "开始时间") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) startTime: LocalDateTime?,
-        @Parameter(description = "结束时间") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) endTime: LocalDateTime?,
-        @Parameter(description = "页码") @RequestParam(defaultValue = "1") page: Int,
-        @Parameter(description = "每页大小") @RequestParam(defaultValue = "20") pageSize: Int,
-        @Parameter(description = "排序字段") @RequestParam(defaultValue = "TASK_START_TIME") sortBy: SortField,
-        @Parameter(description = "排序方向") @RequestParam(defaultValue = "DESC") sortOrder: SortOrder,
-        @Parameter(description = "是否包含统计信息") @RequestParam(defaultValue = "false") includeStatistics: Boolean
+        @Parameter(description = "Username for filtering tasks") @RequestParam(required = false) userName: String?,
+        @Parameter(description = "Project name (supports fuzzy matching)") @RequestParam(required = false) projectName: String?,
+        @Parameter(description = "Device name for filtering") @RequestParam(required = false) deviceName: String?,
+        @Parameter(description = "Task type filter") @RequestParam(required = false) taskType: String?,
+        @Parameter(description = "Filter by multi-GPU tasks (true/false)") @RequestParam(required = false) isMultiGpu: Boolean?,
+        @Parameter(description = "Start time for time range filtering (ISO format)") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) startTime: LocalDateTime?,
+        @Parameter(description = "End time for time range filtering (ISO format)") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) endTime: LocalDateTime?,
+        @Parameter(description = "Page number for pagination (default: 1)") @RequestParam(defaultValue = "1") page: Int,
+        @Parameter(description = "Page size for pagination (default: 20)") @RequestParam(defaultValue = "20") pageSize: Int,
+        @Parameter(description = "Sort field (default: TASK_START_TIME)") @RequestParam(defaultValue = "TASK_START_TIME") sortBy: SortField,
+        @Parameter(description = "Sort direction (default: DESC)") @RequestParam(defaultValue = "DESC") sortOrder: SortOrder,
+        @Parameter(description = "Include statistics in response (default: false)") @RequestParam(defaultValue = "false") includeStatistics: Boolean
     ): ClientResponse {
         logger.info("Received GPU task simple query request")
 
@@ -92,7 +104,10 @@ class GpuTaskQueryController {
     /**
      * 获取任务总数
      */
-    @Operation(summary = "获取任务总数", description = "获取数据库中GPU任务的总数量")
+    @Operation(
+        summary = "Get Total Task Count",
+        description = "Retrieve the total number of GPU tasks in the database"
+    )
     @GetMapping("/count")
     fun getTotalTaskCount(): ClientResponse {
         logger.info("Received total task count request")
@@ -110,10 +125,13 @@ class GpuTaskQueryController {
     /**
      * 获取最近N小时的任务
      */
-    @Operation(summary = "获取最近任务", description = "获取最近N小时内的GPU任务")
+    @Operation(
+        summary = "Get Recent Tasks",
+        description = "Retrieve GPU tasks from the last N hours"
+    )
     @GetMapping("/recent")
     fun getRecentTasks(
-        @Parameter(description = "小时数", example = "24") @RequestParam(defaultValue = "24") hours: Int
+        @Parameter(description = "Number of hours to look back (default: 24)", example = "24") @RequestParam(defaultValue = "24") hours: Int
     ): ClientResponse {
         logger.info("Received recent ${hours} hours task request")
 
@@ -134,10 +152,13 @@ class GpuTaskQueryController {
     /**
      * 获取用户任务统计
      */
-    @Operation(summary = "获取用户任务统计", description = "获取指定用户的任务统计信息")
+    @Operation(
+        summary = "Get User Task Statistics",
+        description = "Retrieve detailed statistics for a specific user's GPU tasks"
+    )
     @GetMapping("/user-stats/{userName}")
     fun getUserTaskStats(
-        @Parameter(description = "用户名") @PathVariable userName: String
+        @Parameter(description = "Username to get statistics for") @PathVariable userName: String
     ): ClientResponse {
         logger.info("Received user task statistics request: $userName")
 
@@ -154,10 +175,13 @@ class GpuTaskQueryController {
     /**
      * 获取设备任务统计
      */
-    @Operation(summary = "获取设备任务统计", description = "获取指定设备的任务统计信息")
+    @Operation(
+        summary = "Get Device Task Statistics",
+        description = "Retrieve detailed statistics for GPU tasks on a specific device"
+    )
     @GetMapping("/device-stats/{deviceName}")
     fun getDeviceTaskStats(
-        @Parameter(description = "设备名") @PathVariable deviceName: String
+        @Parameter(description = "Device name to get statistics for") @PathVariable deviceName: String
     ): ClientResponse {
         logger.info("Received device task statistics request: $deviceName")
 

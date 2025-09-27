@@ -3,12 +3,14 @@ package com.khm.group.center.controller.api.web.admin
 import com.khm.group.center.datatype.response.ClientResponse
 import com.khm.group.center.task.ReportSchedulerService
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/admin/report/push")
+@Tag(name = "Report Push", description = "Report push management API for manual report triggering")
 class ReportPushController(
     private val reportSchedulerService: ReportSchedulerService
 ) {

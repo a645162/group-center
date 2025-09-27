@@ -6,6 +6,8 @@ import com.khm.group.center.service.BaseStatisticsService
 import com.khm.group.center.service.CachedStatisticsService
 import com.khm.group.center.utils.time.TimePeriod
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.*
@@ -14,6 +16,7 @@ import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/web/dashboard/statistics")
+@Tag(name = "Dashboard Statistics", description = "Dashboard statistics API for user, GPU, server, and project statistics")
 class StatisticsController {
 
     @Autowired
@@ -25,9 +28,15 @@ class StatisticsController {
     @Autowired
     lateinit var objectMapper: ObjectMapper
 
-    @Operation(summary = "获取用户统计")
+    @Operation(
+        summary = "Get User Statistics",
+        description = "Retrieve user statistics including active users, task counts, and usage patterns for the specified time period"
+    )
     @GetMapping("/users")
-    fun getUserStatistics(@RequestParam(defaultValue = "ONE_WEEK") timePeriod: String): ClientResponse {
+    fun getUserStatistics(
+        @Parameter(description = "Time period for statistics (default: ONE_WEEK)", example = "ONE_WEEK")
+        @RequestParam(defaultValue = "ONE_WEEK") timePeriod: String
+    ): ClientResponse {
         val period = TimePeriod.valueOf(timePeriod)
         val stats = cachedStatisticsService.getUserStatistics(period)
         
@@ -36,9 +45,15 @@ class StatisticsController {
         return result
     }
 
-    @Operation(summary = "获取GPU统计")
+    @Operation(
+        summary = "Get GPU Statistics",
+        description = "Retrieve GPU usage statistics including utilization rates, task distribution, and performance metrics"
+    )
     @GetMapping("/gpus")
-    fun getGpuStatistics(@RequestParam(defaultValue = "ONE_WEEK") timePeriod: String): ClientResponse {
+    fun getGpuStatistics(
+        @Parameter(description = "Time period for statistics (default: ONE_WEEK)", example = "ONE_WEEK")
+        @RequestParam(defaultValue = "ONE_WEEK") timePeriod: String
+    ): ClientResponse {
         val period = TimePeriod.valueOf(timePeriod)
         val stats = cachedStatisticsService.getGpuStatistics(period)
         
@@ -47,9 +62,15 @@ class StatisticsController {
         return result
     }
 
-    @Operation(summary = "获取服务器统计")
+    @Operation(
+        summary = "Get Server Statistics",
+        description = "Retrieve server statistics including machine status, availability, and resource usage across all servers"
+    )
     @GetMapping("/servers")
-    fun getServerStatistics(@RequestParam(defaultValue = "ONE_WEEK") timePeriod: String): ClientResponse {
+    fun getServerStatistics(
+        @Parameter(description = "Time period for statistics (default: ONE_WEEK)", example = "ONE_WEEK")
+        @RequestParam(defaultValue = "ONE_WEEK") timePeriod: String
+    ): ClientResponse {
         val period = TimePeriod.valueOf(timePeriod)
         val stats = cachedStatisticsService.getServerStatistics(period)
         
@@ -58,9 +79,15 @@ class StatisticsController {
         return result
     }
 
-    @Operation(summary = "获取项目统计")
+    @Operation(
+        summary = "Get Project Statistics",
+        description = "Retrieve project statistics including project counts, task distribution, and usage patterns"
+    )
     @GetMapping("/projects")
-    fun getProjectStatistics(@RequestParam(defaultValue = "ONE_WEEK") timePeriod: String): ClientResponse {
+    fun getProjectStatistics(
+        @Parameter(description = "Time period for statistics (default: ONE_WEEK)", example = "ONE_WEEK")
+        @RequestParam(defaultValue = "ONE_WEEK") timePeriod: String
+    ): ClientResponse {
         val period = TimePeriod.valueOf(timePeriod)
         val stats = cachedStatisticsService.getProjectStatistics(period)
         
@@ -69,9 +96,15 @@ class StatisticsController {
         return result
     }
 
-    @Operation(summary = "获取时间趋势统计")
+    @Operation(
+        summary = "Get Time Trend Statistics",
+        description = "Retrieve time-based trend statistics showing usage patterns over time (hourly/daily trends)"
+    )
     @GetMapping("/time-trend")
-    fun getTimeTrendStatistics(@RequestParam(defaultValue = "ONE_WEEK") timePeriod: String): ClientResponse {
+    fun getTimeTrendStatistics(
+        @Parameter(description = "Time period for trend analysis (default: ONE_WEEK)", example = "ONE_WEEK")
+        @RequestParam(defaultValue = "ONE_WEEK") timePeriod: String
+    ): ClientResponse {
         val period = TimePeriod.valueOf(timePeriod)
         val stats = cachedStatisticsService.getTimeTrendStatistics(period)
         
@@ -80,7 +113,10 @@ class StatisticsController {
         return result
     }
 
-    @Operation(summary = "获取24小时报告（最近24小时使用情况）")
+    @Operation(
+        summary = "Get 24-Hour Report",
+        description = "Retrieve comprehensive usage report for the last 24 hours including task counts, user activity, and resource utilization"
+    )
     @GetMapping("/reports/24hour")
     fun get24HourReport(): ClientResponse {
         val report = cachedStatisticsService.get24HourReport()
@@ -90,7 +126,10 @@ class StatisticsController {
         return result
     }
 
-    @Operation(summary = "获取48小时报告（最近48小时使用情况）")
+    @Operation(
+        summary = "Get 48-Hour Report",
+        description = "Retrieve comprehensive usage report for the last 48 hours with extended trend analysis"
+    )
     @GetMapping("/reports/48hour")
     fun get48HourReport(): ClientResponse {
         val report = cachedStatisticsService.get48HourReport()
@@ -100,7 +139,10 @@ class StatisticsController {
         return result
     }
 
-    @Operation(summary = "获取72小时报告（最近72小时使用情况）")
+    @Operation(
+        summary = "Get 72-Hour Report",
+        description = "Retrieve comprehensive usage report for the last 72 hours with detailed trend analysis and patterns"
+    )
     @GetMapping("/reports/72hour")
     fun get72HourReport(): ClientResponse {
         val report = cachedStatisticsService.get72HourReport()
@@ -110,7 +152,10 @@ class StatisticsController {
         return result
     }
 
-    @Operation(summary = "获取今日日报（今天0:00到明天0:00）")
+    @Operation(
+        summary = "Get Today's Report",
+        description = "Retrieve daily report for the current day (from 00:00 to 23:59)"
+    )
     @GetMapping("/reports/today")
     fun getTodayReport(): ClientResponse {
         val report = cachedStatisticsService.getTodayReport()
