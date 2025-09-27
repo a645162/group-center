@@ -14,7 +14,12 @@ public class WeComGroupBotTest {
 
         boolean key_is_valid = !(webhookKey == null || webhookKey.isEmpty());
 
-        assert key_is_valid;
+        if (key_is_valid) {
+            System.out.println("WeCom WebHook Key is valid, start testing...");
+        } else {
+            System.out.println("WeCom WebHook Key is invalid, skip testing...");
+            return;
+        }
 
         boolean ret = WeComGroupBot.directSendTextWithUrl(
                 webhookKey,

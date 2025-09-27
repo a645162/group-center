@@ -3,6 +3,7 @@ package com.khm.group.center.service.cache
 import com.alibaba.fastjson2.JSON
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
+import com.khm.group.center.utils.program.VersionExtractor
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -14,8 +15,8 @@ import java.nio.file.StandardOpenOption
  */
 object CacheVersionManager {
     
-    // 当前程序版本（格式：1.a.b）
-    private const val CURRENT_VERSION = "1.0.0"
+    // 当前程序版本（从配置文件读取）
+    private val CURRENT_VERSION: String = VersionExtractor.getCleanVersion()
     
     // 版本信息文件名
     private const val VERSION_INFO_FILE = "Info.json"
@@ -63,32 +64,21 @@ object CacheVersionManager {
         
         if (versionInfo == null) {
             // 没有版本信息文件，可能是旧版本缓存，需要清理
-            logger.warn("缓存目录缺少版本信息，可能需要清理: $cacheDirPath")
+            logger.warn("Cache directory missing version info, may need cleanup: $cacheDirPath")
             saveVersionInfo(cacheDirPath) // 创建新的版本信息
             return true
         }
         
-        // 解析版本号（格式：1.a.b）
-        val currentVersionParts = CURRENT_VERSION.split(".")
-        val cachedVersionParts = versionInfo.version.split(".")
+        // 使用版本提取工具检查兼容性
+        val needCleanup = VersionExtractor.checkVersionCompatibility(versionInfo.version, CURRENT_VERSION)
         
-        if (currentVersionParts.size < 2 || cachedVersionParts.size < 2) {
-            logger.warn("版本格式错误，需要清理缓存: $cacheDirPath")
+        if (needCleanup) {
+            logger.info("Program major version changed (${versionInfo.version} -> $CURRENT_VERSION), need cleanup cache: $cacheDirPath")
             saveVersionInfo(cacheDirPath)
             return true
         }
         
-        // 检查主版本号（a）是否发生变化
-        val currentMajor = currentVersionParts.getOrNull(1)?.toIntOrNull() ?: 0
-        val cachedMajor = cachedVersionParts.getOrNull(1)?.toIntOrNull() ?: 0
-        
-        if (currentMajor != cachedMajor) {
-            logger.info("程序主版本发生变化（${versionInfo.version} -> $CURRENT_VERSION），需要清理缓存: $cacheDirPath")
-            saveVersionInfo(cacheDirPath)
-            return true
-        }
-        
-        logger.debug("缓存版本兼容性检查通过: $cacheDirPath (${versionInfo.version} -> $CURRENT_VERSION)")
+        logger.debug("Cache version compatibility check passed: $cacheDirPath (${versionInfo.version} -> $CURRENT_VERSION)")
         return false
     }
     
@@ -148,14 +138,16 @@ object CacheVersionManager {
                     try {
                         Files.deleteIfExists(path)
                     } catch (e: Exception) {
-                        logger.warn("删除缓存文件失败: $path", e)
+                        logger.warn("Failed to delete cache file: $path", e)
                     }
                 }
             
-            logger.info("清理缓存目录完成: $cacheDirPath")
+            // 清理完成后重新保存版本信息
+            saveVersionInfo(cacheDirPath)
+            logger.info("Cache directory cleanup completed: $cacheDirPath")
             true
         } catch (e: Exception) {
-            logger.error("清理缓存目录失败: $cacheDirPath", e)
+            logger.error("Failed to cleanup cache directory: $cacheDirPath", e)
             false
         }
     }
