@@ -34,16 +34,16 @@ class ReportCacheManager {
         // 昨日报告 - 内存+磁盘缓存，24小时过期
         "yesterday_report" to TimeUnit.HOURS.toMillis(24),
         
-        // 日报 - 历史数据永不过期
+        // 日报 - 历史数据永不过期，但当日报告只有内存缓存
         "daily_report" to Long.MAX_VALUE,
         
-        // 周报 - 历史数据永不过期
+        // 周报 - 历史数据永不过期，但当周报告只有内存缓存
         "weekly_report" to Long.MAX_VALUE,
         
-        // 月报 - 历史数据永不过期
+        // 月报 - 历史数据永不过期，但当月报告只有内存缓存
         "monthly_report" to Long.MAX_VALUE,
         
-        // 年报 - 历史数据永不过期
+        // 年报 - 历史数据永不过期，但当年报告只有内存缓存
         "yearly_report" to Long.MAX_VALUE,
         
         // 统计信息 - 内存+磁盘缓存，1小时过期
@@ -64,8 +64,8 @@ class ReportCacheManager {
     )
     
     init {
-        // 确保缓存目录存在
-        ReportCachePathManager.ensureCacheDirectory()
+        // 确保所有缓存目录存在并检查版本兼容性
+        ReportCachePathManager.ensureCacheDirectories()
         logger.info("报告缓存管理器初始化完成")
     }
     
@@ -205,12 +205,80 @@ class ReportCacheManager {
      */
     private fun shouldPersistToDisk(cacheKey: String): Boolean {
         // 24/48/72小时报告和今日报告只使用内存缓存
+        if (cacheKey.startsWith("24hour_report") ||
+            cacheKey.startsWith("48hour_report") ||
+            cacheKey.startsWith("72hour_report") ||
+            cacheKey.startsWith("today_report")) {
+            return false
+        }
+        
+        // 检查是否是当月、当年、当日的报告，这些不持久化到磁盘
+        if (isCurrentPeriodReport(cacheKey)) {
+            return false
+        }
+        
+        return true  // 其他类型的缓存都支持磁盘持久化
+    }
+    
+    /**
+     * 检查是否是当前周期的报告（当月、当年、当日）
+     */
+    private fun isCurrentPeriodReport(cacheKey: String): Boolean {
+        val now = java.time.LocalDate.now()
+        
         return when {
-            cacheKey.startsWith("24hour_report") -> false
-            cacheKey.startsWith("48hour_report") -> false
-            cacheKey.startsWith("72hour_report") -> false
-            cacheKey.startsWith("today_report") -> false
-            else -> true  // 其他类型的缓存都支持磁盘持久化
+            cacheKey.startsWith("daily_report") -> {
+                // 检查是否是当日报告
+                val dateStr = cacheKey.substringAfter("daily_report_")
+                try {
+                    val reportDate = java.time.LocalDate.parse(dateStr)
+                    reportDate == now
+                } catch (e: Exception) {
+                    false
+                }
+            }
+            cacheKey.startsWith("weekly_report") -> {
+                // 检查是否是当周报告
+                val parts = cacheKey.substringAfter("weekly_report_").split("_")
+                if (parts.size == 2) {
+                    try {
+                        val year = parts[0].toInt()
+                        val week = parts[1].toInt()
+                        val currentWeek = now.get(java.time.temporal.WeekFields.ISO.weekOfYear())
+                        year == now.year && week == currentWeek
+                    } catch (e: Exception) {
+                        false
+                    }
+                } else {
+                    false
+                }
+            }
+            cacheKey.startsWith("monthly_report") -> {
+                // 检查是否是当月报告
+                val parts = cacheKey.substringAfter("monthly_report_").split("_")
+                if (parts.size == 2) {
+                    try {
+                        val year = parts[0].toInt()
+                        val month = parts[1].toInt()
+                        year == now.year && month == now.monthValue
+                    } catch (e: Exception) {
+                        false
+                    }
+                } else {
+                    false
+                }
+            }
+            cacheKey.startsWith("yearly_report") -> {
+                // 检查是否是当年报告
+                val yearStr = cacheKey.substringAfter("yearly_report_")
+                try {
+                    val year = yearStr.toInt()
+                    year == now.year
+                } catch (e: Exception) {
+                    false
+                }
+            }
+            else -> false
         }
     }
     
@@ -238,16 +306,32 @@ class ReportCacheManager {
         // 清空内存缓存
         memoryCache.clear()
         
-        // 删除磁盘缓存文件
+        // 删除所有磁盘缓存文件
         try {
-            val cacheDir = ReportCachePathManager.getCacheRootPath().toFile()
-            if (cacheDir.exists() && cacheDir.isDirectory) {
-                cacheDir.listFiles()?.forEach { file ->
-                    if (file.isFile && file.name.endsWith(".json")) {
-                        file.delete()
-                    }
+            val cacheDirs = listOf(
+                ReportCachePathManager.getHourlyReportPath(),
+                ReportCachePathManager.getDailyReportPath(),
+                ReportCachePathManager.getWeeklyReportPath(),
+                ReportCachePathManager.getMonthlyReportPath(),
+                ReportCachePathManager.getYearlyReportPath(),
+                ReportCachePathManager.getStatisticsPath()
+            )
+            
+            cacheDirs.forEach { cacheDir ->
+                if (Files.exists(cacheDir) && Files.isDirectory(cacheDir)) {
+                    Files.walk(cacheDir)
+                        .filter { path -> path != cacheDir } // 不删除根目录本身
+                        .sorted(Comparator.reverseOrder()) // 先删除子文件和子目录
+                        .forEach { path ->
+                            try {
+                                Files.deleteIfExists(path)
+                            } catch (e: Exception) {
+                                logger.warn("删除缓存文件失败: $path", e)
+                            }
+                        }
                 }
             }
+            
             logger.info("🗑️ 所有缓存已清除")
         } catch (e: Exception) {
             logger.error("清除所有磁盘缓存失败", e)

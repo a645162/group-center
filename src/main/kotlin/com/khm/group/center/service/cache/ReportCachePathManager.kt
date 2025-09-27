@@ -12,11 +12,20 @@ import java.time.format.DateTimeFormatter
 /**
  * 报告缓存路径管理器
  * 负责管理缓存文件的目录结构和文件路径
+ * 每种报告类型一个目录，支持版本管理
  */
 object ReportCachePathManager {
     
     // 缓存根目录
-    private const val CACHE_ROOT = "./Cache/Report"
+    private const val CACHE_ROOT = "./Cache"
+    
+    // 报告类型子目录
+    private const val HOURLY_REPORT_DIR = "HourlyReport"
+    private const val DAILY_REPORT_DIR = "DailyReport"
+    private const val WEEKLY_REPORT_DIR = "WeeklyReport"
+    private const val MONTHLY_REPORT_DIR = "MonthlyReport"
+    private const val YEARLY_REPORT_DIR = "YearlyReport"
+    private const val STATISTICS_DIR = "Statistics"
     
     // 缓存文件扩展名
     private const val CACHE_EXTENSION = ".json"
@@ -34,20 +43,71 @@ object ReportCachePathManager {
     }
     
     /**
-     * 确保缓存目录存在
+     * 确保所有缓存目录存在并检查版本兼容性
      */
-    fun ensureCacheDirectory(): Boolean {
-        try {
-            val cacheDir = getCacheRootPath().toFile()
-            if (!cacheDir.exists()) {
-                logger.info("创建缓存目录: ${cacheDir.absolutePath}")
-                return cacheDir.mkdirs()
+    fun ensureCacheDirectories(): Boolean {
+        val directories = listOf(
+            getHourlyReportPath(),
+            getDailyReportPath(),
+            getWeeklyReportPath(),
+            getMonthlyReportPath(),
+            getYearlyReportPath(),
+            getStatisticsPath()
+        )
+        
+        var allSuccess = true
+        directories.forEach { dirPath ->
+            val needCleanup = CacheVersionManager.ensureCacheDirectoryWithVersion(dirPath)
+            if (needCleanup) {
+                logger.info("需要清理缓存目录: $dirPath")
+                CacheVersionManager.cleanupCacheDirectory(dirPath)
             }
-            return true
-        } catch (e: Exception) {
-            logger.error("创建缓存目录失败", e)
-            return false
+            allSuccess = allSuccess && Files.exists(dirPath)
         }
+        
+        return allSuccess
+    }
+    
+    /**
+     * 获取24/48/72小时报告目录路径
+     */
+    fun getHourlyReportPath(): Path {
+        return getCacheRootPath().resolve(HOURLY_REPORT_DIR)
+    }
+    
+    /**
+     * 获取日报目录路径
+     */
+    fun getDailyReportPath(): Path {
+        return getCacheRootPath().resolve(DAILY_REPORT_DIR)
+    }
+    
+    /**
+     * 获取周报目录路径
+     */
+    fun getWeeklyReportPath(): Path {
+        return getCacheRootPath().resolve(WEEKLY_REPORT_DIR)
+    }
+    
+    /**
+     * 获取月报目录路径
+     */
+    fun getMonthlyReportPath(): Path {
+        return getCacheRootPath().resolve(MONTHLY_REPORT_DIR)
+    }
+    
+    /**
+     * 获取年报目录路径
+     */
+    fun getYearlyReportPath(): Path {
+        return getCacheRootPath().resolve(YEARLY_REPORT_DIR)
+    }
+    
+    /**
+     * 获取统计信息目录路径
+     */
+    fun getStatisticsPath(): Path {
+        return getCacheRootPath().resolve(STATISTICS_DIR)
     }
     
     /**
@@ -55,7 +115,7 @@ object ReportCachePathManager {
      */
     fun getHourlyReportPath(hours: Int, startTime: String, endTime: String): Path {
         val fileName = "${hours}hour_report_${startTime}_${endTime}$CACHE_EXTENSION"
-        return getCacheRootPath().resolve(fileName)
+        return getHourlyReportPath().resolve(fileName)
     }
     
     /**
@@ -63,7 +123,7 @@ object ReportCachePathManager {
      */
     fun getTodayReportPath(date: LocalDate = LocalDate.now()): Path {
         val fileName = "today_report_${date.format(dateFormatter)}$CACHE_EXTENSION"
-        return getCacheRootPath().resolve(fileName)
+        return getDailyReportPath().resolve(fileName)
     }
     
     /**
@@ -71,40 +131,150 @@ object ReportCachePathManager {
      */
     fun getYesterdayReportPath(date: LocalDate = LocalDate.now().minusDays(1)): Path {
         val fileName = "yesterday_report_${date.format(dateFormatter)}$CACHE_EXTENSION"
-        return getCacheRootPath().resolve(fileName)
+        return getDailyReportPath().resolve(fileName)
+    }
+    
+    /**
+     * 获取日报缓存文件路径
+     */
+    fun getDailyReportPath(date: LocalDate): Path {
+        val fileName = "daily_report_${date.format(dateFormatter)}$CACHE_EXTENSION"
+        return getDailyReportPath().resolve(fileName)
+    }
+    
+    /**
+     * 获取日期范围日报缓存文件路径
+     */
+    fun getDailyReportPath(startDate: LocalDate, endDate: LocalDate): Path {
+        val fileName = "daily_report_${startDate.format(dateFormatter)}_${endDate.format(dateFormatter)}$CACHE_EXTENSION"
+        return getDailyReportPath().resolve(fileName)
     }
     
     /**
      * 获取周报缓存文件路径
      */
-    fun getWeeklyReportPath(date: LocalDate = LocalDate.now()): Path {
-        val fileName = "weekly_report_${date.format(dateFormatter)}$CACHE_EXTENSION"
-        return getCacheRootPath().resolve(fileName)
+    fun getWeeklyReportPath(year: Int, week: Int): Path {
+        val fileName = "weekly_report_${year}_${week}$CACHE_EXTENSION"
+        return getWeeklyReportPath().resolve(fileName)
     }
     
     /**
      * 获取月报缓存文件路径
      */
-    fun getMonthlyReportPath(month: Int = LocalDate.now().monthValue): Path {
-        val currentYear = LocalDate.now().year
-        val fileName = "monthly_report_${currentYear}-${month.toString().padStart(2, '0')}$CACHE_EXTENSION"
-        return getCacheRootPath().resolve(fileName)
+    fun getMonthlyReportPath(year: Int, month: Int): Path {
+        val fileName = "monthly_report_${year}_${month}$CACHE_EXTENSION"
+        return getMonthlyReportPath().resolve(fileName)
     }
     
     /**
      * 获取年报缓存文件路径
      */
-    fun getYearlyReportPath(year: Int = LocalDate.now().year): Path {
+    fun getYearlyReportPath(year: Int): Path {
         val fileName = "yearly_report_${year}$CACHE_EXTENSION"
-        return getCacheRootPath().resolve(fileName)
+        return getYearlyReportPath().resolve(fileName)
     }
     
     /**
-     * 获取统计信息缓存文件路径
+     * 根据缓存键获取对应的文件路径
      */
     fun getStatisticsPath(cacheKey: String): Path {
-        val fileName = "${cacheKey}$CACHE_EXTENSION"
-        return getCacheRootPath().resolve(fileName)
+        return when {
+            cacheKey.startsWith("24hour_report") || cacheKey.startsWith("48hour_report") || 
+            cacheKey.startsWith("72hour_report") -> {
+                // 解析小时报告的时间信息
+                val parts = cacheKey.split("_")
+                if (parts.size >= 3) {
+                    val hours = parts[0].replace("hour_report", "").toIntOrNull() ?: 24
+                    val startTime = parts[1]
+                    val endTime = parts[2]
+                    getHourlyReportPath(hours, startTime, endTime)
+                } else {
+                    getHourlyReportPath().resolve("${cacheKey}$CACHE_EXTENSION")
+                }
+            }
+            cacheKey.startsWith("today_report") -> {
+                val dateStr = cacheKey.substringAfter("today_report_")
+                try {
+                    val date = LocalDate.parse(dateStr)
+                    getTodayReportPath(date)
+                } catch (e: Exception) {
+                    getDailyReportPath().resolve("${cacheKey}$CACHE_EXTENSION")
+                }
+            }
+            cacheKey.startsWith("yesterday_report") -> {
+                val dateStr = cacheKey.substringAfter("yesterday_report_")
+                try {
+                    val date = LocalDate.parse(dateStr)
+                    getYesterdayReportPath(date)
+                } catch (e: Exception) {
+                    getDailyReportPath().resolve("${cacheKey}$CACHE_EXTENSION")
+                }
+            }
+            cacheKey.startsWith("daily_report") -> {
+                if (cacheKey.contains("_")) {
+                    val parts = cacheKey.substringAfter("daily_report_").split("_")
+                    if (parts.size == 2) {
+                        try {
+                            val startDate = LocalDate.parse(parts[0])
+                            val endDate = LocalDate.parse(parts[1])
+                            getDailyReportPath(startDate, endDate)
+                        } catch (e: Exception) {
+                            getDailyReportPath().resolve("${cacheKey}$CACHE_EXTENSION")
+                        }
+                    } else {
+                        try {
+                            val date = LocalDate.parse(parts[0])
+                            getDailyReportPath(date)
+                        } catch (e: Exception) {
+                            getDailyReportPath().resolve("${cacheKey}$CACHE_EXTENSION")
+                        }
+                    }
+                } else {
+                    getDailyReportPath().resolve("${cacheKey}$CACHE_EXTENSION")
+                }
+            }
+            cacheKey.startsWith("weekly_report") -> {
+                val parts = cacheKey.substringAfter("weekly_report_").split("_")
+                if (parts.size == 2) {
+                    try {
+                        val year = parts[0].toInt()
+                        val week = parts[1].toInt()
+                        getWeeklyReportPath(year, week)
+                    } catch (e: Exception) {
+                        getWeeklyReportPath().resolve("${cacheKey}$CACHE_EXTENSION")
+                    }
+                } else {
+                    getWeeklyReportPath().resolve("${cacheKey}$CACHE_EXTENSION")
+                }
+            }
+            cacheKey.startsWith("monthly_report") -> {
+                val parts = cacheKey.substringAfter("monthly_report_").split("_")
+                if (parts.size == 2) {
+                    try {
+                        val year = parts[0].toInt()
+                        val month = parts[1].toInt()
+                        getMonthlyReportPath(year, month)
+                    } catch (e: Exception) {
+                        getMonthlyReportPath().resolve("${cacheKey}$CACHE_EXTENSION")
+                    }
+                } else {
+                    getMonthlyReportPath().resolve("${cacheKey}$CACHE_EXTENSION")
+                }
+            }
+            cacheKey.startsWith("yearly_report") -> {
+                val yearStr = cacheKey.substringAfter("yearly_report_")
+                try {
+                    val year = yearStr.toInt()
+                    getYearlyReportPath(year)
+                } catch (e: Exception) {
+                    getYearlyReportPath().resolve("${cacheKey}$CACHE_EXTENSION")
+                }
+            }
+            else -> {
+                // 其他统计信息
+                getStatisticsPath().resolve("${cacheKey}$CACHE_EXTENSION")
+            }
+        }
     }
     
     /**
@@ -130,61 +300,93 @@ object ReportCachePathManager {
      * 清理过期缓存文件
      */
     fun cleanupExpiredCache(maxAgeMillis: Long): Int {
-        val cacheDir = getCacheRootPath().toFile()
-        if (!cacheDir.exists() || !cacheDir.isDirectory) {
-            return 0
-        }
+        val cacheDirs = listOf(
+            getHourlyReportPath(),
+            getDailyReportPath(),
+            getWeeklyReportPath(),
+            getMonthlyReportPath(),
+            getYearlyReportPath(),
+            getStatisticsPath()
+        )
         
+        var totalCleanedCount = 0
         val currentTime = System.currentTimeMillis()
-        var cleanedCount = 0
         
-        cacheDir.listFiles()?.forEach { file ->
-            if (file.isFile && file.name.endsWith(CACHE_EXTENSION)) {
-                val lastModified = file.lastModified()
-                if (currentTime - lastModified > maxAgeMillis) {
+        cacheDirs.forEach { cacheDir ->
+            if (!Files.exists(cacheDir) || !Files.isDirectory(cacheDir)) {
+                return@forEach
+            }
+            
+            Files.walk(cacheDir)
+                .filter { path -> Files.isRegularFile(path) && path.toString().endsWith(CACHE_EXTENSION) }
+                .forEach { file ->
                     try {
-                        if (file.delete()) {
-                            cleanedCount++
-                            logger.debug("清理过期缓存文件: ${file.name}")
+                        val lastModified = Files.getLastModifiedTime(file).toMillis()
+                        if (currentTime - lastModified > maxAgeMillis) {
+                            Files.deleteIfExists(file)
+                            totalCleanedCount++
+                            logger.debug("清理过期缓存文件: ${file.fileName}")
                         }
                     } catch (e: Exception) {
-                        logger.error("删除缓存文件失败: ${file.name}", e)
+                        logger.error("删除缓存文件失败: ${file.fileName}", e)
                     }
                 }
-            }
         }
         
-        if (cleanedCount > 0) {
-            logger.info("清理过期缓存文件完成，共清理 ${cleanedCount} 个文件")
+        if (totalCleanedCount > 0) {
+            logger.info("清理过期缓存文件完成，共清理 ${totalCleanedCount} 个文件")
         }
         
-        return cleanedCount
+        return totalCleanedCount
     }
     
     /**
-     * 获取缓存目录大小（字节）
+     * 获取缓存目录总大小（字节）
      */
     fun getCacheDirectorySize(): Long {
-        val cacheDir = getCacheRootPath().toFile()
-        if (!cacheDir.exists() || !cacheDir.isDirectory) {
-            return 0L
-        }
+        val cacheDirs = listOf(
+            getHourlyReportPath(),
+            getDailyReportPath(),
+            getWeeklyReportPath(),
+            getMonthlyReportPath(),
+            getYearlyReportPath(),
+            getStatisticsPath()
+        )
         
-        return cacheDir.walk()
-            .filter { it.isFile }
-            .map { it.length() }
-            .sum()
+        return cacheDirs.sumOf { dir ->
+            if (!Files.exists(dir) || !Files.isDirectory(dir)) {
+                0L
+            } else {
+                Files.walk(dir)
+                    .filter { path -> Files.isRegularFile(path) }
+                    .mapToLong { path -> Files.size(path) }
+                    .sum()
+            }
+        }
     }
     
     /**
-     * 获取缓存文件数量
+     * 获取缓存文件总数
      */
     fun getCacheFileCount(): Int {
-        val cacheDir = getCacheRootPath().toFile()
-        if (!cacheDir.exists() || !cacheDir.isDirectory) {
-            return 0
-        }
+        val cacheDirs = listOf(
+            getHourlyReportPath(),
+            getDailyReportPath(),
+            getWeeklyReportPath(),
+            getMonthlyReportPath(),
+            getYearlyReportPath(),
+            getStatisticsPath()
+        )
         
-        return cacheDir.listFiles { file -> file.isFile && file.name.endsWith(CACHE_EXTENSION) }?.size ?: 0
+        return cacheDirs.sumOf { dir ->
+            if (!Files.exists(dir) || !Files.isDirectory(dir)) {
+                0
+            } else {
+                Files.walk(dir)
+                    .filter { path -> Files.isRegularFile(path) && path.toString().endsWith(CACHE_EXTENSION) }
+                    .count()
+                    .toInt()
+            }
+        }
     }
 }
