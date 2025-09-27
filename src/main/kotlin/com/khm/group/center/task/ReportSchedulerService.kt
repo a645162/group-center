@@ -32,19 +32,6 @@ class ReportSchedulerService(
     }
 
     /**
-     * 每天下午4点生成并推送今日日报（今天0:00到明天0:00）
-     */
-    @Scheduled(cron = "0 0 16 * * ?")
-    fun generateAndPushTodayReport() {
-        try {
-            reportPushService.pushTodayReport()
-            logger.info("✅ Today report pushed successfully")
-        } catch (e: Exception) {
-            logger.error("❌ Failed to generate today report: ${e.message}", e)
-        }
-    }
-
-    /**
      * 每周一早上9点生成并推送周报
      */
     @Scheduled(cron = "0 0 9 ? * MON")
@@ -97,13 +84,6 @@ class ReportSchedulerService(
         }
     }
 
-    /**
-     * 每天凌晨5点检查并补推缺失的报告
-     */
-    @Scheduled(cron = "0 0 5 * * ?")
-    fun checkAndPushMissingReports() {
-        reportPushService.checkAndPushMissingReports()
-    }
 
     /**
      * 立即执行今日日报推送（用于调试）

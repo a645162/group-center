@@ -78,18 +78,6 @@ class ReportPushController(
         return result
     }
 
-    @Operation(summary = "检查并推送缺失的报告")
-    @PostMapping("/check-missing")
-    fun checkAndPushMissingReports(): ClientResponse {
-        reportSchedulerService.checkAndPushMissingReports()
-        
-        val result = ClientResponse()
-        result.result = mapOf(
-            "message" to "Missing reports check completed",
-            "status" to "completed"
-        )
-        return result
-    }
 
     @Operation(summary = "更新统计缓存")
     @PostMapping("/update-cache")
