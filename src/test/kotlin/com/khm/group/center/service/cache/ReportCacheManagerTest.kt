@@ -150,8 +150,8 @@ class ReportCacheManagerTest {
         val cacheRoot = ReportCachePathManager.getCacheRootPath()
         logger.info("缓存根目录: $cacheRoot")
         
-        // 测试确保目录存在
-        val dirCreated = ReportCachePathManager.ensureCacheDirectory()
+        // 测试确保目录存在（使用正确的方法名）
+        val dirCreated = ReportCachePathManager.ensureCacheDirectories()
         assert(dirCreated) { "缓存目录创建失败" }
         
         // 测试各种报告路径生成
@@ -161,13 +161,16 @@ class ReportCacheManagerTest {
         val yesterdayPath = ReportCachePathManager.getYesterdayReportPath()
         logger.info("昨日报告路径: $yesterdayPath")
         
-        val weeklyPath = ReportCachePathManager.getWeeklyReportPath()
+        // 测试周报路径（需要提供参数）
+        val weeklyPath = ReportCachePathManager.getWeeklyReportPath(2025, 39)
         logger.info("周报路径: $weeklyPath")
         
-        val monthlyPath = ReportCachePathManager.getMonthlyReportPath()
+        // 测试月报路径（需要提供参数）
+        val monthlyPath = ReportCachePathManager.getMonthlyReportPath(2025, 9)
         logger.info("月报路径: $monthlyPath")
         
-        val yearlyPath = ReportCachePathManager.getYearlyReportPath()
+        // 测试年报路径（需要提供参数）
+        val yearlyPath = ReportCachePathManager.getYearlyReportPath(2025)
         logger.info("年报路径: $yearlyPath")
         
         val hourlyPath = ReportCachePathManager.getHourlyReportPath(24, "2025-09-25-15-00", "2025-09-26-15-00")

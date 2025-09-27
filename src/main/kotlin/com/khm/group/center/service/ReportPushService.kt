@@ -384,7 +384,6 @@ class ReportPushService {
                 java.time.ZoneId.systemDefault()
             )
             content.append("🏆 熬夜冠军: ${champion.taskUser} (${championTime.format(DateTimeFormatter.ofPattern("HH:mm"))})\n")
-            content.append("🏆 熬夜冠军: ${champion.taskUser} (${championTime.format(DateTimeFormatter.ofPattern("HH:mm"))})\n")
         }
         
         // 添加早起冠军信息
@@ -393,7 +392,6 @@ class ReportPushService {
                 java.time.Instant.ofEpochSecond(champion.taskStartTime),
                 java.time.ZoneId.systemDefault()
             )
-            content.append("🏆 早起冠军: ${champion.taskUser} (${championTime.format(DateTimeFormatter.ofPattern("HH:mm"))})\n")
             content.append("🏆 早起冠军: ${champion.taskUser} (${championTime.format(DateTimeFormatter.ofPattern("HH:mm"))})\n")
         }
         

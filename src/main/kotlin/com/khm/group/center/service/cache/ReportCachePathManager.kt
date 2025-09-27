@@ -16,8 +16,8 @@ import java.time.format.DateTimeFormatter
  */
 object ReportCachePathManager {
     
-    // 缓存根目录
-    private const val CACHE_ROOT = "./Cache"
+    // 缓存根目录（使用绝对路径）
+    private val CACHE_ROOT: String = Paths.get("").toAbsolutePath().resolve("Cache").toString()
     
     // 报告类型子目录
     private const val HOURLY_REPORT_DIR = "HourlyReport"
@@ -39,7 +39,7 @@ object ReportCachePathManager {
      * 获取缓存根目录路径
      */
     fun getCacheRootPath(): Path {
-        return Paths.get(CACHE_ROOT).toAbsolutePath()
+        return Paths.get(CACHE_ROOT)
     }
     
     /**
@@ -59,7 +59,7 @@ object ReportCachePathManager {
         directories.forEach { dirPath ->
             val needCleanup = CacheVersionManager.ensureCacheDirectoryWithVersion(dirPath)
             if (needCleanup) {
-                logger.info("需要清理缓存目录: $dirPath")
+                logger.info("Need to cleanup cache directory: $dirPath")
                 CacheVersionManager.cleanupCacheDirectory(dirPath)
             }
             allSuccess = allSuccess && Files.exists(dirPath)
@@ -325,16 +325,16 @@ object ReportCachePathManager {
                         if (currentTime - lastModified > maxAgeMillis) {
                             Files.deleteIfExists(file)
                             totalCleanedCount++
-                            logger.debug("清理过期缓存文件: ${file.fileName}")
+                            logger.debug("Cleanup expired cache file: ${file.fileName}")
                         }
                     } catch (e: Exception) {
-                        logger.error("删除缓存文件失败: ${file.fileName}", e)
+                        logger.error("Failed to delete cache file: ${file.fileName}", e)
                     }
                 }
         }
         
         if (totalCleanedCount > 0) {
-            logger.info("清理过期缓存文件完成，共清理 ${totalCleanedCount} 个文件")
+            logger.info("Expired cache files cleanup completed, total cleaned: ${totalCleanedCount} files")
         }
         
         return totalCleanedCount
