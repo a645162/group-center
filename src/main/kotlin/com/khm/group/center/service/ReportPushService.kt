@@ -325,7 +325,6 @@ class ReportPushService {
         try {
             // 使用基础服务（无缓存）进行作息分析
             val tasks = (baseStatisticsService as StatisticsServiceImpl)
-            val tasks = (baseStatisticsService as StatisticsServiceImpl)
                 .getTasksByTimePeriod(period)
             
             // 计算时间段的开始和结束时间
