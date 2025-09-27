@@ -38,7 +38,7 @@ class MachineStatusService {
         MachineConfig.machineList.forEach { machine ->
             machineStatusMap[machine.nameEng] = MachineStatus()
         }
-        logger.info("初始化机器状态完成，共 ${MachineConfig.machineList.size} 台机器")
+        logger.info("Machine status initialization completed, total ${MachineConfig.machineList.size} machines")
     }
 
     /**
@@ -57,11 +57,11 @@ class MachineStatusService {
                     status.lastPingTime = currentTime
                     status.pingStatus = true
                     status.lastPingError = null
-                    logger.debug("Ping成功: ${machine.nameEng} (${machine.host})")
+                    logger.debug("Ping successful: ${machine.nameEng} (${machine.host})")
                 } else {
                     status.pingStatus = false
-                    status.lastPingError = "Ping超时"
-                    logger.warn("Ping失败: ${machine.nameEng} (${machine.host})")
+                    status.lastPingError = "Ping timeout"
+                    logger.warn("Ping failed: ${machine.nameEng} (${machine.host})")
                 }
 
                 // 更新MachineConfig中的状态
@@ -72,12 +72,12 @@ class MachineStatusService {
             } catch (e: Exception) {
                 val status = machineStatusMap.getOrPut(machine.nameEng) { MachineStatus() }
                 status.pingStatus = false
-                status.lastPingError = e.message ?: "未知错误"
+                status.lastPingError = e.message ?: "Unknown error"
                 
                 // 更新MachineConfig中的状态
                 machine.pingStatus = false
 
-                logger.error("Ping异常: ${machine.nameEng} (${machine.host}) - ${e.message}")
+                logger.error("Ping exception: ${machine.nameEng} (${machine.host}) - ${e.message}")
                 false
             }
         }
@@ -89,7 +89,7 @@ class MachineStatusService {
     fun processHeartbeat(serverNameEng: String, timestamp: Long): Boolean {
         val machine = MachineConfig.getMachineByNameEng(serverNameEng)
         if (machine == null) {
-            logger.error("收到未知机器的心跳: $serverNameEng")
+            logger.error("Received heartbeat from unknown machine: $serverNameEng")
             return false
         }
 
@@ -98,7 +98,7 @@ class MachineStatusService {
         
         // 时间戳验证：如果时间相差超过5分钟，记录警告
         if (timeDiff > 300) { // 5分钟 = 300秒
-            logger.warn("机器 ${machine.nameEng} 时间戳差异较大: ${timeDiff}秒，可能需要同步时间")
+            logger.warn("Machine ${machine.nameEng} timestamp difference is large: ${timeDiff} seconds, may need time synchronization")
         }
 
         val status = machineStatusMap.getOrPut(serverNameEng) { MachineStatus() }
@@ -109,7 +109,7 @@ class MachineStatusService {
         machine.lastHeartbeatTime = currentTime
         machine.agentStatus = true
 
-        logger.info("收到机器 ${machine.nameEng} 心跳，时间戳差异: ${timeDiff}秒")
+        logger.info("Received heartbeat from machine ${machine.nameEng}, timestamp difference: ${timeDiff} seconds")
         return true
     }
 
@@ -169,7 +169,7 @@ class MachineStatusService {
         }
 
         if (expiredMachines.isNotEmpty()) {
-            logger.info("标记以下机器为离线状态: ${expiredMachines.joinToString()}")
+            logger.info("Marked the following machines as offline: ${expiredMachines.joinToString()}")
         }
     }
 }

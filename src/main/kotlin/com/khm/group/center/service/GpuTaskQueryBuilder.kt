@@ -34,7 +34,7 @@ class GpuTaskQueryBuilder {
             buildFilterQuery(queryWrapper, filters)
         }
 
-        logger.debug("构建查询条件: ${queryWrapper.targetSql}")
+        logger.debug("Build query conditions: ${queryWrapper.targetSql}")
         return queryWrapper
     }
 
@@ -115,8 +115,8 @@ class GpuTaskQueryBuilder {
         value: Any
     ) {
         when (logic) {
-            LogicOperator.AND -> queryWrapper.and { it -> it.applyCondition(column, operator, value) }
-            LogicOperator.OR -> queryWrapper.or { it -> it.applyCondition(column, operator, value) }
+            LogicOperator.AND -> queryWrapper.and { it.applyCondition(column, operator, value) }
+            LogicOperator.OR -> queryWrapper.or { it.applyCondition(column, operator, value) }
         }
     }
 
@@ -131,8 +131,8 @@ class GpuTaskQueryBuilder {
     ) {
         val likeValue = "%$value%"
         when (logic) {
-            LogicOperator.AND -> queryWrapper.and { it -> it.like(column, likeValue) }
-            LogicOperator.OR -> queryWrapper.or { it -> it.like(column, likeValue) }
+            LogicOperator.AND -> queryWrapper.and { it.like(column, likeValue) }
+            LogicOperator.OR -> queryWrapper.or { it.like(column, likeValue) }
         }
     }
 
@@ -148,8 +148,8 @@ class GpuTaskQueryBuilder {
     ) {
         if (value1 != null && value2 != null) {
             when (logic) {
-                LogicOperator.AND -> queryWrapper.and { it -> it.between(column, value1, value2) }
-                LogicOperator.OR -> queryWrapper.or { it -> it.between(column, value1, value2) }
+                LogicOperator.AND -> queryWrapper.and { it.between(column, value1, value2) }
+                LogicOperator.OR -> queryWrapper.or { it.between(column, value1, value2) }
             }
         }
     }

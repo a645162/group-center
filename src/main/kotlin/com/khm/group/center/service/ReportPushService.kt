@@ -38,7 +38,7 @@ class ReportPushService {
      */
     fun pushTodayReport() {
          if (!ConfigEnvironment.REPORT_DAILY_ENABLE) {
-             println("日报推送已禁用，跳过推送")
+             println("Daily report push disabled, skip pushing")
              return
          }
          
@@ -59,7 +59,7 @@ class ReportPushService {
       */
      fun pushYesterdayReport() {
          if (!ConfigEnvironment.REPORT_DAILY_ENABLE) {
-             println("日报推送已禁用，跳过推送")
+             println("Daily report push disabled, skip pushing")
              return
          }
          
@@ -79,7 +79,7 @@ class ReportPushService {
      */
     fun pushWeeklyReport() {
         if (!ConfigEnvironment.REPORT_WEEKLY_ENABLE) {
-            println("周报推送已禁用，跳过推送")
+            println("Weekly report push disabled, skip pushing")
             return
         }
         
@@ -99,7 +99,7 @@ class ReportPushService {
      */
     fun pushMonthlyReport() {
         if (!ConfigEnvironment.REPORT_MONTHLY_ENABLE) {
-            println("月报推送已禁用，跳过推送")
+            println("Monthly report push disabled, skip pushing")
             return
         }
         
@@ -119,7 +119,7 @@ class ReportPushService {
      */
     fun pushYearlyReport() {
         if (!ConfigEnvironment.REPORT_YEARLY_ENABLE) {
-            println("年报推送已禁用，跳过推送")
+            println("Yearly report push disabled, skip pushing")
             return
         }
         
@@ -380,7 +380,7 @@ class ReportPushService {
     private fun getSleepAnalysisForPeriod(period: TimePeriod): com.khm.group.center.datatype.statistics.SleepAnalysis? {
         try {
             // 使用基础服务（无缓存）进行作息分析
-            val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
+            val tasks = (baseStatisticsService as StatisticsServiceImpl)
                 .getTasksByTimePeriod(period)
             
             // 计算时间段的开始和结束时间
@@ -389,7 +389,7 @@ class ReportPushService {
             
             return baseStatisticsService.getSleepAnalysis(tasks, startTime, currentTime)
         } catch (e: Exception) {
-            println("获取作息时间分析失败: ${e.message}")
+            println("Get sleep analysis failed: ${e.message}")
             return null
         }
     }
@@ -405,7 +405,7 @@ class ReportPushService {
                     val startTimestamp = report.startTime.atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
                     val endTimestamp = report.endTime.atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
                     
-                    val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
+                    val tasks = (baseStatisticsService as StatisticsServiceImpl)
                         .getTasksByCustomPeriod(startTimestamp, endTimestamp)
                     
                     return baseStatisticsService.getSleepAnalysis(tasks, startTimestamp, endTimestamp)
@@ -415,7 +415,7 @@ class ReportPushService {
                     val startTimestamp = report.periodStartDate.atStartOfDay(java.time.ZoneId.systemDefault()).toEpochSecond()
                     val endTimestamp = report.periodEndDate.atTime(23, 59, 59).atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
                     
-                    val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
+                    val tasks = (baseStatisticsService as StatisticsServiceImpl)
                         .getTasksByCustomPeriod(startTimestamp, endTimestamp)
                     
                     return baseStatisticsService.getSleepAnalysis(tasks, startTimestamp, endTimestamp)
@@ -425,7 +425,7 @@ class ReportPushService {
                     val startTimestamp = report.periodStartDate.atStartOfDay(java.time.ZoneId.systemDefault()).toEpochSecond()
                     val endTimestamp = report.periodEndDate.atTime(23, 59, 59).atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
                     
-                    val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
+                    val tasks = (baseStatisticsService as StatisticsServiceImpl)
                         .getTasksByCustomPeriod(startTimestamp, endTimestamp)
                     
                     return baseStatisticsService.getSleepAnalysis(tasks, startTimestamp, endTimestamp)
@@ -435,7 +435,7 @@ class ReportPushService {
                     val startTimestamp = report.periodStartDate.atStartOfDay(java.time.ZoneId.systemDefault()).toEpochSecond()
                     val endTimestamp = report.periodEndDate.atTime(23, 59, 59).atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
                     
-                    val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
+                    val tasks = (baseStatisticsService as StatisticsServiceImpl)
                         .getTasksByCustomPeriod(startTimestamp, endTimestamp)
                     
                     return baseStatisticsService.getSleepAnalysis(tasks, startTimestamp, endTimestamp)
@@ -443,7 +443,7 @@ class ReportPushService {
                 else -> return null
             }
         } catch (e: Exception) {
-            println("获取报告作息时间分析失败: ${e.message}")
+            println("Get report sleep analysis failed: ${e.message}")
             return null
         }
     }
@@ -469,7 +469,7 @@ class ReportPushService {
                 java.time.Instant.ofEpochSecond(champion.taskStartTime),
                 java.time.ZoneId.systemDefault()
             )
-            content.append("🏆 熬夜冠军: ${champion.taskUser} (${championTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))})\n")
+            content.append("🏆 熬夜冠军: ${champion.taskUser} (${championTime.format(DateTimeFormatter.ofPattern("HH:mm"))})\n")
         }
         
         // 添加早起冠军信息
@@ -478,7 +478,7 @@ class ReportPushService {
                 java.time.Instant.ofEpochSecond(champion.taskStartTime),
                 java.time.ZoneId.systemDefault()
             )
-            content.append("🏆 早起冠军: ${champion.taskUser} (${championTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))})\n")
+            content.append("🏆 早起冠军: ${champion.taskUser} (${championTime.format(DateTimeFormatter.ofPattern("HH:mm"))})\n")
         }
         
         content.append("====================\n")

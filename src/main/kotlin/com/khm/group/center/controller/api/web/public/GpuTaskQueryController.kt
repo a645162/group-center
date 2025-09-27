@@ -37,7 +37,7 @@ class GpuTaskQueryController {
     )
     @PostMapping("/query")
     fun queryGpuTasks(@RequestBody request: GpuTaskQueryRequest): ClientResponse {
-        logger.info("收到GPU任务高级查询请求")
+        logger.info("Received GPU task advanced query request")
 
         val response = gpuTaskQueryService.queryGpuTasks(request)
         
@@ -45,7 +45,7 @@ class GpuTaskQueryController {
         clientResponse.result = response
         clientResponse.isSucceed = true
         
-        logger.info("GPU任务高级查询完成: ${response.getSummary()}")
+        logger.info("GPU task advanced query completed: ${response.getSummary()}")
         return clientResponse
     }
 
@@ -71,7 +71,7 @@ class GpuTaskQueryController {
         @Parameter(description = "排序方向") @RequestParam(defaultValue = "DESC") sortOrder: SortOrder,
         @Parameter(description = "是否包含统计信息") @RequestParam(defaultValue = "false") includeStatistics: Boolean
     ): ClientResponse {
-        logger.info("收到GPU任务简单查询请求")
+        logger.info("Received GPU task simple query request")
 
         // 构建查询请求
         val filters = buildFilters(userName, projectName, deviceName, taskType, isMultiGpu)
@@ -85,7 +85,7 @@ class GpuTaskQueryController {
         clientResponse.result = response
         clientResponse.isSucceed = true
         
-        logger.info("GPU任务简单查询完成: ${response.getSummary()}")
+        logger.info("GPU task simple query completed: ${response.getSummary()}")
         return clientResponse
     }
 
@@ -95,7 +95,7 @@ class GpuTaskQueryController {
     @Operation(summary = "获取任务总数", description = "获取数据库中GPU任务的总数量")
     @GetMapping("/count")
     fun getTotalTaskCount(): ClientResponse {
-        logger.info("收到获取任务总数请求")
+        logger.info("Received total task count request")
 
         val count = gpuTaskQueryService.getTotalTaskCount()
         
@@ -103,7 +103,7 @@ class GpuTaskQueryController {
         clientResponse.result = mapOf("totalTasks" to count)
         clientResponse.isSucceed = true
         
-        logger.info("任务总数查询完成: $count")
+        logger.info("Total task count query completed: $count")
         return clientResponse
     }
 
@@ -115,7 +115,7 @@ class GpuTaskQueryController {
     fun getRecentTasks(
         @Parameter(description = "小时数", example = "24") @RequestParam(defaultValue = "24") hours: Int
     ): ClientResponse {
-        logger.info("收到获取最近${hours}小时任务请求")
+        logger.info("Received recent ${hours} hours task request")
 
         val tasks = gpuTaskQueryService.getRecentTasks(hours)
         
@@ -127,7 +127,7 @@ class GpuTaskQueryController {
         )
         clientResponse.isSucceed = true
         
-        logger.info("最近任务查询完成: 找到 ${tasks.size} 条记录")
+        logger.info("Recent task query completed: found ${tasks.size} records")
         return clientResponse
     }
 
@@ -139,7 +139,7 @@ class GpuTaskQueryController {
     fun getUserTaskStats(
         @Parameter(description = "用户名") @PathVariable userName: String
     ): ClientResponse {
-        logger.info("收到用户任务统计请求: $userName")
+        logger.info("Received user task statistics request: $userName")
 
         val stats = gpuTaskQueryService.getUserTaskStats(userName)
         
@@ -147,7 +147,7 @@ class GpuTaskQueryController {
         clientResponse.result = stats
         clientResponse.isSucceed = true
         
-        logger.info("用户任务统计完成: $userName")
+        logger.info("User task statistics completed: $userName")
         return clientResponse
     }
 
@@ -159,7 +159,7 @@ class GpuTaskQueryController {
     fun getDeviceTaskStats(
         @Parameter(description = "设备名") @PathVariable deviceName: String
     ): ClientResponse {
-        logger.info("收到设备任务统计请求: $deviceName")
+        logger.info("Received device task statistics request: $deviceName")
 
         val stats = gpuTaskQueryService.getDeviceTaskStats(deviceName)
         
@@ -167,7 +167,7 @@ class GpuTaskQueryController {
         clientResponse.result = stats
         clientResponse.isSucceed = true
         
-        logger.info("设备任务统计完成: $deviceName")
+        logger.info("Device task statistics completed: $deviceName")
         return clientResponse
     }
 

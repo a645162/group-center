@@ -9,8 +9,8 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 /**
- * Bot配置测试类
- * 对应 Scripts/test-group-pusher.kt 的功能
+ * Bot configuration test class
+ * Corresponds to the functionality of Scripts/test-group-pusher.kt
  */
 @SpringBootTest
 @TestPropertySource(locations = ["classpath:application-test.yml"])
@@ -20,64 +20,64 @@ class BotConfigTest {
     private lateinit var botConfig: BotConfig
 
     @Test
-    fun `测试Bot配置加载`() {
-        assert(botConfig != null) { "Bot配置应该被正确加载" }
-        assert(botConfig.bot != null) { "Bot配置中的bot字段不应该为空" }
-        assert(botConfig.bot.groups != null) { "Bot配置中的groups字段不应该为空" }
+    fun `test Bot config loading`() {
+        assert(botConfig != null) { "Bot config should be loaded correctly" }
+        assert(botConfig.bot != null) { "The 'bot' field in Bot config should not be null" }
+        assert(botConfig.bot.groups != null) { "The 'groups' field in Bot config should not be null" }
     }
 
     @Test
-    fun `测试配置文件存在性`() {
+    fun `test config file existence`() {
         val configFile = Paths.get("Config/Bot/bot-groups.yaml")
-        assertTrue(Files.exists(configFile), "配置文件 Config/Bot/bot-groups.yaml 应该存在")
+        assertTrue(Files.exists(configFile), "Config file Config/Bot/bot-groups.yaml should exist")
     }
 
     @Test
-    fun `测试群组配置统计`() {
+    fun `test group config statistics`() {
         val alarmGroups = botConfig.bot.groups.filter { it.type == "alarm" && it.enable }
         val shortTermGroups = botConfig.bot.groups.filter { it.type == "shortterm" && it.enable }
         val longTermGroups = botConfig.bot.groups.filter { it.type == "longterm" && it.enable }
 
-        println("📊 群组配置统计:")
-        println("  报警群 (alarm): ${alarmGroups.size} 个启用群组")
-        println("  短期群 (shortterm): ${shortTermGroups.size} 个启用群组")
-        println("  长期群 (longterm): ${longTermGroups.size} 个启用群组")
+        println("📊 Group config statistics:")
+        println("  Alarm groups (alarm): ${alarmGroups.size} enabled groups")
+        println("  Short-term groups (shortterm): ${shortTermGroups.size} enabled groups")
+        println("  Long-term groups (longterm): ${longTermGroups.size} enabled groups")
 
-        // 验证至少有一个群组配置
-        assertTrue(botConfig.bot.groups.isNotEmpty(), "应该至少配置一个群组")
+        // Verify at least one group config exists
+        assertTrue(botConfig.bot.groups.isNotEmpty(), "At least one group should be configured")
     }
 
     @Test
-    fun `测试群组详情`() {
-        println("\n🔍 群组详情:")
+    fun `test group details`() {
+        println("\n🔍 Group details:")
         botConfig.bot.groups.forEach { group ->
             if (group.enable) {
                 println("  📋 ${group.name} (${group.type})")
                 if (group.larkGroupBotId.isNotBlank() && group.larkGroupBotKey.isNotBlank()) {
-                    println("     飞书机器人: 已配置")
+                    println("     Lark bot: Configured")
                 }
                 if (group.weComGroupBotKey.isNotBlank()) {
-                    println("     企业微信机器人: 已配置")
+                    println("     WeCom bot: Configured")
                 }
             }
         }
 
-        // 验证启用的群组都有基本配置
+        // Verify enabled groups have basic config
         val enabledGroups = botConfig.bot.groups.filter { it.enable }
         enabledGroups.forEach { group ->
-            assertTrue(group.name.isNotBlank(), "启用的群组应该有名称")
-            assertTrue(group.type.isNotBlank(), "启用的群组应该有类型")
+            assertTrue(group.name.isNotBlank(), "Enabled group should have a name")
+            assertTrue(group.type.isNotBlank(), "Enabled group should have a type")
         }
     }
 
     @Test
-    fun `测试配置文件格式`() {
-        // 验证配置文件可以被正确解析
+    fun `test config file format`() {
+        // Verify config file can be parsed correctly
         val configFile = Paths.get("Config/Bot/bot-groups.yaml")
         val yamlContent = Files.readString(configFile)
         
-        // 简单的格式验证
-        assertTrue(yamlContent.contains("bot:"), "配置文件应该包含bot配置")
-        assertTrue(yamlContent.contains("groups:"), "配置文件应该包含groups配置")
+        // Simple format validation
+        assertTrue(yamlContent.contains("bot:"), "Config file should contain bot configuration")
+        assertTrue(yamlContent.contains("groups:"), "Config file should contain groups configuration")
     }
 }

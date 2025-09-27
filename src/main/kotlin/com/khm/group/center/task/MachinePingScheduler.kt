@@ -28,11 +28,11 @@ class MachinePingScheduler {
     @Scheduled(fixedRate = 120000) // 2分钟 = 120000毫秒
     fun scheduledPing() {
         if (MachineConfig.machineList.isEmpty()) {
-            logger.warn("机器列表为空，跳过ping检测")
+            logger.warn("Machine list is empty, skip ping check")
             return
         }
 
-        logger.debug("开始执行机器ping检测，共 ${MachineConfig.machineList.size} 台机器")
+        logger.debug("Start machine ping check, total ${MachineConfig.machineList.size} machines")
 
         // 使用协程并发执行ping检测
         runBlocking {
@@ -41,7 +41,7 @@ class MachinePingScheduler {
                     try {
                         machineStatusService.pingMachine(machine)
                     } catch (e: Exception) {
-                        logger.error("Ping机器 ${machine.nameEng} 时发生异常: ${e.message}")
+                        logger.error("Ping machine ${machine.nameEng} exception: ${e.message}")
                         false
                     }
                 }
@@ -52,7 +52,7 @@ class MachinePingScheduler {
             val successCount = results.count { it }
             val failedCount = results.size - successCount
 
-            logger.info("机器ping检测完成: 成功 $successCount 台, 失败 $failedCount 台")
+            logger.info("Machine ping check completed: $successCount successful, $failedCount failed")
         }
     }
 
@@ -62,7 +62,7 @@ class MachinePingScheduler {
     @Scheduled(fixedRate = 600000) // 10分钟 = 600000毫秒
     fun scheduledCleanup() {
         machineStatusService.cleanupExpiredStatus()
-        logger.debug("执行机器状态清理完成")
+        logger.debug("Machine status cleanup completed")
     }
 
     /**
@@ -76,7 +76,7 @@ class MachinePingScheduler {
         
         if (MachineConfig.machineList.isNotEmpty()) {
             machineStatusService.initializeMachineStatus()
-            logger.info("机器状态服务初始化完成")
+            logger.info("Machine status service initialization completed")
             isInitialized = true
         }
     }

@@ -34,7 +34,7 @@ class HeartbeatController {
                 responseObj.result = "error: 无效的时间戳"
                 responseObj.isSucceed = false
                 responseObj.haveError = true
-                logger.warn("收到无效时间戳的心跳: ${heartbeat.serverNameEng}, timestamp: ${heartbeat.timestamp}")
+                logger.warn("Received heartbeat with invalid timestamp: ${heartbeat.serverNameEng}, timestamp: ${heartbeat.timestamp}")
                 return responseObj
             }
 
@@ -45,18 +45,18 @@ class HeartbeatController {
                 responseObj.result = "success"
                 responseObj.isSucceed = true
                 responseObj.isAuthenticated = true
-                logger.debug("处理心跳成功: ${heartbeat.serverNameEng}")
+                logger.debug("Process heartbeat successfully: ${heartbeat.serverNameEng}")
             } else {
                 responseObj.result = "error: 未知机器"
                 responseObj.isSucceed = false
                 responseObj.haveError = true
-                logger.warn("处理心跳失败: 未知机器 ${heartbeat.serverNameEng}")
+                logger.warn("Process heartbeat failed: unknown machine ${heartbeat.serverNameEng}")
             }
         } catch (e: Exception) {
             responseObj.result = "error: ${e.message}"
             responseObj.isSucceed = false
             responseObj.haveError = true
-            logger.error("处理心跳时发生异常: ${heartbeat.serverNameEng} - ${e.message}")
+            logger.error("Exception occurred while processing heartbeat: ${heartbeat.serverNameEng} - ${e.message}")
         }
 
         return responseObj

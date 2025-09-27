@@ -44,7 +44,7 @@ class MachineStatusController {
     @Operation(summary = "获取所有机器状态")
     @RequestMapping("/api/machine/status", method = [RequestMethod.GET])
     fun getAllMachineStatus(): List<MachineStatusResponse> {
-        logger.debug("查询所有机器状态")
+        logger.debug("Query all machine status")
 
         return MachineConfig.machineList.map { machine ->
             val status = machineStatusService.getMachineStatus(machine.nameEng)
@@ -74,11 +74,11 @@ class MachineStatusController {
     @Operation(summary = "获取指定机器状态")
     @RequestMapping("/api/machine/status/{nameEng}", method = [RequestMethod.GET])
     fun getMachineStatus(nameEng: String): MachineStatusResponse? {
-        logger.debug("查询机器状态: $nameEng")
+        logger.debug("Query machine status: $nameEng")
 
         val machine = MachineConfig.getMachineByNameEng(nameEng)
         if (machine == null) {
-            logger.warn("查询未知机器状态: $nameEng")
+            logger.warn("Query unknown machine status: $nameEng")
             return null
         }
 
@@ -108,7 +108,7 @@ class MachineStatusController {
     @Operation(summary = "获取机器状态统计")
     @RequestMapping("/api/machine/status/summary", method = [RequestMethod.GET])
     fun getMachineStatusSummary(): Map<String, Any> {
-        logger.debug("查询机器状态统计")
+        logger.debug("Query machine status statistics")
 
         val totalMachines = MachineConfig.machineList.size
         var onlinePingCount = 0

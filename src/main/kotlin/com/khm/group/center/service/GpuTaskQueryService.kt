@@ -28,11 +28,11 @@ class GpuTaskQueryService {
      * 执行GPU任务查询
      */
     fun queryGpuTasks(request: GpuTaskQueryRequest): GpuTaskQueryResponse {
-        logger.info("开始执行GPU任务查询: ${request.getQueryDescription()}")
+        logger.info("Start GPU task query: ${request.getQueryDescription()}")
 
         // 验证请求参数
         if (!request.validate()) {
-            logger.warn("查询请求参数验证失败")
+            logger.warn("Query request parameter validation failed")
             return GpuTaskQueryResponse.empty()
         }
 
@@ -56,7 +56,7 @@ class GpuTaskQueryService {
             // 构建响应
             val paginationInfo = PaginationInfo.fromPagination(request.pagination, pageResult.total)
 
-            logger.info("查询完成: 找到 ${pageResult.total} 条记录，返回 ${pageResult.records.size} 条")
+            logger.info("Query completed: found ${pageResult.total} records, returned ${pageResult.records.size} records")
 
             return GpuTaskQueryResponse.fromDataWithStats(
                 data = pageResult.records,
@@ -65,7 +65,7 @@ class GpuTaskQueryService {
             )
 
         } catch (e: Exception) {
-            logger.error("GPU任务查询失败", e)
+            logger.error("GPU task query failed", e)
             return GpuTaskQueryResponse.empty()
         }
     }
@@ -78,7 +78,7 @@ class GpuTaskQueryService {
         pagination: Pagination
     ) {
         val sortColumn = pagination.getSortColumn()
-        val sortDirection = pagination.getSortDirection()
+        pagination.getSortDirection()
 
         when (pagination.sortOrder) {
             SortOrder.ASC -> queryWrapper.orderByAsc(sortColumn)
@@ -102,10 +102,10 @@ class GpuTaskQueryService {
         
         // 修正页码，确保在有效范围内
         val correctedPage = if (pagination.page > totalPages) {
-            logger.warn("页码 ${pagination.page} 超出范围（总页数：$totalPages），自动修正为最后一页")
+            logger.warn("Page number ${pagination.page} out of range (total pages: $totalPages), automatically corrected to last page")
             totalPages
         } else if (pagination.page < 1) {
-            logger.warn("页码 ${pagination.page} 无效，自动修正为第一页")
+            logger.warn("Page number ${pagination.page} is invalid, automatically corrected to first page")
             1
         } else {
             pagination.page
@@ -128,7 +128,7 @@ class GpuTaskQueryService {
         )
         page.records = records
         
-        logger.debug("分页查询结果: 总数=$totalCount, 总页数=$totalPages, 当前页=$correctedPage, 返回记录数=${records.size}")
+        logger.debug("Pagination query result: total=$totalCount, totalPages=$totalPages, currentPage=$correctedPage, returnedRecords=${records.size}")
         
         return page
     }

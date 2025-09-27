@@ -1,0 +1,4 @@
+# 忽略所有配置文件，只保留示例文件
+*
+!.gitignore
+!example.yaml

@@ -16,11 +16,11 @@ class QueryStatisticsCalculator {
      */
     fun calculateStatistics(tasks: List<GpuTaskInfoModel>): QueryStatistics {
         if (tasks.isEmpty()) {
-            logger.debug("任务列表为空，返回空统计信息")
+            logger.debug("Task list is empty, return empty statistics")
             return QueryStatistics.empty()
         }
 
-        logger.debug("开始计算 ${tasks.size} 个任务的统计信息")
+        logger.debug("Start calculating statistics for ${tasks.size} tasks")
 
         return QueryStatistics(
             totalTasks = tasks.size,

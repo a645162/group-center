@@ -10,3 +10,5 @@ logger.info("Receive User($userNameEng) FileName($fileName)")
 ```
 
 Kotlin中导入完包，就可以直接使用logger.info或者logger.debug，请你区分好不同的日志级别！
+
+日志以及调试输出，均需要使用英语，从而避免编码问题导致的乱码。

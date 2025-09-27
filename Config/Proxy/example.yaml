@@ -1,0 +1,75 @@
+# 代理服务器测试配置示例文件
+# 复制此文件为 proxy.yaml 并修改配置
+# 注意：此功能仅用于测试代理服务器是否正常工作，程序本身不通过代理上网
+
+version: 200
+enable: false  # 设置为true启用代理测试功能
+
+# 代理服务器测试配置
+proxyTestList:
+  # HTTP代理测试配置
+  - name: "HTTP代理测试"
+    nameEng: "http-proxy-test"
+    type: "HTTP"
+    host: "192.168.1.100"  # 替换为实际的HTTP代理服务器IP
+    port: 8080
+    username: ""  # 代理认证用户名（如果需要）
+    password: ""  # 代理认证密码（如果需要）
+    enable: false  # 设置为true启用此代理测试
+    
+    # 测试配置
+    testConfig:
+      enable: true
+      interval: 300  # 检查间隔（秒），默认5分钟
+      timeout: 10    # 超时时间（秒），默认10秒
+      # HTTP代理测试URL（应该能通过代理访问）
+      testUrl: "http://www.google.com"
+      # 直接访问测试URL（应该无法访问，用于对比）
+      directTestUrl: "http://www.google.com"
+
+  # HTTPS代理测试配置
+  - name: "HTTPS代理测试"
+    nameEng: "https-proxy-test"
+    type: "HTTPS"
+    host: "192.168.1.101"  # 替换为实际的HTTPS代理服务器IP
+    port: 8080
+    username: ""
+    password: ""
+    enable: false
+    
+    testConfig:
+      enable: true
+      interval: 300
+      timeout: 10
+      # HTTPS代理测试URL（应该能通过代理访问）
+      testUrl: "https://www.youtube.com"
+      # 直接访问测试URL（应该无法访问，用于对比）
+      directTestUrl: "https://www.youtube.com"
+
+  # SOCKS5代理测试配置
+  - name: "SOCKS5代理测试"
+    nameEng: "socks5-proxy-test"
+    type: "SOCKS5"
+    host: "192.168.1.102"  # 替换为实际的SOCKS5代理服务器IP
+    port: 1080
+    username: "proxyuser"  # SOCKS5认证用户名
+    password: "proxypass"  # SOCKS5认证密码
+    enable: false
+    
+    testConfig:
+      enable: true
+      interval: 300
+      timeout: 10
+      # SOCKS5代理测试URL（应该能通过代理访问）
+      testUrl: "https://www.facebook.com"
+      # 直接访问测试URL（应该无法访问，用于对比）
+      directTestUrl: "https://www.facebook.com"
+
+# 全局测试配置
+globalTestConfig:
+  # 是否启用直接访问对比测试（测试代理是否真的起作用）
+  enableDirectTest: true
+  # 测试失败重试次数
+  retryCount: 2
+  # 测试失败后的等待时间（秒）
+  retryDelay: 5
