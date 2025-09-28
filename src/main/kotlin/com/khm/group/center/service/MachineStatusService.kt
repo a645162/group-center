@@ -57,11 +57,10 @@ class MachineStatusService {
                     status.lastPingTime = currentTime
                     status.pingStatus = true
                     status.lastPingError = null
-                    logger.debug("Ping successful: ${machine.nameEng} (${machine.host})")
                 } else {
                     status.pingStatus = false
                     status.lastPingError = "Ping timeout"
-                    logger.warn("Ping failed: ${machine.nameEng} (${machine.host})")
+                    logger.debug("Ping failed: ${machine.nameEng} (${machine.host})")
                 }
 
                 // 更新MachineConfig中的状态
@@ -77,7 +76,7 @@ class MachineStatusService {
                 // 更新MachineConfig中的状态
                 machine.pingStatus = false
 
-                logger.error("Ping exception: ${machine.nameEng} (${machine.host}) - ${e.message}")
+                logger.debug("Ping exception: ${machine.nameEng} (${machine.host}) - ${e.message}")
                 false
             }
         }
@@ -139,14 +138,14 @@ class MachineStatusService {
     }
 
     /**
-     * 检查机器是否可ping通（最近2分钟内成功ping）
+     * 检查机器是否可ping通（最近10分钟内成功ping）
      */
     fun isMachineReachable(serverNameEng: String): Boolean {
         val status = machineStatusMap[serverNameEng] ?: return false
         val lastPing = status.lastPingTime ?: return false
         
         val currentTime = DateTimeUtils.getCurrentTimestamp()
-        return (currentTime - lastPing) <= 120 // 2分钟
+        return (currentTime - lastPing) <= 600 // 10分钟
     }
 
     /**

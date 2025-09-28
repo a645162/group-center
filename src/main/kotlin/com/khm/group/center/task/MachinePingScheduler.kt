@@ -23,16 +23,14 @@ class MachinePingScheduler {
     private var isInitialized = false
 
     /**
-     * 每2分钟执行一次ping检测
+     * 每10分钟执行一次ping检测
      */
-    @Scheduled(fixedRate = 120000) // 2分钟 = 120000毫秒
+    @Scheduled(fixedRate = 600000) // 10分钟 = 600000毫秒
     fun scheduledPing() {
         if (MachineConfig.machineList.isEmpty()) {
             logger.warn("Machine list is empty, skip ping check")
             return
         }
-
-        logger.debug("Start machine ping check, total ${MachineConfig.machineList.size} machines")
 
         // 使用协程并发执行ping检测
         runBlocking {
@@ -41,7 +39,7 @@ class MachinePingScheduler {
                     try {
                         machineStatusService.pingMachine(machine)
                     } catch (e: Exception) {
-                        logger.error("Ping machine ${machine.nameEng} exception: ${e.message}")
+                        logger.debug("Ping machine ${machine.nameEng} exception: ${e.message}")
                         false
                     }
                 }
@@ -52,7 +50,9 @@ class MachinePingScheduler {
             val successCount = results.count { it }
             val failedCount = results.size - successCount
 
-            logger.info("Machine ping check completed: $successCount successful, $failedCount failed")
+            if (failedCount > 0) {
+                logger.debug("Machine ping check completed: $successCount successful, $failedCount failed")
+            }
         }
     }
 
