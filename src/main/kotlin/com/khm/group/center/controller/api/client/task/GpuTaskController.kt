@@ -3,6 +3,7 @@ package com.khm.group.center.controller.api.client.task
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper
 import com.khm.group.center.datatype.config.MachineConfig
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
 
 import com.khm.group.center.datatype.receive.task.GpuTaskInfo
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired
 
 
 @RestController
+@Tag(name = "GPU Task", description = "GPU task information submission and notification API")
 class GpuTaskController {
 
     @Autowired

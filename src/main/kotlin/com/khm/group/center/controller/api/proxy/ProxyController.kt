@@ -7,6 +7,9 @@ import com.khm.group.center.service.ProxyHealthCheckService
 import com.khm.group.center.task.ProxyHealthCheckScheduler
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*
  */
 @RestController
 @RequestMapping("/api/proxy")
+@Tag(name = "Proxy Management", description = "Proxy server status query and management API")
 @Slf4jKt
 class ProxyController {
 
@@ -33,6 +37,10 @@ class ProxyController {
     /**
      * 获取所有代理服务器状态
      */
+    @Operation(
+        summary = "Get All Proxy Servers",
+        description = "Retrieve status and details for all configured proxy servers"
+    )
     @GetMapping("/servers")
     fun getAllProxyServers(): ResponseEntity<ProxyServersResponse> {
         if (!ProxyConfigManager.proxyConfig.enable) {
@@ -60,8 +68,15 @@ class ProxyController {
     /**
      * 获取指定代理服务器状态
      */
+    @Operation(
+        summary = "Get Specific Proxy Server",
+        description = "Retrieve status and details for a specific proxy server by name"
+    )
     @GetMapping("/servers/{nameEng}")
-    fun getProxyServer(@PathVariable nameEng: String): ResponseEntity<ProxyServerResponse> {
+    fun getProxyServer(
+        @Parameter(description = "English name of the proxy server")
+        @PathVariable nameEng: String
+    ): ResponseEntity<ProxyServerResponse> {
         if (!ProxyConfigManager.proxyConfig.enable) {
             return ResponseEntity.ok(ProxyServerResponse(
                 success = false,
@@ -89,6 +104,10 @@ class ProxyController {
     /**
      * 获取代理服务器总体状态
      */
+    @Operation(
+        summary = "Get Proxy Status Summary",
+        description = "Retrieve overall proxy system status including availability rates and configuration status"
+    )
     @GetMapping("/status")
     fun getProxyStatus(): ResponseEntity<ProxyStatusResponse> {
         val statusSummary = proxyHealthCheckScheduler.getStatusSummary()
@@ -105,6 +124,10 @@ class ProxyController {
     /**
      * 手动触发健康检查
      */
+    @Operation(
+        summary = "Trigger Manual Health Check",
+        description = "Manually trigger health check for all proxy servers and return immediate results"
+    )
     @PostMapping("/health-check")
     fun triggerHealthCheck(): ResponseEntity<HealthCheckResponse> {
         if (!ProxyConfigManager.proxyConfig.enable) {
@@ -139,6 +162,10 @@ class ProxyController {
     /**
      * 重新加载代理配置
      */
+    @Operation(
+        summary = "Reload Proxy Configuration",
+        description = "Reload proxy configuration from file without restarting the application"
+    )
     @PostMapping("/reload-config")
     fun reloadConfig(): ResponseEntity<ReloadConfigResponse> {
         return try {

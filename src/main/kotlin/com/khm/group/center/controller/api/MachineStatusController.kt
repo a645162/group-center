@@ -6,7 +6,10 @@ import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import com.khm.group.center.utils.time.DateTimeUtils
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController
  * 提供机器ping状态和agent心跳状态的查询接口
  */
 @RestController
+@Tag(name = "Machine Status", description = "Machine ping status and agent heartbeat status query API")
 @Slf4jKt
 class MachineStatusController {
 
@@ -41,7 +45,10 @@ class MachineStatusController {
         val agentStatusText: String
     )
 
-    @Operation(summary = "获取所有机器状态")
+    @Operation(
+        summary = "Get All Machine Status",
+        description = "Retrieve status information for all machines including ping status, agent status, and last update times"
+    )
     @RequestMapping("/api/machine/status", method = [RequestMethod.GET])
     fun getAllMachineStatus(): List<MachineStatusResponse> {
         logger.debug("Query all machine status")
@@ -71,9 +78,15 @@ class MachineStatusController {
         }
     }
 
-    @Operation(summary = "获取指定机器状态")
+    @Operation(
+        summary = "Get Specific Machine Status",
+        description = "Retrieve detailed status information for a specific machine by its English name"
+    )
     @RequestMapping("/api/machine/status/{nameEng}", method = [RequestMethod.GET])
-    fun getMachineStatus(nameEng: String): MachineStatusResponse? {
+    fun getMachineStatus(
+        @Parameter(description = "English name of the machine")
+        @PathVariable nameEng: String
+    ): MachineStatusResponse? {
         logger.debug("Query machine status: $nameEng")
 
         val machine = MachineConfig.getMachineByNameEng(nameEng)
@@ -105,7 +118,10 @@ class MachineStatusController {
         )
     }
 
-    @Operation(summary = "获取机器状态统计")
+    @Operation(
+        summary = "Get Machine Status Summary",
+        description = "Retrieve summary statistics for all machines including online counts and availability rates"
+    )
     @RequestMapping("/api/machine/status/summary", method = [RequestMethod.GET])
     fun getMachineStatusSummary(): Map<String, Any> {
         logger.debug("Query machine status statistics")

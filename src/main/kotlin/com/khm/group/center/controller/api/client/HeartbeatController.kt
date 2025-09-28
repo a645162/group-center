@@ -6,6 +6,7 @@ import com.khm.group.center.service.MachineStatusService
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController
  * 处理agent客户端发送的心跳包
  */
 @RestController
+@Tag(name = "Client Heartbeat", description = "Client heartbeat API for machine status updates")
 @Slf4jKt
 class HeartbeatController {
 
