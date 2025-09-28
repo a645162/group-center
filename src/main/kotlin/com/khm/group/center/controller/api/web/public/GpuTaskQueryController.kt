@@ -207,22 +207,27 @@ class GpuTaskQueryController {
     ): List<QueryFilter> {
         val filters = mutableListOf<QueryFilter>()
 
-        userName?.let {
-            filters.add(QueryFilter(QueryField.TASK_USER, QueryOperator.EQUALS, it))
+        // 检查用户名参数，如果为空或trim后为空字符串则不添加条件
+        if (!userName.isNullOrBlank()) {
+            filters.add(QueryFilter(QueryField.TASK_USER, QueryOperator.EQUALS, userName.trim()))
         }
 
-        projectName?.let {
-            filters.add(QueryFilter(QueryField.PROJECT_NAME, QueryOperator.LIKE, it))
+        // 检查项目名称参数，如果为空或trim后为空字符串则不添加条件，使用模糊匹配
+        if (!projectName.isNullOrBlank()) {
+            filters.add(QueryFilter(QueryField.PROJECT_NAME, QueryOperator.LIKE, projectName.trim()))
         }
 
-        deviceName?.let {
-            filters.add(QueryFilter(QueryField.SERVER_NAME_ENG, QueryOperator.EQUALS, it))
+        // 检查设备名称参数，如果为空或trim后为空字符串则不添加条件，使用模糊匹配
+        if (!deviceName.isNullOrBlank()) {
+            filters.add(QueryFilter(QueryField.SERVER_NAME_ENG, QueryOperator.LIKE, deviceName.trim()))
         }
 
-        taskType?.let {
-            filters.add(QueryFilter(QueryField.TASK_TYPE, QueryOperator.EQUALS, it))
+        // 检查任务类型参数，如果为空或trim后为空字符串则不添加条件
+        if (!taskType.isNullOrBlank()) {
+            filters.add(QueryFilter(QueryField.TASK_TYPE, QueryOperator.EQUALS, taskType.trim()))
         }
 
+        // 检查多GPU参数，如果为null则不添加条件
         isMultiGpu?.let {
             filters.add(QueryFilter(QueryField.IS_MULTI_GPU, QueryOperator.EQUALS, it))
         }
