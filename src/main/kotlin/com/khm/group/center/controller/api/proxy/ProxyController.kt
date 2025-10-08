@@ -256,7 +256,7 @@ data class ProxyServerInfo(
     val isAvailable: Boolean,
     val lastCheckTime: Long?,
     val responseTime: Long?,
-    val successRate: Double,
+    val successRate: String,
     val totalChecks: Int,
     val lastError: String?,
     
@@ -281,7 +281,7 @@ data class ProxyServerInfo(
                 isAvailable = details.isAvailable,
                 lastCheckTime = details.lastCheckTime,
                 responseTime = details.responseTime,
-                successRate = details.successRate,
+                successRate = "%.2f%%".format(details.successRate),
                 totalChecks = details.totalChecks,
                 lastError = details.status.lastError,
                 
@@ -300,7 +300,7 @@ data class ProxyServerInfo(
 data class ProxyStatusInfo(
     val totalProxies: Int,
     val availableProxies: Int,
-    val availabilityRate: Double,
+    val availabilityRate: String,
     val averageResponseTime: Long?,
     val lastCheckTime: Long,
     val isConfigEnabled: Boolean,
@@ -311,7 +311,7 @@ data class ProxyStatusInfo(
             return ProxyStatusInfo(
                 totalProxies = summary.totalProxies,
                 availableProxies = summary.availableProxies,
-                availabilityRate = summary.availabilityRate,
+                availabilityRate = "%.2f%%".format(summary.availabilityRate),
                 averageResponseTime = summary.averageResponseTime,
                 lastCheckTime = summary.lastCheckTime,
                 isConfigEnabled = summary.isConfigEnabled,

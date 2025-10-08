@@ -6,6 +6,8 @@ import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.service.BaseStatisticsService
 import com.khm.group.center.service.CachedStatisticsService
 import com.khm.group.center.service.GroupPusher
+import com.khm.group.center.utils.program.Slf4jKt
+import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import com.khm.group.center.utils.time.DateTimeUtils
 import com.khm.group.center.utils.time.TimePeriod
 import org.springframework.beans.factory.annotation.Autowired
@@ -305,17 +307,28 @@ class ReportPushService {
      * 记录推送状态
      */
     private fun recordPushStatus(reportType: String, date: LocalDate) {
-        val statusFile = reportStatusDir.resolve("${reportType}_${date.format(DateTimeFormatter.ISO_DATE)}.toml")
-
-        val status = mapOf(
-            "report_type" to reportType,
-            "push_date" to LocalDate.now().format(DateTimeFormatter.ISO_DATE),
-            "push_time" to System.currentTimeMillis(),
-            "status" to "success"
-        )
-
-        Files.createDirectories(reportStatusDir)
-        Files.writeString(statusFile, objectMapper.writeValueAsString(status))
+        try {
+            val logDir = Paths.get("logs")
+            Files.createDirectories(logDir)
+            
+            val statusFile = logDir.resolve("report_push_${reportType}_${date.format(DateTimeFormatter.ISO_DATE)}.json")
+            
+            val status = mapOf(
+                "report_type" to reportType,
+                "push_date" to LocalDate.now().format(DateTimeFormatter.ISO_DATE),
+                "push_time" to System.currentTimeMillis(),
+                "status" to "success",
+                "target_date" to date.format(DateTimeFormatter.ISO_DATE)
+            )
+            
+            // 使用格式化的JSON写入文件
+            val jsonContent = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(status)
+            Files.writeString(statusFile, jsonContent)
+            
+            logger.info("Report push status recorded to file: ${statusFile.fileName}")
+        } catch (e: Exception) {
+            logger.error("Failed to record report push status: ${e.message}", e)
+        }
     }
 
     /**
@@ -403,8 +416,16 @@ class ReportPushService {
      * 检查报告是否已推送
      */
     private fun isReportPushed(reportType: String, date: LocalDate): Boolean {
-        val statusFile = reportStatusDir.resolve("${reportType}_${date.format(DateTimeFormatter.ISO_DATE)}.toml")
-        return Files.exists(statusFile)
+        try {
+            val logDir = java.nio.file.Paths.get("logs")
+            val statusFile = logDir.resolve("report_push_${reportType}_${date.format(DateTimeFormatter.ISO_DATE)}.json")
+            
+            // 检查推送状态文件是否存在
+            return Files.exists(statusFile)
+        } catch (e: Exception) {
+            logger.error("Failed to check report push status: ${e.message}", e)
+            return false
+        }
     }
 
 }
