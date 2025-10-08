@@ -27,7 +27,7 @@ val myBatisVersion = "3.0.5"
 val fastjsonVersion = "2.0.59"
 
 group = "com.khm.group"
-version = "1.4.1-SNAPSHOT"
+version = "1.4.2-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_24
@@ -121,7 +121,7 @@ dependencies {
     implementation("commons-codec:commons-codec:1.17.1")
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Message WebHook
-    implementation("com.squareup.okhttp3:okhttp:5.1.0")
+    implementation("com.squareup.okhttp3:okhttp:5.2.0")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
     implementation("com.larksuite.oapi:oapi-sdk:2.4.24")
