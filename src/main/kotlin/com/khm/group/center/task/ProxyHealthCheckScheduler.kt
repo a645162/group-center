@@ -30,9 +30,9 @@ class ProxyHealthCheckScheduler {
     private var lastConfigModifiedTime: Long = -1L
 
     /**
-     * 定期健康检查（每5分钟执行一次）
+     * 定期健康检查（每1小时执行一次）
      */
-    @Scheduled(fixedRate = 300000) // 5分钟 = 300000毫秒
+    @Scheduled(fixedRate = 3600000) // 1小时 = 3600000毫秒
     fun scheduledHealthCheck() {
         if (!ProxyConfigManager.proxyConfig.enable) {
             logger.debug("Proxy test configuration not enabled, skipping health check")
@@ -45,7 +45,7 @@ class ProxyHealthCheckScheduler {
             return
         }
 
-        logger.info("Starting proxy test server health check, total ${enabledProxies.size} proxy test servers")
+        logger.debug("Starting proxy test server health check, total ${enabledProxies.size} proxy test servers")
 
         // 使用协程并发执行健康检查
         runBlocking {
@@ -54,14 +54,12 @@ class ProxyHealthCheckScheduler {
                 val successCount = results.count { it.value }
                 val failedCount = results.size - successCount
 
-                logger.info("Proxy health check completed: $successCount successful, $failedCount failed")
+                logger.debug("Proxy health check completed: $successCount successful, $failedCount failed")
 
-                // 记录详细的检查结果
+                // 记录详细的检查结果（仅记录失败的情况）
                 results.forEach { (proxyName, isAvailable) ->
                     val status = ProxyConfigManager.proxyStatusMap[proxyName]
-                    if (isAvailable) {
-                        logger.debug("Proxy test server $proxyName check successful, response time: ${status?.responseTime}ms")
-                    } else {
+                    if (!isAvailable) {
                         logger.warn("Proxy test server $proxyName check failed, error: ${status?.lastError}")
                     }
                 }
@@ -126,9 +124,9 @@ class ProxyHealthCheckScheduler {
     }
 
     /**
-     * 状态统计报告（每30分钟执行一次）
+     * 状态统计报告（每6小时执行一次）
      */
-    @Scheduled(fixedRate = 1800000) // 30分钟 = 1800000毫秒
+    @Scheduled(fixedRate = 21600000) // 6小时 = 21600000毫秒
     fun generateStatusReport() {
         if (!ProxyConfigManager.proxyConfig.enable) {
             return
@@ -146,8 +144,9 @@ class ProxyHealthCheckScheduler {
         logger.info("Proxy test server status statistics:")
         logger.info("Total proxy tests: $totalCount, available: $availableCount, availability rate: ${"%.2f".format(availabilityRate)}%")
 
-        statusDetails.forEach { detail ->
-            logger.info("Proxy test ${detail.proxy.nameEng}: ${detail.getStatusDescription()}, " +
+        // 只记录失败的代理服务器详细信息
+        statusDetails.filter { !it.isAvailable }.forEach { detail ->
+            logger.warn("Proxy test ${detail.proxy.nameEng}: ${detail.getStatusDescription()}, " +
                        "response time: ${detail.getResponseTimeDescription()}, " +
                        "success rate: ${detail.getSuccessRateDescription()}")
         }
