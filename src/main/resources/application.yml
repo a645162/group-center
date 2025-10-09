@@ -37,6 +37,17 @@ bot:
   config:
     file: Config/Bot/bot-groups.yaml
 
+# 心跳配置
+heartbeat:
+  # 时间同步阈值（秒），默认120秒（2分钟）
+  time-sync-threshold: 120
+  # 离线超时时间（秒），默认7200秒（2小时）
+  offline-timeout: 7200
+  # 在线状态检查时间（秒），默认120秒（2分钟）
+  online-check-interval: 120
+  # 定时任务执行间隔（毫秒），默认300000毫秒（5分钟）
+  scheduled-interval: 300000
+
 # # https://blog.csdn.net/weixin_42703501/article/details/139587100
 # # https://www.jobrunr.io/en/documentation/configuration/spring/
 # org:

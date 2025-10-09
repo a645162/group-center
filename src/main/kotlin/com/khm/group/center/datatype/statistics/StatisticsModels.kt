@@ -57,25 +57,25 @@ data class Report(
 
 // 用户统计数据结构（简化版，移除成功率相关字段）
 data class UserStatistics(
-    val userName: String,
-    var totalTasks: Int,
-    var totalRuntime: Int,
-    var averageRuntime: Double,
-    var favoriteGpu: String,
-    var favoriteProject: String
+    var userName: String = "",
+    var totalTasks: Int = 0,
+    var totalRuntime: Int = 0,
+    var averageRuntime: Double = 0.0,
+    var favoriteGpu: String = "",
+    var favoriteProject: String = ""
 ) {
     val formattedAverageRuntime: Double get() = NumberFormat.formatDouble(averageRuntime)
 }
 
 // GPU统计数据结构（保持不变）
 data class GpuStatistics(
-    val gpuName: String,
-    val serverName: String,
-    var totalUsageCount: Int,
-    var totalRuntime: Int,
-    var averageUsagePercent: Double,
-    var averageMemoryUsage: Double,
-    var totalMemoryUsage: Double
+    var gpuName: String = "",
+    var serverName: String = "",
+    var totalUsageCount: Int = 0,
+    var totalRuntime: Int = 0,
+    var averageUsagePercent: Double = 0.0,
+    var averageMemoryUsage: Double = 0.0,
+    var totalMemoryUsage: Double = 0.0
 ) {
     val formattedAverageUsagePercent: Double get() = NumberFormat.formatDouble(averageUsagePercent)
     val formattedAverageMemoryUsage: Double get() = NumberFormat.formatDouble(averageMemoryUsage)
@@ -84,11 +84,11 @@ data class GpuStatistics(
 
 // 服务器统计数据结构
 data class ServerStatistics(
-    val serverName: String,
-    var totalTasks: Int,
-    var totalRuntime: Int,
-    val activeUsers: MutableSet<String>,
-    var gpuUtilization: Double
+    var serverName: String = "",
+    var totalTasks: Int = 0,
+    var totalRuntime: Int = 0,
+    var activeUsers: MutableSet<String> = mutableSetOf(),
+    var gpuUtilization: Double = 0.0
 ) {
     val activeUsersCount: Int get() = activeUsers.size
     val formattedGpuUtilization: Double get() = NumberFormat.formatDouble(gpuUtilization)
@@ -96,11 +96,11 @@ data class ServerStatistics(
 
 // 项目统计数据结构（保持不变）
 data class ProjectStatistics(
-    val projectName: String,
-    var totalRuntime: Int,
-    var totalTasks: Int,
-    val activeUsers: MutableSet<String>,
-    var averageRuntime: Double
+    var projectName: String = "",
+    var totalRuntime: Int = 0,
+    var totalTasks: Int = 0,
+    var activeUsers: MutableSet<String> = mutableSetOf(),
+    var averageRuntime: Double = 0.0
 ) {
     val activeUsersCount: Int get() = activeUsers.size
     val formattedAverageRuntime: Double get() = NumberFormat.formatDouble(averageRuntime)
@@ -124,22 +124,22 @@ data class SleepAnalysis(
 
 // 以下为保留的辅助数据结构，用于趋势分析等场景
 data class DailyStats(
-    val date: LocalDate,
-    var totalTasks: Int,
-    var totalRuntime: Int,
-    val activeUsers: MutableSet<String>,
-    var peakGpuUsage: Double
+    var date: LocalDate = LocalDate.now(),
+    var totalTasks: Int = 0,
+    var totalRuntime: Int = 0,
+    var activeUsers: MutableSet<String> = mutableSetOf(),
+    var peakGpuUsage: Double = 0.0
 ) {
     val activeUsersCount: Int get() = activeUsers.size
     val formattedPeakGpuUsage: Double get() = NumberFormat.formatDouble(peakGpuUsage)
 }
 
 data class TimeTrendStatistics(
-    val period: com.khm.group.center.utils.time.TimePeriod,
-    val dailyStats: List<DailyStats>,
-    val totalTasks: Int,
-    val totalRuntime: Int,
-    val totalUsers: Int,
-    val averageDailyTasks: Int,
-    val averageDailyRuntime: Int
+    var period: com.khm.group.center.utils.time.TimePeriod = com.khm.group.center.utils.time.TimePeriod.ONE_WEEK,
+    var dailyStats: List<DailyStats> = emptyList(),
+    var totalTasks: Int = 0,
+    var totalRuntime: Int = 0,
+    var totalUsers: Int = 0,
+    var averageDailyTasks: Int = 0,
+    var averageDailyRuntime: Int = 0
 )

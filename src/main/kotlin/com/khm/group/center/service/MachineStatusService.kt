@@ -1,9 +1,11 @@
 package com.khm.group.center.service
 
+import com.khm.group.center.config.HeartbeatConfig
 import com.khm.group.center.datatype.config.MachineConfig
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import com.khm.group.center.utils.time.DateTimeUtils
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.net.InetAddress
 import java.util.concurrent.ConcurrentHashMap
@@ -16,6 +18,9 @@ import kotlinx.coroutines.*
 @Service
 @Slf4jKt
 class MachineStatusService {
+
+    @Autowired
+    private lateinit var heartbeatConfig: HeartbeatConfig
 
     // 存储机器状态信息
     private val machineStatusMap = ConcurrentHashMap<String, MachineStatus>()
@@ -95,9 +100,11 @@ class MachineStatusService {
         val currentTime = DateTimeUtils.getCurrentTimestamp()
         val timeDiff = kotlin.math.abs(currentTime - timestamp)
         
-        // 时间戳验证：如果时间相差超过5分钟，记录警告
-        if (timeDiff > 300) { // 5分钟 = 300秒
+        // 时间戳验证：如果时间相差超过配置阈值，记录警告并推送报警
+        if (timeDiff > heartbeatConfig.timeSyncThreshold) {
             logger.warn("Machine ${machine.nameEng} timestamp difference is large: ${timeDiff} seconds, may need time synchronization")
+            // 推送时间同步报警到报警群
+            BotPushService.pushTimeSyncAlarm(machine.nameEng, timeDiff, heartbeatConfig.timeSyncThreshold.toLong())
         }
 
         val status = machineStatusMap.getOrPut(serverNameEng) { MachineStatus() }
@@ -127,14 +134,14 @@ class MachineStatusService {
     }
 
     /**
-     * 检查agent是否在线（最近5分钟内有心跳）
+     * 检查agent是否在线（根据配置的时间间隔）
      */
     fun isAgentOnline(serverNameEng: String): Boolean {
         val status = machineStatusMap[serverNameEng] ?: return false
         val lastHeartbeat = status.lastHeartbeatTime ?: return false
         
         val currentTime = DateTimeUtils.getCurrentTimestamp()
-        return (currentTime - lastHeartbeat) <= 300 // 5分钟
+        return (currentTime - lastHeartbeat) <= heartbeatConfig.onlineCheckInterval
     }
 
     /**
@@ -149,26 +156,48 @@ class MachineStatusService {
     }
 
     /**
-     * 清理过期状态（超过1小时无心跳的机器标记为离线）
+     * 清理过期状态（超过配置时间无心跳的机器标记为离线并推送报警）
      */
     fun cleanupExpiredStatus() {
         val currentTime = DateTimeUtils.getCurrentTimestamp()
         val expiredMachines = mutableListOf<String>()
+        val offlineMachines = mutableListOf<String>()
 
         machineStatusMap.forEach { (nameEng, status) ->
             val lastHeartbeat = status.lastHeartbeatTime
-            if (lastHeartbeat != null && (currentTime - lastHeartbeat) > 3600) { // 1小时
-                status.agentStatus = false
-                expiredMachines.add(nameEng)
+            if (lastHeartbeat != null) {
+                val timeDiff = currentTime - lastHeartbeat
                 
-                // 更新MachineConfig中的状态
-                val machine = MachineConfig.getMachineByNameEng(nameEng)
-                machine?.agentStatus = false
+                if (timeDiff > heartbeatConfig.offlineTimeout) {
+                    status.agentStatus = false
+                    expiredMachines.add(nameEng)
+                    
+                    // 更新MachineConfig中的状态
+                    val machine = MachineConfig.getMachineByNameEng(nameEng)
+                    machine?.agentStatus = false
+                    
+                    // 推送到报警群
+                    offlineMachines.add(nameEng)
+                }
             }
         }
 
         if (expiredMachines.isNotEmpty()) {
             logger.info("Marked the following machines as offline: ${expiredMachines.joinToString()}")
+            
+            // 推送离线报警到报警群
+            if (offlineMachines.isNotEmpty()) {
+                val timeoutMinutes = heartbeatConfig.offlineTimeout / 60
+                val offlineMessage = """
+                🚨 机器离线报警
+                ====================
+                以下机器超过${timeoutMinutes}分钟无心跳，已标记为离线：
+                ${offlineMachines.joinToString(", ")}
+                
+                请及时检查机器状态和网络连接！
+                """.trimIndent()
+                BotPushService.pushToAlarmGroup(offlineMessage)
+            }
         }
     }
 }

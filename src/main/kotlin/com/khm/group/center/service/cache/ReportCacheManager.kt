@@ -6,8 +6,11 @@ import com.khm.group.center.datatype.statistics.Report
 import com.khm.group.center.datatype.statistics.ReportType
 import com.khm.group.center.datatype.statistics.UserStatistics
 import com.khm.group.center.datatype.statistics.GpuStatistics
+import com.khm.group.center.datatype.statistics.ServerStatistics
 import com.khm.group.center.datatype.statistics.ProjectStatistics
 import com.khm.group.center.datatype.statistics.SleepAnalysis
+import com.khm.group.center.datatype.statistics.TimeTrendStatistics
+import com.khm.group.center.datatype.statistics.DailyStats
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import org.springframework.stereotype.Component
@@ -90,7 +93,12 @@ class ReportCacheManager {
             
             // 检查内存缓存中的数据类型
             val data = memoryEntry.data
-            if (data is Report) {
+            if (data is Report ||
+                data is TimeTrendStatistics ||
+                data is List<*> && data.isNotEmpty() && data[0] is UserStatistics ||
+                data is List<*> && data.isNotEmpty() && data[0] is GpuStatistics ||
+                data is List<*> && data.isNotEmpty() && data[0] is ServerStatistics ||
+                data is List<*> && data.isNotEmpty() && data[0] is ProjectStatistics) {
                 return data as T
             } else {
                 logger.warn("⚠️ Memory cache contains unexpected data type for key: $cacheKey, type: ${data?.javaClass?.name}")
@@ -165,6 +173,9 @@ class ReportCacheManager {
                 cacheKey.startsWith("yesterday_report") || cacheKey.startsWith("weekly_report") ||
                 cacheKey.startsWith("monthly_report") || cacheKey.startsWith("yearly_report") -> {
                     parseReportFromJson(jsonContent) as? T
+                }
+                cacheKey.startsWith("time_trend") -> {
+                    parseTimeTrendStatisticsFromJson(jsonContent) as? T
                 }
                 else -> {
                     // 其他统计信息使用泛型反序列化
@@ -504,6 +515,47 @@ class ReportCacheManager {
         } catch (e: Exception) {
             logger.warn("Failed to parse SleepAnalysis, returning null", e)
             null
+        }
+    }
+
+    /**
+     * 从JSON字符串解析TimeTrendStatistics对象
+     * 由于FastJSON无法正确反序列化Kotlin数据类中的LocalDate/LocalDateTime字段，需要手动解析
+     */
+    private fun parseTimeTrendStatisticsFromJson(jsonContent: String): TimeTrendStatistics? {
+        return try {
+            val jsonObject = JSON.parseObject(jsonContent)
+            
+            TimeTrendStatistics(
+                period = com.khm.group.center.utils.time.TimePeriod.valueOf(jsonObject.getString("period")),
+                dailyStats = parseDailyStatsList(jsonObject.getJSONArray("dailyStats")),
+                totalTasks = jsonObject.getIntValue("totalTasks"),
+                totalRuntime = jsonObject.getIntValue("totalRuntime"),
+                totalUsers = jsonObject.getIntValue("totalUsers"),
+                averageDailyTasks = jsonObject.getIntValue("averageDailyTasks"),
+                averageDailyRuntime = jsonObject.getIntValue("averageDailyRuntime")
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to parse TimeTrendStatistics from JSON", e)
+            null
+        }
+    }
+    
+    /**
+     * 解析DailyStats列表
+     */
+    private fun parseDailyStatsList(jsonArray: com.alibaba.fastjson2.JSONArray?): List<DailyStats> {
+        if (jsonArray == null) return emptyList()
+        
+        return jsonArray.map { item ->
+            val obj = item as JSONObject
+            DailyStats(
+                date = LocalDate.parse(obj.getString("date")),
+                totalTasks = obj.getIntValue("totalTasks"),
+                totalRuntime = obj.getIntValue("totalRuntime"),
+                activeUsers = (obj.getJSONArray("activeUsers")?.map { it.toString() }?.toMutableSet() ?: mutableSetOf()),
+                peakGpuUsage = obj.getDoubleValue("peakGpuUsage")
+            )
         }
     }
 

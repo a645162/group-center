@@ -1,5 +1,6 @@
 package com.khm.group.center.task
 
+import com.khm.group.center.config.HeartbeatConfig
 import com.khm.group.center.datatype.config.MachineConfig
 import com.khm.group.center.service.MachineStatusService
 import com.khm.group.center.utils.program.Slf4jKt
@@ -20,12 +21,15 @@ class MachinePingScheduler {
     @Autowired
     lateinit var machineStatusService: MachineStatusService
 
+    @Autowired
+    lateinit var heartbeatConfig: HeartbeatConfig
+
     private var isInitialized = false
 
     /**
-     * 每10分钟执行一次ping检测
+     * 根据配置执行ping检测
      */
-    @Scheduled(fixedRate = 600000) // 10分钟 = 600000毫秒
+    @Scheduled(fixedRateString = "\${heartbeat.scheduled-interval:300000}") // 默认5分钟
     fun scheduledPing() {
         if (MachineConfig.machineList.isEmpty()) {
             logger.warn("Machine list is empty, skip ping check")
@@ -57,9 +61,9 @@ class MachinePingScheduler {
     }
 
     /**
-     * 每10分钟执行一次状态清理（清理过期状态）
+     * 根据配置执行状态清理（清理过期状态）
      */
-    @Scheduled(fixedRate = 600000) // 10分钟 = 600000毫秒
+    @Scheduled(fixedRateString = "\${heartbeat.scheduled-interval:300000}") // 默认5分钟
     fun scheduledCleanup() {
         machineStatusService.cleanupExpiredStatus()
         logger.debug("Machine status cleanup completed")
