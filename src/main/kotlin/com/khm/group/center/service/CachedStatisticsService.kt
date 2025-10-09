@@ -149,10 +149,16 @@ class CachedStatisticsService {
         val cacheKey = "24hour_report_${startTime}_${endTime}"
         
         // 尝试从缓存获取
-        val cached: Report? = reportCacheManager.getCachedData(cacheKey)
+        val cached: Any? = reportCacheManager.getCachedData(cacheKey)
         if (cached != null) {
-            logger.info("✅ 缓存命中，从缓存获取24小时报告（时间范围：${startTime} - ${endTime}）")
-            return cached
+            if (cached is Report) {
+                logger.info("✅ 缓存命中，从缓存获取24小时报告（时间范围：${startTime} - ${endTime}）")
+                return cached
+            } else {
+                logger.warn("⚠️ 缓存数据类型错误，期望Report但获取到: ${cached.javaClass.name}，将重新计算")
+                // 清除错误的缓存
+                reportCacheManager.clearCache(cacheKey)
+            }
         }
 
         logger.info("🔄 缓存未命中，重新计算24小时报告（时间范围：${startTime} - ${endTime}）")
@@ -181,10 +187,16 @@ class CachedStatisticsService {
         val cacheKey = "48hour_report_${startTime}_${endTime}"
         
         // 尝试从缓存获取
-        val cached: Report? = reportCacheManager.getCachedData(cacheKey)
+        val cached: Any? = reportCacheManager.getCachedData(cacheKey)
         if (cached != null) {
-            logger.info("✅ 缓存命中，从缓存获取48小时报告（时间范围：${startTime} - ${endTime}）")
-            return cached
+            if (cached is Report) {
+                logger.info("✅ 缓存命中，从缓存获取48小时报告（时间范围：${startTime} - ${endTime}）")
+                return cached
+            } else {
+                logger.warn("⚠️ 缓存数据类型错误，期望Report但获取到: ${cached.javaClass.name}，将重新计算")
+                // 清除错误的缓存
+                reportCacheManager.clearCache(cacheKey)
+            }
         }
 
         logger.info("🔄 缓存未命中，重新计算48小时报告（时间范围：${startTime} - ${endTime}）")
@@ -213,10 +225,16 @@ class CachedStatisticsService {
         val cacheKey = "72hour_report_${startTime}_${endTime}"
         
         // 尝试从缓存获取
-        val cached: Report? = reportCacheManager.getCachedData(cacheKey)
+        val cached: Any? = reportCacheManager.getCachedData(cacheKey)
         if (cached != null) {
-            logger.info("✅ 缓存命中，从缓存获取72小时报告（时间范围：${startTime} - ${endTime}）")
-            return cached
+            if (cached is Report) {
+                logger.info("✅ 缓存命中，从缓存获取72小时报告（时间范围：${startTime} - ${endTime}）")
+                return cached
+            } else {
+                logger.warn("⚠️ 缓存数据类型错误，期望Report但获取到: ${cached.javaClass.name}，将重新计算")
+                // 清除错误的缓存
+                reportCacheManager.clearCache(cacheKey)
+            }
         }
 
         logger.info("🔄 缓存未命中，重新计算72小时报告（时间范围：${startTime} - ${endTime}）")
@@ -262,10 +280,16 @@ class CachedStatisticsService {
         val cacheKey = "daily_report_${validatedDate}"
           
         // 尝试从缓存获取
-        val cached: Report? = reportCacheManager.getCachedData(cacheKey)
+        val cached: Any? = reportCacheManager.getCachedData(cacheKey)
         if (cached != null) {
-            logger.info("✅ 缓存命中，从缓存获取日报（${validatedDate}）")
-            return cached
+            if (cached is Report) {
+                logger.info("✅ 缓存命中，从缓存获取日报（${validatedDate}）")
+                return cached
+            } else {
+                logger.warn("⚠️ 缓存数据类型错误，期望Report但获取到: ${cached.javaClass.name}，将重新计算")
+                // 清除错误的缓存
+                reportCacheManager.clearCache(cacheKey)
+            }
         }
   
         logger.info("🔄 缓存未命中，重新计算日报（${validatedDate}）")
@@ -292,10 +316,16 @@ class CachedStatisticsService {
         val cacheKey = "daily_report_${startDate}_${endDate}"
           
         // 尝试从缓存获取
-        val cached: Report? = reportCacheManager.getCachedData(cacheKey)
+        val cached: Any? = reportCacheManager.getCachedData(cacheKey)
         if (cached != null) {
-            logger.info("✅ 缓存命中，从缓存获取日报（${startDate} - ${endDate}）")
-            return cached
+            if (cached is Report) {
+                logger.info("✅ 缓存命中，从缓存获取日报（${startDate} - ${endDate}）")
+                return cached
+            } else {
+                logger.warn("⚠️ 缓存数据类型错误，期望Report但获取到: ${cached.javaClass.name}，将重新计算")
+                // 清除错误的缓存
+                reportCacheManager.clearCache(cacheKey)
+            }
         }
   
         logger.info("🔄 缓存未命中，重新计算日报（${startDate} - ${endDate}）")
@@ -456,10 +486,16 @@ class CachedStatisticsService {
             val cacheKey = "yearly_report_${validatedYear}"
             
             // 尝试从缓存获取
-            val cached: Report? = reportCacheManager.getCachedData(cacheKey)
+            val cached: Any? = reportCacheManager.getCachedData(cacheKey)
             if (cached != null) {
-                logger.info("✅ 缓存命中，从缓存获取年报（${validatedYear}年）")
-                return cached
+                if (cached is Report) {
+                    logger.info("✅ 缓存命中，从缓存获取年报（${validatedYear}年）")
+                    return cached
+                } else {
+                    logger.warn("⚠️ 缓存数据类型错误，期望Report但获取到: ${cached.javaClass.name}，将重新计算")
+                    // 清除错误的缓存
+                    reportCacheManager.clearCache(cacheKey)
+                }
             }
 
             logger.info("🔄 缓存未命中，重新计算年报（${validatedYear}年）")
@@ -482,10 +518,16 @@ class CachedStatisticsService {
             val cacheKey = "yearly_report_${targetYear}"
             
             // 尝试从缓存获取
-            val cached: Report? = reportCacheManager.getCachedData(cacheKey)
+            val cached: Any? = reportCacheManager.getCachedData(cacheKey)
             if (cached != null) {
-                logger.info("✅ 缓存命中，从缓存获取年报（${targetYear}年）")
-                return cached
+                if (cached is Report) {
+                    logger.info("✅ 缓存命中，从缓存获取年报（${targetYear}年）")
+                    return cached
+                } else {
+                    logger.warn("⚠️ 缓存数据类型错误，期望Report但获取到: ${cached.javaClass.name}，将重新计算")
+                    // 清除错误的缓存
+                    reportCacheManager.clearCache(cacheKey)
+                }
             }
 
             logger.info("🔄 缓存未命中，重新计算年报（${targetYear}年）")

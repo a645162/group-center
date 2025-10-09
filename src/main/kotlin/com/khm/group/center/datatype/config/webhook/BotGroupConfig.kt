@@ -11,4 +11,8 @@ class BotGroupConfig {
     fun isValid(): Boolean {
         return (weComGroupBotKey.isNotEmpty() || (larkGroupBotId.isNotEmpty() && larkGroupBotKey.isNotEmpty())) && enable
     }
+
+    fun toSummaryString(): String {
+        return "BotGroupConfig(name='$name', type='$type', weComGroupBotKey='${if (weComGroupBotKey.isNotEmpty()) "****" else ""}', larkGroupBotId='$larkGroupBotId', larkGroupBotKey='${if (larkGroupBotKey.isNotEmpty()) "****" else ""}', enable=$enable)"
+    }
 }

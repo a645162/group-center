@@ -5,7 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.service.BaseStatisticsService
 import com.khm.group.center.service.CachedStatisticsService
-import com.khm.group.center.service.GroupPusher
+import com.khm.group.center.service.BotPushService
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import com.khm.group.center.utils.time.DateTimeUtils
@@ -31,7 +31,7 @@ class ReportPushService {
     lateinit var baseStatisticsService: BaseStatisticsService
 
     @Autowired
-    lateinit var groupPusher: GroupPusher
+    lateinit var botPushService: BotPushService
 
     private val reportStatusDir: Path = Paths.get("Config/Program/Report")
 
@@ -40,7 +40,7 @@ class ReportPushService {
      */
     fun pushTodayReport() {
          if (!ConfigEnvironment.REPORT_DAILY_ENABLE) {
-             println("Daily report push disabled, skip pushing")
+             logger.info("Daily report push disabled, skip pushing")
              return
          }
          
@@ -50,7 +50,7 @@ class ReportPushService {
          val message = generateReportString(report, "today", sleepAnalysis)
  
          // 推送到短期群（日报）
-         GroupPusher.pushToShortTermGroup(message)
+         BotPushService.pushToShortTermGroup(message)
  
          // 记录推送状态
          recordPushStatus("today", LocalDate.now())
@@ -61,7 +61,7 @@ class ReportPushService {
       */
      fun pushYesterdayReport() {
          if (!ConfigEnvironment.REPORT_DAILY_ENABLE) {
-             println("Daily report push disabled, skip pushing")
+             logger.info("Daily report push disabled, skip pushing")
              return
          }
          
@@ -71,7 +71,7 @@ class ReportPushService {
          val message = generateReportString(report, "yesterday", sleepAnalysis)
  
          // 推送到短期群（日报）
-         GroupPusher.pushToShortTermGroup(message)
+         BotPushService.pushToShortTermGroup(message)
  
          // 记录推送状态
          recordPushStatus("yesterday", LocalDate.now().minusDays(1))
@@ -81,7 +81,7 @@ class ReportPushService {
      */
     fun pushWeeklyReport() {
         if (!ConfigEnvironment.REPORT_WEEKLY_ENABLE) {
-            println("Weekly report push disabled, skip pushing")
+            logger.info("Weekly report push disabled, skip pushing")
             return
         }
         
@@ -90,7 +90,7 @@ class ReportPushService {
         val message = generateReportString(report, "weekly", sleepAnalysis)
 
         // 推送到短期群（周报）
-        GroupPusher.pushToShortTermGroup(message)
+        BotPushService.pushToShortTermGroup(message)
 
         // 记录推送状态
         recordPushStatus("weekly", LocalDate.now())
@@ -101,7 +101,7 @@ class ReportPushService {
      */
     fun pushMonthlyReport() {
         if (!ConfigEnvironment.REPORT_MONTHLY_ENABLE) {
-            println("Monthly report push disabled, skip pushing")
+            logger.info("Monthly report push disabled, skip pushing")
             return
         }
         
@@ -110,7 +110,7 @@ class ReportPushService {
         val message = generateReportString(report, "monthly", sleepAnalysis)
 
         // 推送到长期群（月报）
-        GroupPusher.pushToLongTermGroup(message)
+        BotPushService.pushToLongTermGroup(message)
 
         // 记录推送状态
         recordPushStatus("monthly", LocalDate.now())
@@ -121,7 +121,7 @@ class ReportPushService {
      */
     fun pushYearlyReport() {
         if (!ConfigEnvironment.REPORT_YEARLY_ENABLE) {
-            println("Yearly report push disabled, skip pushing")
+            logger.info("Yearly report push disabled, skip pushing")
             return
         }
         
@@ -130,7 +130,7 @@ class ReportPushService {
         val message = generateReportString(report, "yearly", sleepAnalysis)
 
         // 推送到长期群（年报）
-        GroupPusher.pushToLongTermGroup(message)
+        BotPushService.pushToLongTermGroup(message)
 
         // 记录推送状态
         recordPushStatus("yearly", LocalDate.now())
@@ -346,7 +346,7 @@ class ReportPushService {
             
             return baseStatisticsService.getSleepAnalysis(tasks, startTime, currentTime)
         } catch (e: Exception) {
-            println("Get sleep analysis failed: ${e.message}")
+            logger.error("Get sleep analysis failed: ${e.message}")
             return null
         }
     }
@@ -370,7 +370,7 @@ class ReportPushService {
                 else -> return null
             }
         } catch (e: Exception) {
-            println("Get report sleep analysis failed: ${e.message}")
+            logger.error("Get report sleep analysis failed: ${e.message}")
             return null
         }
     }
