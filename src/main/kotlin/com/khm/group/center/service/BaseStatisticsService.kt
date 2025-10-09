@@ -125,4 +125,18 @@ interface BaseStatisticsService {
      * @return 报告
      */
     fun getCustomPeriodStatistics(tasks: List<GpuTaskInfoModel>, startTime: Long, endTime: Long): Report
+
+    /**
+     * 获取用户活动时间分布（无缓存）
+     * 统计每个用户的活动时间段，以4点为分界线处理跨天时间区间
+     * @param tasks 任务列表
+     * @param startTime 开始时间（秒，可选）
+     * @param endTime 结束时间（秒，可选）
+     * @return 用户活动时间分布
+     */
+    fun getUserActivityTimeDistribution(
+        tasks: List<GpuTaskInfoModel>,
+        startTime: Long? = null,
+        endTime: Long? = null
+    ): UserActivityTimeDistribution
 }

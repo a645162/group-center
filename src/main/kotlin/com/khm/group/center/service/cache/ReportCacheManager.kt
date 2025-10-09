@@ -253,14 +253,14 @@ class ReportCacheManager {
      * 检查是否是当前周期的报告（当月、当年、当日）
      */
     private fun isCurrentPeriodReport(cacheKey: String): Boolean {
-        val now = java.time.LocalDate.now()
+        val now = LocalDate.now()
         
         return when {
             cacheKey.startsWith("daily_report") -> {
                 // 检查是否是当日报告
                 val dateStr = cacheKey.substringAfter("daily_report_")
                 try {
-                    val reportDate = java.time.LocalDate.parse(dateStr)
+                    val reportDate = LocalDate.parse(dateStr)
                     reportDate == now
                 } catch (e: Exception) {
                     false

@@ -126,4 +126,12 @@ class StatisticsServiceImpl : BaseStatisticsService {
             endTime = endTime
         )
     }
+
+    override fun getUserActivityTimeDistribution(
+        tasks: List<GpuTaskInfoModel>,
+        startTime: Long?,
+        endTime: Long?
+    ): UserActivityTimeDistribution {
+        return statisticsAnalyzer.analyzeUserActivityTimeDistribution(tasks, startTime, endTime)
+    }
 }

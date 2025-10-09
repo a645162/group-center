@@ -266,4 +266,60 @@ class StatisticsController {
         return result
     }
 
+    @Operation(
+        summary = "获取用户活动时间分布",
+        description = """
+            统计每个用户的活动时间段，以4点为分界线处理跨天时间区间。
+            特殊处理逻辑：
+            - 如果用户的活动时间跨越4点，需要特殊处理跨天区间
+            - 例如：用户6点启动，3点启动，活动区间为6:00-3:00（跨天）
+            - 4点之前的时间视为第二天的对应时间进行计算
+        """
+    )
+    @GetMapping("/user-activity-time-distribution")
+    fun getUserActivityTimeDistribution(
+        @Parameter(description = "Time period for statistics (default: ONE_WEEK)", example = "ONE_WEEK")
+        @RequestParam(defaultValue = "ONE_WEEK") timePeriod: String
+    ): ClientResponse {
+        val period = TimePeriod.valueOf(timePeriod)
+        
+        // 使用基础服务（无缓存）进行用户活动时间分布分析
+        val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
+            .getTasksByTimePeriod(period)
+        
+        val distribution = baseStatisticsService.getUserActivityTimeDistribution(tasks)
+        
+        val result = ClientResponse()
+        result.result = distribution
+        return result
+    }
+
+    @Operation(
+        summary = "获取自定义时间段用户活动时间分布",
+        description = """
+            统计指定时间段内用户的活动时间段，以4点为分界线处理跨天时间区间。
+            特殊处理逻辑：
+            - 如果用户的活动时间跨越4点，需要特殊处理跨天区间
+            - 例如：用户6点启动，3点启动，活动区间为6:00-3:00（跨天）
+            - 4点之前的时间视为第二天的对应时间进行计算
+        """
+    )
+    @GetMapping("/user-activity-time-distribution/custom")
+    fun getUserActivityTimeDistributionCustom(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) startTime: LocalDateTime,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) endTime: LocalDateTime
+    ): ClientResponse {
+        // 使用基础服务（无缓存）进行自定义时间段统计
+        val startTimestamp = startTime.atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
+        val endTimestamp = endTime.atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
+        
+        val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
+            .getTasksByCustomPeriod(startTimestamp, endTimestamp)
+        val distribution = baseStatisticsService.getUserActivityTimeDistribution(tasks, startTimestamp, endTimestamp)
+        
+        val result = ClientResponse()
+        result.result = distribution
+        return result
+    }
+
 }

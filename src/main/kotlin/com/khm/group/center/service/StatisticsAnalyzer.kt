@@ -11,6 +11,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Component
 class StatisticsAnalyzer {
@@ -900,5 +901,124 @@ class StatisticsAnalyzer {
             topProjects = projectStats.take(15),
             sleepAnalysis = null
         )
+    }
+
+    /**
+     * 分析用户活动时间分布
+     * 统计每个用户的活动时间段，以4点为分界线处理跨天时间区间
+     * @param tasks 任务列表
+     * @param periodStart 开始时间（秒，可选）
+     * @param periodEnd 结束时间（秒，可选）
+     * @return 用户活动时间分布
+     */
+    fun analyzeUserActivityTimeDistribution(
+        tasks: List<GpuTaskInfoModel>,
+        periodStart: Long? = null,
+        periodEnd: Long? = null
+    ): UserActivityTimeDistribution {
+        val filteredTasks = filterMultiGpuTasks(tasks)
+        val userMap = mutableMapOf<String, UserActivityTimeRange>()
+        DateTimeFormatter.ofPattern("HH:mm")
+
+        for (task in filteredTasks) {
+            val userName = task.taskUser
+            val user = userMap.getOrPut(userName) {
+                UserActivityTimeRange(
+                    userName = userName,
+                    earliestStartTime = null,
+                    latestStartTime = null,
+                    activityTimeRange = "",
+                    totalTasks = 0,
+                    totalRuntime = 0
+                )
+            }
+
+            // 计算任务在统计区间内的实际运行时间
+            val actualRuntime: Long = if (periodStart != null && periodEnd != null) {
+                calculateActualRuntimeInPeriod(task, periodStart, periodEnd)
+            } else {
+                task.taskRunningTimeInSeconds.toLong()
+            }
+
+            // 只有当任务在统计区间内有实际运行时间时才计入统计
+            if (actualRuntime > 0L) {
+                user.totalTasks++
+                user.totalRuntime += actualRuntime.toInt()
+
+                // 转换启动时间为LocalDateTime
+                val startTime = DateTimeUtils.convertTimestampToDateTime(task.taskStartTime)
+
+                // 更新最早和最晚启动时间
+                if (user.earliestStartTime == null || startTime.isBefore(user.earliestStartTime)) {
+                    user.earliestStartTime = startTime
+                }
+                if (user.latestStartTime == null || startTime.isAfter(user.latestStartTime)) {
+                    user.latestStartTime = startTime
+                }
+            }
+        }
+
+        // 计算每个用户的活动时间区间
+        userMap.values.forEach { user ->
+            if (user.earliestStartTime != null && user.latestStartTime != null) {
+                user.activityTimeRange = calculateActivityTimeRange(
+                    user.earliestStartTime!!,
+                    user.latestStartTime!!
+                )
+            }
+        }
+
+        val userList = userMap.values.filter { it.totalRuntime > 0 }.sortedByDescending { it.totalRuntime }
+
+        return UserActivityTimeDistribution(
+            users = userList,
+            totalUsers = userList.size,
+            refreshTime = LocalDateTime.now()
+        )
+    }
+
+    /**
+     * 计算活动时间区间，处理4点分界线逻辑
+     * @param earliest 最早启动时间
+     * @param latest 最晚启动时间
+     * @return 格式化后的时间区间字符串
+     */
+    private fun calculateActivityTimeRange(earliest: LocalDateTime, latest: LocalDateTime): String {
+        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+        
+        // 提取小时信息
+        val earliestHour = earliest.hour
+        val latestHour = latest.hour
+        
+        // 检查是否跨越4点分界线
+        val crosses4am = (earliestHour >= 4 && latestHour < 4) ||
+                        (earliestHour < 4 && latestHour >= 4)
+        
+        return if (crosses4am) {
+            // 跨越4点的情况，需要特殊处理
+            // 将4点之前的时间视为"第二天"的时间
+            val adjustedLatest = if (latestHour < 4) {
+                latest.plusDays(1)
+            } else {
+                latest
+            }
+
+            if (earliestHour >= 4) {
+                earliest
+            } else {
+                earliest.plusDays(1)
+            }
+            
+            // 计算调整后的时间区间
+            val rangeStart = earliest.format(timeFormatter)
+            val rangeEnd = adjustedLatest.format(timeFormatter)
+            
+            "$rangeStart-$rangeEnd"
+        } else {
+            // 正常情况，直接格式化时间区间
+            val rangeStart = earliest.format(timeFormatter)
+            val rangeEnd = latest.format(timeFormatter)
+            "$rangeStart-$rangeEnd"
+        }
     }
 }

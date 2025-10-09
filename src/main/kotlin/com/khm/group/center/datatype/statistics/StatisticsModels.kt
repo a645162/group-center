@@ -143,3 +143,26 @@ data class TimeTrendStatistics(
     var averageDailyTasks: Int = 0,
     var averageDailyRuntime: Int = 0
 )
+
+/**
+ * 用户活动时间区间
+ * 用于统计用户的活动时间段分布
+ */
+data class UserActivityTimeRange(
+    var userName: String = "",
+    var earliestStartTime: LocalDateTime? = null,  // 最早启动时间
+    var latestStartTime: LocalDateTime? = null,    // 最晚启动时间
+    var activityTimeRange: String = "",            // 活动时间区间字符串
+    var totalTasks: Int = 0,                       // 总任务数
+    var totalRuntime: Int = 0                      // 总运行时间
+)
+
+/**
+ * 用户活动时间分布响应
+ * 包含所有用户的活动时间区间信息
+ */
+data class UserActivityTimeDistribution(
+    var users: List<UserActivityTimeRange> = emptyList(),
+    var totalUsers: Int = 0,
+    var refreshTime: LocalDateTime = LocalDateTime.now()
+)
