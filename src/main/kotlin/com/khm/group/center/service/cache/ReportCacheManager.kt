@@ -1,13 +1,22 @@
 package com.khm.group.center.service.cache
 
 import com.alibaba.fastjson2.JSON
+import com.alibaba.fastjson2.JSONObject
 import com.khm.group.center.datatype.statistics.Report
+import com.khm.group.center.datatype.statistics.ReportType
+import com.khm.group.center.datatype.statistics.UserStatistics
+import com.khm.group.center.datatype.statistics.GpuStatistics
+import com.khm.group.center.datatype.statistics.ProjectStatistics
+import com.khm.group.center.datatype.statistics.SleepAnalysis
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import org.springframework.stereotype.Component
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
@@ -78,7 +87,16 @@ class ReportCacheManager {
         val memoryEntry = memoryCache[cacheKey]
         if (memoryEntry != null && !isExpired(memoryEntry)) {
             logger.debug("✅ Memory cache hit: $cacheKey")
-            return memoryEntry.data as T
+            
+            // 检查内存缓存中的数据类型
+            val data = memoryEntry.data
+            if (data is Report) {
+                return data as T
+            } else {
+                logger.warn("⚠️ Memory cache contains unexpected data type for key: $cacheKey, type: ${data?.javaClass?.name}")
+                // 清除错误的内存缓存条目
+                memoryCache.remove(cacheKey)
+            }
         }
         
         // 2. 如果内存缓存未命中或已过期，尝试从磁盘获取
@@ -106,7 +124,7 @@ class ReportCacheManager {
         
         // 1. 存储到内存缓存
         memoryCache[cacheKey] = CacheEntry(data as Any, timestamp, expiryTime)
-        logger.debug("💾 Data stored in memory cache: $cacheKey")
+        logger.debug("💾 Data stored in memory cache: $cacheKey, type: ${data?.javaClass?.name}")
         
         // 2. 根据缓存类型决定是否存储到磁盘
         if (shouldPersistToDisk(cacheKey)) {
@@ -146,7 +164,7 @@ class ReportCacheManager {
                 cacheKey.startsWith("72hour_report") || cacheKey.startsWith("today_report") ||
                 cacheKey.startsWith("yesterday_report") || cacheKey.startsWith("weekly_report") ||
                 cacheKey.startsWith("monthly_report") || cacheKey.startsWith("yearly_report") -> {
-                    JSON.parseObject(jsonContent, Report::class.java) as? T
+                    parseReportFromJson(jsonContent) as? T
                 }
                 else -> {
                     // 其他统计信息使用泛型反序列化
@@ -376,6 +394,119 @@ class ReportCacheManager {
         return CacheStats(memorySize, diskFileCount, diskSize)
     }
     
+    /**
+     * 从JSON字符串解析Report对象
+     * 由于FastJSON无法正确反序列化Kotlin数据类中的LocalDate/LocalDateTime字段，需要手动解析
+     */
+    private fun parseReportFromJson(jsonContent: String): Report? {
+        return try {
+            val jsonObject = JSON.parseObject(jsonContent)
+            
+            Report(
+                reportType = ReportType.valueOf(jsonObject.getString("reportType")),
+                title = jsonObject.getString("title"),
+                periodStartDate = LocalDate.parse(jsonObject.getString("periodStartDate")),
+                periodEndDate = LocalDate.parse(jsonObject.getString("periodEndDate")),
+                startTime = LocalDateTime.parse(jsonObject.getString("startTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                endTime = LocalDateTime.parse(jsonObject.getString("endTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                actualTaskStartTime = LocalDateTime.parse(jsonObject.getString("actualTaskStartTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                actualTaskEndTime = LocalDateTime.parse(jsonObject.getString("actualTaskEndTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                totalTasks = jsonObject.getIntValue("totalTasks"),
+                totalRuntime = jsonObject.getIntValue("totalRuntime"),
+                activeUsers = jsonObject.getIntValue("activeUsers"),
+                topUsers = parseUserStatisticsList(jsonObject.getJSONArray("topUsers")),
+                topGpus = parseGpuStatisticsList(jsonObject.getJSONArray("topGpus")),
+                topProjects = parseProjectStatisticsList(jsonObject.getJSONArray("topProjects")),
+                sleepAnalysis = parseSleepAnalysis(jsonObject.getJSONObject("sleepAnalysis")),
+                refreshTime = LocalDateTime.parse(jsonObject.getString("refreshTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to parse Report from JSON", e)
+            null
+        }
+    }
+    
+    /**
+     * 解析用户统计列表
+     */
+    private fun parseUserStatisticsList(jsonArray: com.alibaba.fastjson2.JSONArray?): List<UserStatistics> {
+        if (jsonArray == null) return emptyList()
+        
+        return jsonArray.map { item ->
+            val obj = item as JSONObject
+            UserStatistics(
+                userName = obj.getString("userName"),
+                totalTasks = obj.getIntValue("totalTasks"),
+                totalRuntime = obj.getIntValue("totalRuntime"),
+                averageRuntime = obj.getDoubleValue("averageRuntime"),
+                favoriteGpu = obj.getString("favoriteGpu"),
+                favoriteProject = obj.getString("favoriteProject")
+            )
+        }
+    }
+    
+    /**
+     * 解析GPU统计列表
+     */
+    private fun parseGpuStatisticsList(jsonArray: com.alibaba.fastjson2.JSONArray?): List<GpuStatistics> {
+        if (jsonArray == null) return emptyList()
+        
+        return jsonArray.map { item ->
+            val obj = item as JSONObject
+            GpuStatistics(
+                gpuName = obj.getString("gpuName"),
+                serverName = obj.getString("serverName"),
+                totalUsageCount = obj.getIntValue("totalUsageCount"),
+                totalRuntime = obj.getIntValue("totalRuntime"),
+                averageUsagePercent = obj.getDoubleValue("averageUsagePercent"),
+                averageMemoryUsage = obj.getDoubleValue("averageMemoryUsage"),
+                totalMemoryUsage = obj.getDoubleValue("totalMemoryUsage")
+            )
+        }
+    }
+    
+    /**
+     * 解析项目统计列表
+     */
+    private fun parseProjectStatisticsList(jsonArray: com.alibaba.fastjson2.JSONArray?): List<ProjectStatistics> {
+        if (jsonArray == null) return emptyList()
+        
+        return jsonArray.map { item ->
+            val obj = item as JSONObject
+            ProjectStatistics(
+                projectName = obj.getString("projectName"),
+                totalRuntime = obj.getIntValue("totalRuntime"),
+                totalTasks = obj.getIntValue("totalTasks"),
+                activeUsers = (obj.getJSONArray("activeUsers")?.map { it.toString() }?.toMutableSet() ?: mutableSetOf()),
+                averageRuntime = obj.getDoubleValue("averageRuntime")
+            )
+        }
+    }
+    
+    /**
+     * 解析作息分析数据
+     */
+    private fun parseSleepAnalysis(jsonObject: JSONObject?): SleepAnalysis? {
+        if (jsonObject == null) return null
+        
+        return try {
+            SleepAnalysis(
+                lateNightTasks = emptyList(), // 由于GpuTaskInfoModel复杂，暂时不反序列化
+                earlyMorningTasks = emptyList(),
+                lateNightChampion = null,
+                earlyMorningChampion = null,
+                totalLateNightTasks = jsonObject.getIntValue("totalLateNightTasks"),
+                totalEarlyMorningTasks = jsonObject.getIntValue("totalEarlyMorningTasks"),
+                lateNightUsers = (jsonObject.getJSONArray("lateNightUsers")?.map { it.toString() }?.toSet() ?: emptySet()),
+                earlyMorningUsers = (jsonObject.getJSONArray("earlyMorningUsers")?.map { it.toString() }?.toSet() ?: emptySet()),
+                refreshTime = LocalDateTime.parse(jsonObject.getString("refreshTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            )
+        } catch (e: Exception) {
+            logger.warn("Failed to parse SleepAnalysis, returning null", e)
+            null
+        }
+    }
+
     /**
      * 缓存统计信息
      */

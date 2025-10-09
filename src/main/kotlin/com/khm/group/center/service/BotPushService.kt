@@ -1,23 +1,76 @@
 package com.khm.group.center.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.khm.group.center.config.BotConfig
 import com.khm.group.center.datatype.config.webhook.BotGroupConfig
 import com.khm.group.center.message.webhook.lark.LarkGroupBot
 import com.khm.group.center.message.webhook.wecom.WeComGroupBot
+import com.khm.group.center.utils.program.Slf4jKt
+import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.yaml.snakeyaml.Yaml
 import java.io.FileInputStream
+import java.nio.file.Files
+import java.nio.file.Paths
 
 @Service
+@Slf4jKt
 class BotPushService {
 
     @Autowired
-    lateinit var reportPushService: ReportPushService
+    private lateinit var objectMapper: ObjectMapper
+
+    private val yamlMapper = ObjectMapper(YAMLFactory())
 
     // 预定义的bot群配置
     private val botGroups = mutableListOf<BotGroupConfig>()
+
+    companion object {
+        private lateinit var instance: BotPushService
+
+        @JvmStatic
+        fun pushToAlarmGroup(message: String) {
+            instance.pushToGroupsInternal(message, "alarm")
+        }
+
+        @JvmStatic
+        fun pushToShortTermGroup(message: String) {
+            instance.pushToGroupsInternal(message, "shortterm")
+        }
+
+        @JvmStatic
+        fun pushToLongTermGroup(message: String) {
+            instance.pushToGroupsInternal(message, "longterm")
+        }
+
+        @JvmStatic
+        fun pushToGroup(message: String, groupType: String) {
+            instance.pushToGroupsInternal(message, groupType)
+        }
+
+        /**
+         * 推送时间同步报警
+         * @param machineName 机器名称
+         * @param timeDiff 时间差（秒）
+         * @param threshold 阈值（秒），默认5分钟
+         */
+        @JvmStatic
+        fun pushTimeSyncAlarm(machineName: String, timeDiff: Long, threshold: Long = 300) {
+            val message = """
+            ⚠️ 时间同步报警
+            ====================
+            机器: $machineName
+            时间差: ${timeDiff}秒
+            阈值: ${threshold}秒
+            建议: 请使用ntp服务同步时间
+            """.trimIndent()
+            instance.pushToGroupsInternal(message, "alarm")
+        }
+    }
 
     @Value("\${bot.config.file:Config/Bot/bot-groups.yaml}")
     private lateinit var configFile: String
@@ -25,8 +78,15 @@ class BotPushService {
     init {
         // 初始化默认的bot群配置
         initializeDefaultBotGroups()
-        // 从配置文件加载
-        loadBotGroupsFromConfig()
+
+        // 设置静态实例
+        instance = this
+    }
+
+    private fun ensureConfigLoaded() {
+        if (botGroups.size == 3) { // 只有默认配置，需要加载配置文件
+            loadBotGroupsFromConfig()
+        }
     }
 
     private fun initializeDefaultBotGroups() {
@@ -40,43 +100,33 @@ class BotPushService {
             larkGroupBotKey = ""
         }
 
-        // 日报群
-        val dailyGroup = BotGroupConfig().apply {
-            name = "日报群"
-            type = "daily"
+        // 短期群
+        val shortTermGroup = BotGroupConfig().apply {
+            name = "短期群"
+            type = "shortterm"
             weComGroupBotKey = ""
             larkGroupBotId = ""
             larkGroupBotKey = ""
         }
 
-        // 周报群
-        val weeklyGroup = BotGroupConfig().apply {
-            name = "周报群"
-            type = "weekly"
+        // 长期群
+        val longTermGroup = BotGroupConfig().apply {
+            name = "长期群"
+            type = "longterm"
             weComGroupBotKey = ""
             larkGroupBotId = ""
             larkGroupBotKey = ""
         }
 
-        // 月报群
-        val monthlyGroup = BotGroupConfig().apply {
-            name = "月报群"
-            type = "monthly"
-            weComGroupBotKey = ""
-            larkGroupBotId = ""
-            larkGroupBotKey = ""
-        }
+        botGroups.addAll(listOf(alarmGroup, shortTermGroup, longTermGroup))
+    }
 
-        // 年报群
-        val yearlyGroup = BotGroupConfig().apply {
-            name = "年报群"
-            type = "yearly"
-            weComGroupBotKey = ""
-            larkGroupBotId = ""
-            larkGroupBotKey = ""
+    fun printBotGroups() {
+        ensureConfigLoaded()
+        logger.info("Current Bot Groups Configuration:")
+        botGroups.forEach { group ->
+            logger.info(group.toSummaryString())
         }
-
-        botGroups.addAll(listOf(alarmGroup, dailyGroup, weeklyGroup, monthlyGroup, yearlyGroup))
     }
 
     private fun loadBotGroupsFromConfig() {
@@ -111,7 +161,7 @@ class BotPushService {
                 }
             }
         } catch (e: Exception) {
-            println("Failed to load bot groups config: ${e.message}")
+            logger.error("Failed to load bot groups config: ${e.message}")
         }
     }
 
@@ -135,6 +185,7 @@ class BotPushService {
      * 获取所有bot群配置
      */
     fun getAllBotGroups(): List<BotGroupConfig> {
+        ensureConfigLoaded()
         return botGroups.toList()
     }
 
@@ -142,6 +193,7 @@ class BotPushService {
      * 根据类型获取bot群配置
      */
     fun getBotGroupsByType(type: String): List<BotGroupConfig> {
+        ensureConfigLoaded()
         return botGroups.filter { it.type == type && it.isValid() }
     }
 
@@ -174,52 +226,72 @@ class BotPushService {
     }
 
     /**
-     * 推送日报（包含作息时间分析）
+     * 推送到短期群（包含作息时间分析）
      */
-    fun pushDailyReport(title: String, content: String) {
-        val sleepAnalysisContent = getSleepAnalysisContent("daily")
+    fun pushToShortTermGroup(title: String, content: String) {
+        val sleepAnalysisContent = getSleepAnalysisContent("shortterm")
         val fullContent = content + sleepAnalysisContent
-        pushToBotGroups("daily", title, fullContent)
+        pushToBotGroups("shortterm", title, fullContent)
     }
 
     /**
-     * 推送周报（包含作息时间分析）
+     * 推送到长期群（包含作息时间分析）
      */
-    fun pushWeeklyReport(title: String, content: String) {
-        val sleepAnalysisContent = getSleepAnalysisContent("weekly")
+    fun pushToLongTermGroup(title: String, content: String) {
+        val sleepAnalysisContent = getSleepAnalysisContent("longterm")
         val fullContent = content + sleepAnalysisContent
-        pushToBotGroups("weekly", title, fullContent)
-    }
-
-    /**
-     * 推送月报（包含作息时间分析）
-     */
-    fun pushMonthlyReport(title: String, content: String) {
-        val sleepAnalysisContent = getSleepAnalysisContent("monthly")
-        val fullContent = content + sleepAnalysisContent
-        pushToBotGroups("monthly", title, fullContent)
-    }
-
-    /**
-     * 推送年报（包含作息时间分析）
-     */
-    fun pushYearlyReport(title: String, content: String) {
-        val sleepAnalysisContent = getSleepAnalysisContent("yearly")
-        val fullContent = content + sleepAnalysisContent
-        pushToBotGroups("yearly", title, fullContent)
+        pushToBotGroups("longterm", title, fullContent)
     }
 
     /**
      * 获取作息时间分析内容
      */
     private fun getSleepAnalysisContent(reportType: String): String {
-        return try {
-            // 这里可以调用ReportPushService中的作息分析格式化方法
-            // 由于ReportPushService已经集成了作息分析，我们直接返回一个占位符
-            // 实际使用时，BotPushService会通过ReportPushService获取完整的报告内容
-            "\n\n🌙 作息时间分析已集成到报告中"
+        return "\n\n🌙 作息时间分析已集成到报告中"
+    }
+
+    /**
+     * 推送到指定类型的群组（内部实现）
+     */
+    private fun pushToGroupsInternal(message: String, groupType: String, removeEachLineBlank: Boolean = true) {
+        if (removeEachLineBlank) {
+            // 移除每行的空白字符
+            val lines = message.lines()
+            val cleanedLines = lines.map { it.trim() }.filter { it.isNotEmpty() }
+            val cleanedMessage = cleanedLines.joinToString("\n")
+            return pushToGroupsInternal(cleanedMessage, groupType, false)
+        }
+
+        try {
+            val botConfig = loadBotConfig()
+            val groups = botConfig.bot.groups.filter { it.type == groupType && it.enable }
+
+            groups.forEach { group ->
+                try {
+                    // 推送到飞书群
+                    if (group.larkGroupBotId.isNotBlank() && group.larkGroupBotKey.isNotBlank()) {
+                        val larkBot = LarkGroupBot(group.larkGroupBotId, group.larkGroupBotKey)
+                        if (larkBot.isValid()) {
+                            larkBot.sendText(message)
+                            logger.info("Successfully pushed to Lark ${groupType} group: ${group.name}")
+                        }
+                    }
+
+                    // 推送到企业微信群
+                    if (group.weComGroupBotKey.isNotBlank()) {
+                        WeComGroupBot.directSendTextWithUrl(
+                            group.weComGroupBotKey, message,
+                            null, null
+                        )
+                        logger.info("Successfully pushed to WeCom ${groupType} group: ${group.name}")
+                    }
+                } catch (e: Exception) {
+                    // 记录推送失败日志
+                    logger.error("Failed to push to ${groupType} group ${group.name}: ${e.message}")
+                }
+            }
         } catch (e: Exception) {
-            "\n\n❌ 作息分析数据获取失败"
+            logger.error("Failed to load bot config: ${e.message}")
         }
     }
 
@@ -232,17 +304,26 @@ class BotPushService {
                 if (group.weComGroupBotKey.isNotEmpty()) {
                     val weComUrl = WeComGroupBot.getWebhookUrl(group.weComGroupBotKey)
                     WeComGroupBot.directSendTextWithUrl(weComUrl, fullContent, emptyList(), emptyList())
-                    println("Sent WeCom message to ${group.name}")
+                    logger.info("Sent WeCom message to ${group.name}")
                 }
 
                 if (group.larkGroupBotId.isNotEmpty() && group.larkGroupBotKey.isNotEmpty()) {
                     val larkBot = LarkGroupBot(group.larkGroupBotId, group.larkGroupBotKey)
                     larkBot.sendTextWithSilentMode(fullContent, null)
-                    println("Sent Lark message to ${group.name}")
+                    logger.info("Sent Lark message to ${group.name}")
                 }
             } catch (e: Exception) {
-                println("Failed to send message to ${group.name}: ${e.message}")
+                logger.error("Failed to send message to ${group.name}: ${e.message}")
             }
         }
+    }
+
+    /**
+     * 加载Bot配置
+     */
+    private fun loadBotConfig(): BotConfig {
+        val configFile = Paths.get("Config/Bot/bot-groups.yaml")
+        val yamlContent = Files.readString(configFile)
+        return yamlMapper.readValue(yamlContent, BotConfig::class.java)
     }
 }
