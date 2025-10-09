@@ -263,8 +263,8 @@ class BotPushService {
         }
 
         try {
-            val botConfig = loadBotConfig()
-            val groups = botConfig.bot.groups.filter { it.type == groupType && it.enable }
+            ensureConfigLoaded()
+            val groups = botGroups.filter { it.type == groupType && it.enable && it.isValid() }
 
             groups.forEach { group ->
                 try {
@@ -291,7 +291,7 @@ class BotPushService {
                 }
             }
         } catch (e: Exception) {
-            logger.error("Failed to load bot config: ${e.message}")
+            logger.error("Failed to push to ${groupType} groups: ${e.message}")
         }
     }
 

@@ -40,7 +40,7 @@ class ReportPushService {
      */
     fun pushTodayReport() {
          if (!ConfigEnvironment.REPORT_DAILY_ENABLE) {
-             println("Daily report push disabled, skip pushing")
+             logger.info("Daily report push disabled, skip pushing")
              return
          }
          
@@ -61,7 +61,7 @@ class ReportPushService {
       */
      fun pushYesterdayReport() {
          if (!ConfigEnvironment.REPORT_DAILY_ENABLE) {
-             println("Daily report push disabled, skip pushing")
+             logger.info("Daily report push disabled, skip pushing")
              return
          }
          
@@ -81,7 +81,7 @@ class ReportPushService {
      */
     fun pushWeeklyReport() {
         if (!ConfigEnvironment.REPORT_WEEKLY_ENABLE) {
-            println("Weekly report push disabled, skip pushing")
+            logger.info("Weekly report push disabled, skip pushing")
             return
         }
         
@@ -101,7 +101,7 @@ class ReportPushService {
      */
     fun pushMonthlyReport() {
         if (!ConfigEnvironment.REPORT_MONTHLY_ENABLE) {
-            println("Monthly report push disabled, skip pushing")
+            logger.info("Monthly report push disabled, skip pushing")
             return
         }
         
@@ -121,7 +121,7 @@ class ReportPushService {
      */
     fun pushYearlyReport() {
         if (!ConfigEnvironment.REPORT_YEARLY_ENABLE) {
-            println("Yearly report push disabled, skip pushing")
+            logger.info("Yearly report push disabled, skip pushing")
             return
         }
         
@@ -346,7 +346,7 @@ class ReportPushService {
             
             return baseStatisticsService.getSleepAnalysis(tasks, startTime, currentTime)
         } catch (e: Exception) {
-            println("Get sleep analysis failed: ${e.message}")
+            logger.error("Get sleep analysis failed: ${e.message}")
             return null
         }
     }
@@ -370,7 +370,7 @@ class ReportPushService {
                 else -> return null
             }
         } catch (e: Exception) {
-            println("Get report sleep analysis failed: ${e.message}")
+            logger.error("Get report sleep analysis failed: ${e.message}")
             return null
         }
     }
