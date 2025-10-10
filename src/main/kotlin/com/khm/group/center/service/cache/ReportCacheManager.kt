@@ -6,8 +6,11 @@ import com.khm.group.center.datatype.statistics.Report
 import com.khm.group.center.datatype.statistics.ReportType
 import com.khm.group.center.datatype.statistics.UserStatistics
 import com.khm.group.center.datatype.statistics.GpuStatistics
+import com.khm.group.center.datatype.statistics.ServerStatistics
 import com.khm.group.center.datatype.statistics.ProjectStatistics
 import com.khm.group.center.datatype.statistics.SleepAnalysis
+import com.khm.group.center.datatype.statistics.TimeTrendStatistics
+import com.khm.group.center.datatype.statistics.DailyStats
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import org.springframework.stereotype.Component
@@ -90,8 +93,25 @@ class ReportCacheManager {
             
             // 检查内存缓存中的数据类型
             val data = memoryEntry.data
-            if (data is Report) {
+            if (data is Report ||
+                data is TimeTrendStatistics ||
+                data is List<*> && data.isNotEmpty() && data[0] is UserStatistics ||
+                data is List<*> && data.isNotEmpty() && data[0] is GpuStatistics ||
+                data is List<*> && data.isNotEmpty() && data[0] is ServerStatistics ||
+                data is List<*> && data.isNotEmpty() && data[0] is ProjectStatistics) {
                 return data as T
+            } else if (data is com.alibaba.fastjson2.JSONArray) {
+                // 处理从磁盘反序列化时可能出现的JSONArray类型
+                logger.debug("🔄 Converting JSONArray to appropriate list type for key: $cacheKey")
+                val convertedData = convertJsonArrayToTypedList(data, cacheKey)
+                if (convertedData != null) {
+                    // 更新内存缓存中的数据类型
+                    memoryCache[cacheKey] = CacheEntry(convertedData as Any, memoryEntry.timestamp, memoryEntry.expiryTime)
+                    return convertedData as T
+                } else {
+                    logger.warn("⚠️ Failed to convert JSONArray for key: $cacheKey, type: ${data.javaClass.name}")
+                    memoryCache.remove(cacheKey)
+                }
             } else {
                 logger.warn("⚠️ Memory cache contains unexpected data type for key: $cacheKey, type: ${data?.javaClass?.name}")
                 // 清除错误的内存缓存条目
@@ -165,6 +185,9 @@ class ReportCacheManager {
                 cacheKey.startsWith("yesterday_report") || cacheKey.startsWith("weekly_report") ||
                 cacheKey.startsWith("monthly_report") || cacheKey.startsWith("yearly_report") -> {
                     parseReportFromJson(jsonContent) as? T
+                }
+                cacheKey.startsWith("time_trend") -> {
+                    parseTimeTrendStatisticsFromJson(jsonContent) as? T
                 }
                 else -> {
                     // 其他统计信息使用泛型反序列化
@@ -242,14 +265,14 @@ class ReportCacheManager {
      * 检查是否是当前周期的报告（当月、当年、当日）
      */
     private fun isCurrentPeriodReport(cacheKey: String): Boolean {
-        val now = java.time.LocalDate.now()
+        val now = LocalDate.now()
         
         return when {
             cacheKey.startsWith("daily_report") -> {
                 // 检查是否是当日报告
                 val dateStr = cacheKey.substringAfter("daily_report_")
                 try {
-                    val reportDate = java.time.LocalDate.parse(dateStr)
+                    val reportDate = LocalDate.parse(dateStr)
                     reportDate == now
                 } catch (e: Exception) {
                     false
@@ -503,6 +526,115 @@ class ReportCacheManager {
             )
         } catch (e: Exception) {
             logger.warn("Failed to parse SleepAnalysis, returning null", e)
+            null
+        }
+    }
+
+    /**
+     * 从JSON字符串解析TimeTrendStatistics对象
+     * 由于FastJSON无法正确反序列化Kotlin数据类中的LocalDate/LocalDateTime字段，需要手动解析
+     */
+    private fun parseTimeTrendStatisticsFromJson(jsonContent: String): TimeTrendStatistics? {
+        return try {
+            val jsonObject = JSON.parseObject(jsonContent)
+            
+            TimeTrendStatistics(
+                period = com.khm.group.center.utils.time.TimePeriod.valueOf(jsonObject.getString("period")),
+                dailyStats = parseDailyStatsList(jsonObject.getJSONArray("dailyStats")),
+                totalTasks = jsonObject.getIntValue("totalTasks"),
+                totalRuntime = jsonObject.getIntValue("totalRuntime"),
+                totalUsers = jsonObject.getIntValue("totalUsers"),
+                averageDailyTasks = jsonObject.getIntValue("averageDailyTasks"),
+                averageDailyRuntime = jsonObject.getIntValue("averageDailyRuntime")
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to parse TimeTrendStatistics from JSON", e)
+            null
+        }
+    }
+    
+    /**
+     * 解析DailyStats列表
+     */
+    private fun parseDailyStatsList(jsonArray: com.alibaba.fastjson2.JSONArray?): List<DailyStats> {
+        if (jsonArray == null) return emptyList()
+        
+        return jsonArray.map { item ->
+            val obj = item as JSONObject
+            DailyStats(
+                date = LocalDate.parse(obj.getString("date")),
+                totalTasks = obj.getIntValue("totalTasks"),
+                totalRuntime = obj.getIntValue("totalRuntime"),
+                activeUsers = (obj.getJSONArray("activeUsers")?.map { it.toString() }?.toMutableSet() ?: mutableSetOf()),
+                peakGpuUsage = obj.getDoubleValue("peakGpuUsage")
+            )
+        }
+    }
+
+    /**
+     * 将JSONArray转换为适当的类型化列表
+     */
+    private fun convertJsonArrayToTypedList(jsonArray: com.alibaba.fastjson2.JSONArray, cacheKey: String): Any? {
+        return try {
+            when {
+                cacheKey.startsWith("user_stats") -> {
+                    jsonArray.map { item ->
+                        val obj = item as JSONObject
+                        UserStatistics(
+                            userName = obj.getString("userName"),
+                            totalTasks = obj.getIntValue("totalTasks"),
+                            totalRuntime = obj.getIntValue("totalRuntime"),
+                            averageRuntime = obj.getDoubleValue("averageRuntime"),
+                            favoriteGpu = obj.getString("favoriteGpu"),
+                            favoriteProject = obj.getString("favoriteProject")
+                        )
+                    }
+                }
+                cacheKey.startsWith("gpu_stats") -> {
+                    jsonArray.map { item ->
+                        val obj = item as JSONObject
+                        GpuStatistics(
+                            gpuName = obj.getString("gpuName"),
+                            serverName = obj.getString("serverName"),
+                            totalUsageCount = obj.getIntValue("totalUsageCount"),
+                            totalRuntime = obj.getIntValue("totalRuntime"),
+                            averageUsagePercent = obj.getDoubleValue("averageUsagePercent"),
+                            averageMemoryUsage = obj.getDoubleValue("averageMemoryUsage"),
+                            totalMemoryUsage = obj.getDoubleValue("totalMemoryUsage")
+                        )
+                    }
+                }
+                cacheKey.startsWith("server_stats") -> {
+                    jsonArray.map { item ->
+                        val obj = item as JSONObject
+                        ServerStatistics(
+                            serverName = obj.getString("serverName"),
+                            totalTasks = obj.getIntValue("totalTasks"),
+                            totalRuntime = obj.getIntValue("totalRuntime"),
+                            activeUsers = (obj.getJSONArray("activeUsers")?.map { it.toString() }?.toMutableSet() ?: mutableSetOf()),
+                            gpuUtilization = obj.getDoubleValue("gpuUtilization")
+                        )
+                    }
+                }
+                cacheKey.startsWith("project_stats") -> {
+                    jsonArray.map { item ->
+                        val obj = item as JSONObject
+                        ProjectStatistics(
+                            projectName = obj.getString("projectName"),
+                            totalRuntime = obj.getIntValue("totalRuntime"),
+                            totalTasks = obj.getIntValue("totalTasks"),
+                            activeUsers = (obj.getJSONArray("activeUsers")?.map { it.toString() }?.toMutableSet() ?: mutableSetOf()),
+                            averageRuntime = obj.getDoubleValue("averageRuntime")
+                        )
+                    }
+                }
+                else -> {
+                    logger.warn("Unknown cache key type for JSONArray conversion: $cacheKey")
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to convert JSONArray for key: $cacheKey", e)
             null
         }
     }

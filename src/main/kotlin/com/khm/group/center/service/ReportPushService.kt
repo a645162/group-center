@@ -417,7 +417,7 @@ class ReportPushService {
      */
     private fun isReportPushed(reportType: String, date: LocalDate): Boolean {
         try {
-            val logDir = java.nio.file.Paths.get("logs")
+            val logDir = Paths.get("logs")
             val statusFile = logDir.resolve("report_push_${reportType}_${date.format(DateTimeFormatter.ISO_DATE)}.json")
             
             // 检查推送状态文件是否存在
