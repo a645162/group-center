@@ -100,6 +100,18 @@ class ReportCacheManager {
                 data is List<*> && data.isNotEmpty() && data[0] is ServerStatistics ||
                 data is List<*> && data.isNotEmpty() && data[0] is ProjectStatistics) {
                 return data as T
+            } else if (data is com.alibaba.fastjson2.JSONArray) {
+                // 处理从磁盘反序列化时可能出现的JSONArray类型
+                logger.debug("🔄 Converting JSONArray to appropriate list type for key: $cacheKey")
+                val convertedData = convertJsonArrayToTypedList(data, cacheKey)
+                if (convertedData != null) {
+                    // 更新内存缓存中的数据类型
+                    memoryCache[cacheKey] = CacheEntry(convertedData as Any, memoryEntry.timestamp, memoryEntry.expiryTime)
+                    return convertedData as T
+                } else {
+                    logger.warn("⚠️ Failed to convert JSONArray for key: $cacheKey, type: ${data.javaClass.name}")
+                    memoryCache.remove(cacheKey)
+                }
             } else {
                 logger.warn("⚠️ Memory cache contains unexpected data type for key: $cacheKey, type: ${data?.javaClass?.name}")
                 // 清除错误的内存缓存条目
@@ -556,6 +568,74 @@ class ReportCacheManager {
                 activeUsers = (obj.getJSONArray("activeUsers")?.map { it.toString() }?.toMutableSet() ?: mutableSetOf()),
                 peakGpuUsage = obj.getDoubleValue("peakGpuUsage")
             )
+        }
+    }
+
+    /**
+     * 将JSONArray转换为适当的类型化列表
+     */
+    private fun convertJsonArrayToTypedList(jsonArray: com.alibaba.fastjson2.JSONArray, cacheKey: String): Any? {
+        return try {
+            when {
+                cacheKey.startsWith("user_stats") -> {
+                    jsonArray.map { item ->
+                        val obj = item as JSONObject
+                        UserStatistics(
+                            userName = obj.getString("userName"),
+                            totalTasks = obj.getIntValue("totalTasks"),
+                            totalRuntime = obj.getIntValue("totalRuntime"),
+                            averageRuntime = obj.getDoubleValue("averageRuntime"),
+                            favoriteGpu = obj.getString("favoriteGpu"),
+                            favoriteProject = obj.getString("favoriteProject")
+                        )
+                    }
+                }
+                cacheKey.startsWith("gpu_stats") -> {
+                    jsonArray.map { item ->
+                        val obj = item as JSONObject
+                        GpuStatistics(
+                            gpuName = obj.getString("gpuName"),
+                            serverName = obj.getString("serverName"),
+                            totalUsageCount = obj.getIntValue("totalUsageCount"),
+                            totalRuntime = obj.getIntValue("totalRuntime"),
+                            averageUsagePercent = obj.getDoubleValue("averageUsagePercent"),
+                            averageMemoryUsage = obj.getDoubleValue("averageMemoryUsage"),
+                            totalMemoryUsage = obj.getDoubleValue("totalMemoryUsage")
+                        )
+                    }
+                }
+                cacheKey.startsWith("server_stats") -> {
+                    jsonArray.map { item ->
+                        val obj = item as JSONObject
+                        ServerStatistics(
+                            serverName = obj.getString("serverName"),
+                            totalTasks = obj.getIntValue("totalTasks"),
+                            totalRuntime = obj.getIntValue("totalRuntime"),
+                            activeUsers = (obj.getJSONArray("activeUsers")?.map { it.toString() }?.toMutableSet() ?: mutableSetOf()),
+                            gpuUtilization = obj.getDoubleValue("gpuUtilization")
+                        )
+                    }
+                }
+                cacheKey.startsWith("project_stats") -> {
+                    jsonArray.map { item ->
+                        val obj = item as JSONObject
+                        ProjectStatistics(
+                            projectName = obj.getString("projectName"),
+                            totalRuntime = obj.getIntValue("totalRuntime"),
+                            totalTasks = obj.getIntValue("totalTasks"),
+                            activeUsers = (obj.getJSONArray("activeUsers")?.map { it.toString() }?.toMutableSet() ?: mutableSetOf()),
+                            averageRuntime = obj.getDoubleValue("averageRuntime")
+                        )
+                    }
+                }
+                else -> {
+                    logger.warn("Unknown cache key type for JSONArray conversion: $cacheKey")
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to convert JSONArray for key: $cacheKey", e)
+            null
         }
     }
 
