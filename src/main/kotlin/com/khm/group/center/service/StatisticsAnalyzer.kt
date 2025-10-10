@@ -4,6 +4,8 @@ import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.statistics.*
 import com.khm.group.center.db.model.client.GpuTaskInfoModel
 import com.khm.group.center.utils.format.NumberFormat
+import com.khm.group.center.utils.program.Slf4jKt
+import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import com.khm.group.center.utils.time.DateTimeUtils
 import com.khm.group.center.utils.time.TimePeriod
 import org.springframework.stereotype.Component
@@ -904,9 +906,7 @@ class StatisticsAnalyzer {
     }
 
     /**
-     * 分析用户活动时间分布
-     * 以4点为分界线定义一天，统计每个用户在"4点-4点"一天内的最早和最晚启动时间
-     * 然后使用时间区间合并器进行并集操作
+     * 分析用户活动时间分布（使用新的活动区间计算算法）
      * @param tasks 任务列表
      * @param periodStart 开始时间（秒，可选）
      * @param periodEnd 结束时间（秒，可选）
@@ -919,27 +919,28 @@ class StatisticsAnalyzer {
     ): UserActivityTimeDistribution {
         val filteredTasks = filterMultiGpuTasks(tasks)
         val userMap = mutableMapOf<String, UserActivityTimeRange>()
-        val timeRangeMerger = TimeRangeMerger()
 
         // 按用户分组任务
         val tasksByUser = filteredTasks.groupBy { it.taskUser }
 
         for ((userName, userTasks) in tasksByUser) {
-            // 按4点分界线重新定义日期
-            val dailyRanges = calculateDailyRangesBy4amBoundary(userTasks)
-            
-            // 使用时间区间合并器进行并集合并
-            val mergedRange = mergeDailyRangesWithMerger(dailyRanges, timeRangeMerger)
+            // 使用活动区间计算算法
+            val activityRange = calculateActivityRange(userTasks)
             
             val user = UserActivityTimeRange(
                 userName = userName,
-                earliestStartTime = mergedRange.earliest,
-                latestStartTime = mergedRange.latest,
-                activityTimeRange = mergedRange.rangeString,
+                earliestStartTime = activityRange.earliest,
+                latestStartTime = activityRange.latest,
+                activityTimeRange = activityRange.rangeString,
                 totalTasks = userTasks.size,
                 totalRuntime = userTasks.sumOf { it.taskRunningTimeInSeconds },
-                isCrossDayActivity = mergedRange.isCrossDay,
-                crossDayActivityRange = mergedRange.crossDayRange
+                isCrossDayActivity = activityRange.isCrossDay,
+                crossDayActivityRange = activityRange.crossDayRange,
+                isSinglePointActivity = activityRange.isSinglePoint,
+                dailyRangesCount = activityRange.dailyRangesCount,
+                hasLateNightActivity = activityRange.hasLateNightActivity,
+                hasEarlyMorningActivity = activityRange.hasEarlyMorningActivity,
+                hasDaytimeActivity = activityRange.hasDaytimeActivity
             )
             
             userMap[userName] = user
@@ -955,112 +956,164 @@ class StatisticsAnalyzer {
     }
 
     /**
-     * 按4点分界线计算每日时间区间
-     * 以4点为分界线定义一天：今天4点到明天4点
+     * 活动区间计算算法（使用4点分界线的时间归一化算法）
+     * 步骤：所有时间-4小时 → 归一化到同一天 → 计算区间 → 区间端点+4小时
      * @param userTasks 用户的任务列表
-     * @return 每日时间区间列表
+     * @return 活动时间区间
      */
-    private fun calculateDailyRangesBy4amBoundary(userTasks: List<GpuTaskInfoModel>): List<DailyTimeRange> {
-        val dailyRanges = mutableMapOf<LocalDate, DailyTimeRange>()
-        
-        for (task in userTasks) {
-            val startTime = DateTimeUtils.convertTimestampToDateTime(task.taskStartTime)
-            
-            // 确定任务属于哪个"4点-4点"的一天
-            val dayKey = if (startTime.hour < 4) {
-                // 4点之前属于前一天
-                startTime.toLocalDate().minusDays(1)
-            } else {
-                // 4点之后属于当天
-                startTime.toLocalDate()
-            }
-            
-            val dailyRange = dailyRanges.getOrPut(dayKey) {
-                DailyTimeRange(dayKey, null, null)
-            }
-            
-            // 更新该天的最早和最晚启动时间
-            if (dailyRange.earliest == null || startTime.isBefore(dailyRange.earliest)) {
-                dailyRange.earliest = startTime
-            }
-            if (dailyRange.latest == null || startTime.isAfter(dailyRange.latest)) {
-                dailyRange.latest = startTime
-            }
+    private fun calculateActivityRange(userTasks: List<GpuTaskInfoModel>): ActivityRangeResult {
+        if (userTasks.isEmpty()) {
+            return ActivityRangeResult.EMPTY
         }
-        
-        return dailyRanges.values.sortedBy { it.day }
-    }
 
-    /**
-     * 使用时间区间合并器合并每日时间区间
-     * 处理跨天活动的特殊合并逻辑
-     * @param dailyRanges 每日时间区间列表
-     * @param merger 时间区间合并器
-     * @return 合并后的时间区间
-     */
-    private fun mergeDailyRangesWithMerger(
-        dailyRanges: List<DailyTimeRange>,
-        merger: TimeRangeMerger
-    ): MergedTimeRange {
-        if (dailyRanges.isEmpty()) {
-            return MergedTimeRange(null, null, "", false, "")
+        // 步骤1：获取所有原始时间并减去4小时（4点分界线）
+        val originalTimes = userTasks.map { task ->
+            DateTimeUtils.convertTimestampToDateTime(task.taskStartTime)
         }
-        
-        // 创建时间区间列表
-        val timeRanges = mutableListOf<TimeRangeMerger.TimeRange>()
-        
-        for (dailyRange in dailyRanges) {
-            if (dailyRange.earliest != null && dailyRange.latest != null) {
-                val timeRange = merger.createRange(dailyRange.earliest!!, dailyRange.latest!!)
-                timeRanges.add(timeRange)
-            }
+        val adjustedTimes = originalTimes.map { it.minusHours(4) }
+
+        // 步骤2：时间归一化 - 将所有调整后的时间映射到同一天（1970-01-01）
+        val normalizedTimes = adjustedTimes.map { adjustedTime ->
+            // 保留小时和分钟，但日期设为固定值
+            LocalDateTime.of(1970, 1, 1, adjustedTime.hour, adjustedTime.minute, adjustedTime.second)
         }
-        
-        // 使用合并器合并所有时间区间
-        val mergedRange = merger.mergeTimeRanges(timeRanges)
-        
-        if (mergedRange == null) {
-            return MergedTimeRange(null, null, "", false, "")
-        }
-        
+
+        // 步骤3：计算归一化后的最小值和最大值
+        val minNormalized = normalizedTimes.minOrNull()!!
+        val maxNormalized = normalizedTimes.maxOrNull()!!
+
+        // 步骤4：将归一化时间还原为调整后的时间（只保留时间部分）
+        val earliestAdjusted = minNormalized
+        val latestAdjusted = maxNormalized
+
+        // 步骤5：区间端点加回4小时
+        val earliest = earliestAdjusted.plusHours(4)
+        val latest = latestAdjusted.plusHours(4)
+
+        // 步骤6：获取原始的最早和最晚时间用于显示
+        val earliestOriginal = originalTimes.minOrNull()!!
+        val latestOriginal = originalTimes.maxOrNull()!!
+
+        // 计算活动模式统计
+        val activityStats = calculateActivityStatistics(userTasks)
+
         // 格式化时间区间
-        val rangeString = merger.formatTimeRange(mergedRange)
-        
-        // 检查是否为跨天活动
-        val isCrossDay = mergedRange.isCrossDay()
-        val crossDayRange = if (isCrossDay) {
-            val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-            "${mergedRange.start.format(timeFormatter)} → 次日 ${mergedRange.end.format(timeFormatter)}"
-        } else {
-            ""
-        }
-        
-        return MergedTimeRange(
-            mergedRange.start,
-            mergedRange.end,
-            rangeString,
-            isCrossDay,
-            crossDayRange
+        val (rangeString, isCrossDay, crossDayRange) = formatActivityRange(earliest, latest)
+
+        return ActivityRangeResult(
+            earliest = earliestOriginal,  // 使用原始最早时间用于显示
+            latest = latestOriginal,      // 使用原始最晚时间用于显示
+            rangeString = rangeString,
+            isCrossDay = isCrossDay,
+            crossDayRange = crossDayRange,
+            isSinglePoint = minNormalized == maxNormalized,
+            dailyRangesCount = activityStats.dailyRangesCount,
+            hasLateNightActivity = activityStats.hasLateNightActivity,
+            hasEarlyMorningActivity = activityStats.hasEarlyMorningActivity,
+            hasDaytimeActivity = activityStats.hasDaytimeActivity
         )
     }
 
     /**
-     * 每日时间区间
+     * 计算活动模式统计
      */
-    private data class DailyTimeRange(
-        val day: LocalDate,
-        var earliest: LocalDateTime?,
-        var latest: LocalDateTime?
-    )
+    private fun calculateActivityStatistics(userTasks: List<GpuTaskInfoModel>): ActivityStats {
+        val dailyTasks = mutableMapOf<LocalDate, MutableList<GpuTaskInfoModel>>()
+        var hasLateNight = false
+        var hasEarlyMorning = false
+        var hasDaytime = false
+
+        for (task in userTasks) {
+            val startTime = DateTimeUtils.convertTimestampToDateTime(task.taskStartTime)
+            
+            // 统计活动时间段
+            when (startTime.hour) {
+                in 0..3 -> hasLateNight = true      // 0-3点：凌晨
+                in 4..9 -> hasEarlyMorning = true   // 4-9点：早起
+                in 10..23 -> hasDaytime = true      // 10-23点：白天
+            }
+
+            // 按自然日分组统计天数
+            val dayKey = startTime.toLocalDate()
+            dailyTasks.getOrPut(dayKey) { mutableListOf() }.add(task)
+        }
+
+        return ActivityStats(
+            dailyRangesCount = dailyTasks.size,
+            hasLateNightActivity = hasLateNight,
+            hasEarlyMorningActivity = hasEarlyMorning,
+            hasDaytimeActivity = hasDaytime
+        )
+    }
 
     /**
-     * 合并后的时间区间
+     * 格式化活动时间区间
      */
-    private data class MergedTimeRange(
+    private fun formatActivityRange(earliest: LocalDateTime, latest: LocalDateTime): Triple<String, Boolean, String> {
+        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+        val startStr = earliest.format(timeFormatter)
+        val endStr = latest.format(timeFormatter)
+
+        // 检查是否为跨天活动
+        // 关键判断：左端点大于右端点（即22:00-2:00这种熬夜情况）
+        val isCrossDay = earliest > latest
+
+        return if (isCrossDay) {
+            // Debug output earliest and latest
+            logger.info("Debug: Earliest = $earliest, Latest = $latest")
+
+            Triple(
+                "$startStr-次日$endStr",
+                true,
+                "$startStr → 次日 $endStr"
+            )
+        } else {
+            Triple(
+                "$startStr-$endStr",
+                false,
+                ""
+            )
+        }
+    }
+
+    /**
+     * 活动区间结果
+     */
+    private data class ActivityRangeResult(
         val earliest: LocalDateTime?,
         val latest: LocalDateTime?,
         val rangeString: String,
         val isCrossDay: Boolean,
-        val crossDayRange: String
+        val crossDayRange: String,
+        val isSinglePoint: Boolean = false,
+        val dailyRangesCount: Int = 0,
+        val hasLateNightActivity: Boolean = false,
+        val hasEarlyMorningActivity: Boolean = false,
+        val hasDaytimeActivity: Boolean = false
+    ) {
+        companion object {
+            val EMPTY = ActivityRangeResult(
+                earliest = null,
+                latest = null,
+                rangeString = "",
+                isCrossDay = false,
+                crossDayRange = "",
+                isSinglePoint = true,
+                dailyRangesCount = 0,
+                hasLateNightActivity = false,
+                hasEarlyMorningActivity = false,
+                hasDaytimeActivity = false
+            )
+        }
+    }
+
+    /**
+     * 活动统计信息
+     */
+    private data class ActivityStats(
+        val dailyRangesCount: Int,
+        val hasLateNightActivity: Boolean,
+        val hasEarlyMorningActivity: Boolean,
+        val hasDaytimeActivity: Boolean
     )
 }

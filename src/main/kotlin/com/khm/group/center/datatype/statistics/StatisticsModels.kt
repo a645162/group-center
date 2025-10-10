@@ -146,7 +146,7 @@ data class TimeTrendStatistics(
 
 /**
  * 用户活动时间区间
- * 用于统计用户的活动时间段分布
+ * 用于统计用户的活动时间段分布（方案B：时间平移算法）
  */
 data class UserActivityTimeRange(
     var userName: String = "",
@@ -156,7 +156,12 @@ data class UserActivityTimeRange(
     var totalTasks: Int = 0,                       // 总任务数
     var totalRuntime: Int = 0,                     // 总运行时间
     var isCrossDayActivity: Boolean = false,       // 是否为跨天活动
-    var crossDayActivityRange: String = ""         // 跨天活动区间字符串
+    var crossDayActivityRange: String = "",        // 跨天活动区间字符串
+    var isSinglePointActivity: Boolean = false,    // 是否为单点活动
+    var dailyRangesCount: Int = 0,                 // 有活动的天数
+    var hasLateNightActivity: Boolean = false,     // 是否有凌晨活动（0-4点）
+    var hasEarlyMorningActivity: Boolean = false,  // 是否有早起活动（4-10点）
+    var hasDaytimeActivity: Boolean = false        // 是否有白天活动（10-24点）
 )
 
 /**
