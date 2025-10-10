@@ -154,7 +154,9 @@ data class UserActivityTimeRange(
     var latestStartTime: LocalDateTime? = null,    // 最晚启动时间
     var activityTimeRange: String = "",            // 活动时间区间字符串
     var totalTasks: Int = 0,                       // 总任务数
-    var totalRuntime: Int = 0                      // 总运行时间
+    var totalRuntime: Int = 0,                     // 总运行时间
+    var isCrossDayActivity: Boolean = false,       // 是否为跨天活动
+    var crossDayActivityRange: String = ""         // 跨天活动区间字符串
 )
 
 /**
