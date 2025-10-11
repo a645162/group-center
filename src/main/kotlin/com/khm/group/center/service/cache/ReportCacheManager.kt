@@ -11,6 +11,8 @@ import com.khm.group.center.datatype.statistics.ProjectStatistics
 import com.khm.group.center.datatype.statistics.SleepAnalysis
 import com.khm.group.center.datatype.statistics.TimeTrendStatistics
 import com.khm.group.center.datatype.statistics.DailyStats
+import com.khm.group.center.datatype.statistics.UserActivityTimeDistribution
+import com.khm.group.center.datatype.statistics.UserActivityTimeRange
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import org.springframework.stereotype.Component
@@ -63,7 +65,10 @@ class ReportCacheManager {
         "gpu_stats" to TimeUnit.HOURS.toMillis(1),
         "server_stats" to TimeUnit.HOURS.toMillis(1),
         "project_stats" to TimeUnit.HOURS.toMillis(1),
-        "time_trend" to TimeUnit.HOURS.toMillis(1)
+        "time_trend" to TimeUnit.HOURS.toMillis(1),
+        
+        // 用户活动时间分布 - 内存+磁盘缓存，1小时过期
+        "user_activity_time" to TimeUnit.HOURS.toMillis(1)
     )
     
     /**
@@ -95,6 +100,7 @@ class ReportCacheManager {
             val data = memoryEntry.data
             if (data is Report ||
                 data is TimeTrendStatistics ||
+                data is UserActivityTimeDistribution ||
                 data is List<*> && data.isNotEmpty() && data[0] is UserStatistics ||
                 data is List<*> && data.isNotEmpty() && data[0] is GpuStatistics ||
                 data is List<*> && data.isNotEmpty() && data[0] is ServerStatistics ||
@@ -188,6 +194,9 @@ class ReportCacheManager {
                 }
                 cacheKey.startsWith("time_trend") -> {
                     parseTimeTrendStatisticsFromJson(jsonContent) as? T
+                }
+                cacheKey.startsWith("user_activity_time") -> {
+                    parseUserActivityTimeDistributionFromJson(jsonContent) as? T
                 }
                 else -> {
                     // 其他统计信息使用泛型反序列化
@@ -567,6 +576,54 @@ class ReportCacheManager {
                 totalRuntime = obj.getIntValue("totalRuntime"),
                 activeUsers = (obj.getJSONArray("activeUsers")?.map { it.toString() }?.toMutableSet() ?: mutableSetOf()),
                 peakGpuUsage = obj.getDoubleValue("peakGpuUsage")
+            )
+        }
+    }
+
+    /**
+     * 从JSON字符串解析UserActivityTimeDistribution对象
+     */
+    private fun parseUserActivityTimeDistributionFromJson(jsonContent: String): UserActivityTimeDistribution? {
+        return try {
+            val jsonObject = JSON.parseObject(jsonContent)
+            
+            UserActivityTimeDistribution(
+                users = parseUserActivityTimeRangeList(jsonObject.getJSONArray("users")),
+                totalUsers = jsonObject.getIntValue("totalUsers"),
+                refreshTime = LocalDateTime.parse(jsonObject.getString("refreshTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to parse UserActivityTimeDistribution from JSON", e)
+            null
+        }
+    }
+    
+    /**
+     * 解析用户活动时间范围列表
+     */
+    private fun parseUserActivityTimeRangeList(jsonArray: com.alibaba.fastjson2.JSONArray?): List<UserActivityTimeRange> {
+        if (jsonArray == null) return emptyList()
+        
+        return jsonArray.map { item ->
+            val obj = item as JSONObject
+            UserActivityTimeRange(
+                userName = obj.getString("userName"),
+                earliestStartTime = if (obj.containsKey("earliestStartTime"))
+                    LocalDateTime.parse(obj.getString("earliestStartTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    else null,
+                latestStartTime = if (obj.containsKey("latestStartTime"))
+                    LocalDateTime.parse(obj.getString("latestStartTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    else null,
+                activityTimeRange = obj.getString("activityTimeRange"),
+                totalTasks = obj.getIntValue("totalTasks"),
+                totalRuntime = obj.getIntValue("totalRuntime"),
+                isCrossDayActivity = obj.getBooleanValue("isCrossDayActivity"),
+                crossDayActivityRange = obj.getString("crossDayActivityRange"),
+                isSinglePointActivity = obj.getBooleanValue("isSinglePointActivity"),
+                dailyRangesCount = obj.getIntValue("dailyRangesCount"),
+                hasLateNightActivity = obj.getBooleanValue("hasLateNightActivity"),
+                hasEarlyMorningActivity = obj.getBooleanValue("hasEarlyMorningActivity"),
+                hasDaytimeActivity = obj.getBooleanValue("hasDaytimeActivity")
             )
         }
     }

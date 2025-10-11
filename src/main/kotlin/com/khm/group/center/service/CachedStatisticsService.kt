@@ -547,6 +547,61 @@ class CachedStatisticsService {
     }
 
     /**
+     * 获取用户活动时间分布（带缓存）
+     * @param timePeriod 时间周期
+     * @return 用户活动时间分布
+     */
+    fun getUserActivityTimeDistribution(timePeriod: TimePeriod): UserActivityTimeDistribution {
+        val cacheKey = "user_activity_time_${timePeriod.name}"
+        
+        // 尝试从缓存获取
+        val cached: UserActivityTimeDistribution? = reportCacheManager.getCachedData(cacheKey)
+        if (cached != null) {
+            logger.debug("✅ 缓存命中，从缓存获取用户活动时间分布：$timePeriod")
+            return cached
+        }
+
+        logger.info("🔄 缓存未命中，重新计算用户活动时间分布：$timePeriod")
+        val tasks = gpuTaskQuery.queryTasks(timePeriod)
+        val stats = baseStatisticsService.getUserActivityTimeDistribution(tasks)
+
+        // 存储到缓存
+        reportCacheManager.putCachedData(cacheKey, stats)
+        logger.info("💾 新用户活动时间分布已缓存：$timePeriod")
+        return stats
+    }
+
+    /**
+     * 获取自定义时间段的用户活动时间分布（带缓存）
+     * @param startTime 开始时间（秒）
+     * @param endTime 结束时间（秒）
+     * @return 用户活动时间分布
+     */
+    fun getUserActivityTimeDistribution(startTime: Long, endTime: Long): UserActivityTimeDistribution {
+        val cacheKey = "user_activity_time_custom_${startTime}_${endTime}"
+        
+        // 尝试从缓存获取
+        val cached: UserActivityTimeDistribution? = reportCacheManager.getCachedData(cacheKey)
+        if (cached != null) {
+            logger.debug("✅ 缓存命中，从缓存获取用户活动时间分布（自定义时间段）")
+            return cached
+        }
+
+        logger.info("🔄 缓存未命中，重新计算用户活动时间分布（自定义时间段）")
+        val tasks = gpuTaskQuery.queryTasks(
+            timePeriod = TimePeriod.ONE_DAY, // 使用任意周期，实际使用自定义时间
+            startTime = startTime,
+            endTime = endTime
+        )
+        val stats = baseStatisticsService.getUserActivityTimeDistribution(tasks, startTime, endTime)
+
+        // 存储到缓存
+        reportCacheManager.putCachedData(cacheKey, stats)
+        logger.info("💾 新用户活动时间分布已缓存（自定义时间段）")
+        return stats
+    }
+
+    /**
      * 获取周的开始时间
      */
     private fun getWeekStartTime(year: Int, week: Int): Long {
@@ -618,6 +673,7 @@ class CachedStatisticsService {
         // 预加载常用统计数据
         getUserStatistics(TimePeriod.ONE_WEEK)
         getGpuStatistics(TimePeriod.ONE_WEEK)
+        getUserActivityTimeDistribution(TimePeriod.ONE_WEEK)
         getTodayReport()
         getYesterdayReport()
         get24HourReport()
