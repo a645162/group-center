@@ -283,11 +283,8 @@ class StatisticsController {
     ): ClientResponse {
         val period = TimePeriod.valueOf(timePeriod)
         
-        // 使用基础服务（无缓存）进行用户活动时间分布分析
-        val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
-            .getTasksByTimePeriod(period)
-        
-        val distribution = baseStatisticsService.getUserActivityTimeDistribution(tasks)
+        // 使用缓存服务获取用户活动时间分布
+        val distribution = cachedStatisticsService.getUserActivityTimeDistribution(period)
         
         val result = ClientResponse()
         result.result = distribution
@@ -309,13 +306,11 @@ class StatisticsController {
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) startTime: LocalDateTime,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) endTime: LocalDateTime
     ): ClientResponse {
-        // 使用基础服务（无缓存）进行自定义时间段统计
         val startTimestamp = startTime.atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
         val endTimestamp = endTime.atZone(java.time.ZoneId.systemDefault()).toEpochSecond()
         
-        val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
-            .getTasksByCustomPeriod(startTimestamp, endTimestamp)
-        val distribution = baseStatisticsService.getUserActivityTimeDistribution(tasks, startTimestamp, endTimestamp)
+        // 使用缓存服务获取自定义时间段用户活动时间分布
+        val distribution = cachedStatisticsService.getUserActivityTimeDistribution(startTimestamp, endTimestamp)
         
         val result = ClientResponse()
         result.result = distribution
