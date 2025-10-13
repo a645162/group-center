@@ -220,8 +220,8 @@ class GpuTaskAnalyse {
             "totalTasks" to todayTasks.size,
             "totalUsers" to todayTasks.map { it.taskUser }.distinct().size,
             "totalRuntime" to todayTasks.sumOf { it.taskRunningTimeInSeconds },
-            "topUsers" to analyzeUserStats(todayTasks).take(5),
-            "topGpus" to analyzeGpuStats(todayTasks).take(5)
+            "topUsers" to analyzeUserStats(todayTasks),
+            "topGpus" to analyzeGpuStats(todayTasks)
         )
     }
 
@@ -231,8 +231,8 @@ class GpuTaskAnalyse {
             "totalTasks" to tasks.size,
             "totalUsers" to tasks.map { it.taskUser }.distinct().size,
             "totalRuntime" to tasks.sumOf { it.taskRunningTimeInSeconds },
-            "topUsers" to analyzeUserStats(tasks).take(10),
-            "topGpus" to analyzeGpuStats(tasks).take(10)
+            "topUsers" to analyzeUserStats(tasks),
+            "topGpus" to analyzeGpuStats(tasks)
         )
     }
 
@@ -242,8 +242,8 @@ class GpuTaskAnalyse {
             "totalTasks" to tasks.size,
             "totalUsers" to tasks.map { it.taskUser }.distinct().size,
             "totalRuntime" to tasks.sumOf { it.taskRunningTimeInSeconds },
-            "topUsers" to analyzeUserStats(tasks).take(10),
-            "topGpus" to analyzeGpuStats(tasks).take(10)
+            "topUsers" to analyzeUserStats(tasks),
+            "topGpus" to analyzeGpuStats(tasks)
         )
     }
 
@@ -253,8 +253,8 @@ class GpuTaskAnalyse {
             "totalTasks" to tasks.size,
             "totalUsers" to tasks.map { it.taskUser }.distinct().size,
             "totalRuntime" to tasks.sumOf { it.taskRunningTimeInSeconds },
-            "topUsers" to analyzeUserStats(tasks).take(20),
-            "topGpus" to analyzeGpuStats(tasks).take(20)
+            "topUsers" to analyzeUserStats(tasks),
+            "topGpus" to analyzeGpuStats(tasks)
         )
     }
 
