@@ -338,9 +338,9 @@ class StatisticsAnalyzer {
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
-            topUsers = userStats.take(5),
-            topGpus = gpuStats.take(5),
-            topProjects = projectStats.take(5),
+            topUsers = userStats,
+            topGpus = gpuStats,
+            topProjects = projectStats,
             sleepAnalysis = null
         )
     }
@@ -404,9 +404,9 @@ class StatisticsAnalyzer {
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
-            topUsers = userStats.take(5),
-            topGpus = gpuStats.take(5),
-            topProjects = projectStats.take(5),
+            topUsers = userStats,
+            topGpus = gpuStats,
+            topProjects = projectStats,
             sleepAnalysis = null
         )
     }
@@ -462,9 +462,9 @@ class StatisticsAnalyzer {
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
-            topUsers = userStats.take(10),
-            topGpus = gpuStats.take(10),
-            topProjects = projectStats.take(10),
+            topUsers = userStats,
+            topGpus = gpuStats,
+            topProjects = projectStats,
             sleepAnalysis = null
         )
     }
@@ -521,9 +521,9 @@ class StatisticsAnalyzer {
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
-            topUsers = userStats.take(15),
-            topGpus = gpuStats.take(15),
-            topProjects = projectStats.take(10),
+            topUsers = userStats,
+            topGpus = gpuStats,
+            topProjects = projectStats,
             sleepAnalysis = null
         )
     }
@@ -580,9 +580,9 @@ class StatisticsAnalyzer {
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
-            topUsers = userStats.take(20),
-            topGpus = gpuStats.take(20),
-            topProjects = projectStats.take(15),
+            topUsers = userStats,
+            topGpus = gpuStats,
+            topProjects = projectStats,
             sleepAnalysis = null
         )
     }
@@ -638,9 +638,9 @@ class StatisticsAnalyzer {
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
-            topUsers = userStats.take(10),
-            topGpus = gpuStats.take(10),
-            topProjects = projectStats.take(10),
+            topUsers = userStats,
+            topGpus = gpuStats,
+            topProjects = projectStats,
             sleepAnalysis = null
         )
     }
@@ -711,9 +711,9 @@ class StatisticsAnalyzer {
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
-            topUsers = userStats.take(10),
-            topGpus = gpuStats.take(10),
-            topProjects = projectStats.take(10),
+            topUsers = userStats,
+            topGpus = gpuStats,
+            topProjects = projectStats,
             sleepAnalysis = null
         )
     }
@@ -773,9 +773,9 @@ class StatisticsAnalyzer {
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
-            topUsers = userStats.take(15),
-            topGpus = gpuStats.take(15),
-            topProjects = projectStats.take(10),
+            topUsers = userStats,
+            topGpus = gpuStats,
+            topProjects = projectStats,
             sleepAnalysis = null
         )
     }
@@ -837,9 +837,9 @@ class StatisticsAnalyzer {
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
-            topUsers = userStats.take(10),
-            topGpus = gpuStats.take(10),
-            topProjects = projectStats.take(10),
+            topUsers = userStats,
+            topGpus = gpuStats,
+            topProjects = projectStats,
             sleepAnalysis = null
         )
     }
@@ -898,9 +898,9 @@ class StatisticsAnalyzer {
             totalTasks = actualTasks,
             totalRuntime = totalActualRuntime,
             activeUsers = tasks.map { it.taskUser }.distinct().size,
-            topUsers = userStats.take(20),
-            topGpus = gpuStats.take(20),
-            topProjects = projectStats.take(15),
+            topUsers = userStats,
+            topGpus = gpuStats,
+            topProjects = projectStats,
             sleepAnalysis = null
         )
     }

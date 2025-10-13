@@ -127,7 +127,6 @@ class QueryStatisticsCalculator {
             .eachCount()
             .toList()
             .sortedByDescending { it.second }
-            .take(10) // 只取前10个用户
             .toMap()
     }
 
@@ -139,7 +138,6 @@ class QueryStatisticsCalculator {
             .eachCount()
             .toList()
             .sortedByDescending { it.second }
-            .take(10) // 只取前10个项目
             .toMap()
     }
 
@@ -151,7 +149,6 @@ class QueryStatisticsCalculator {
             .eachCount()
             .toList()
             .sortedByDescending { it.second }
-            .take(10) // 只取前10个设备
             .toMap()
     }
 
