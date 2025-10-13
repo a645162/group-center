@@ -27,7 +27,7 @@ val myBatisVersion = "3.0.5"
 val fastjsonVersion = "2.0.59"
 
 group = "com.khm.group"
-version = "1.5.2-SNAPSHOT"
+version = "1.5.3-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_24
