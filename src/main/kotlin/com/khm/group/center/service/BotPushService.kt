@@ -54,6 +54,61 @@ class BotPushService {
         }
 
         /**
+         * 推送ping失败报警（艾特全体成员）
+         * @param machineName 机器名称
+         * @param host 机器主机
+         * @param firstFailureTime 第一次ping失败时间
+         * @param currentTime 当前时间
+         * @param failureDuration 失败持续时间（秒）
+         * @param threshold 阈值（秒），默认3600秒（1小时）
+         */
+        @JvmStatic
+        fun pushPingFailureAlarm(machineName: String, host: String, firstFailureTime: Long, currentTime: Long, failureDuration: Long, threshold: Long = 3600) {
+            // 格式化时间显示
+            val firstFailureTimeFormatted = DateTimeUtils.convertTimestampToDateTime(firstFailureTime)
+            val currentTimeFormatted = DateTimeUtils.convertTimestampToDateTime(currentTime)
+            val firstFailureTimeStr = DateTimeUtils.formatDateTimeFull(firstFailureTimeFormatted)
+            val currentTimeStr = DateTimeUtils.formatDateTimeFull(currentTimeFormatted)
+            
+            // 计算失败持续时间的可读格式
+            val failureMinutes = failureDuration / 60
+            val failureHours = failureMinutes / 60
+            
+            val failureDurationReadable = buildString {
+                append("${failureDuration}秒")
+                if (failureMinutes > 0) {
+                    append(" (${failureMinutes}分钟")
+                    if (failureHours > 0) {
+                        append(", ${failureHours}小时")
+                    }
+                    append(")")
+                }
+            }
+            
+            // 添加艾特全体成员的标记
+            val atAllTag = "@全体成员 "
+            
+            val message = """
+            🚨 ${atAllTag}Ping失败报警
+            ====================
+            机器: $machineName
+            主机: $host
+            
+            📊 时间信息:
+            • 首次失败时间: $firstFailureTimeStr
+            • 当前时间: $currentTimeStr
+            • 失败持续时间: $failureDurationReadable
+            • 报警阈值: ${threshold}秒
+            
+            ⚠️ 状态: 机器已超过${failureHours}小时${failureMinutes % 60}分钟无法ping通
+            
+            💡 建议: 请立即检查网络连接、机器电源和系统状态！
+            """.trimIndent()
+            
+            instance.pushToGroupsInternal(message, "alarm", urgent = true)
+        }
+
+        /**
          * 推送时间同步报警
          * @param machineName 机器名称
          * @param timeDiff 时间差（秒）

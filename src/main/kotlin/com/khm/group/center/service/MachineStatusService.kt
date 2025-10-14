@@ -1,6 +1,7 @@
 package com.khm.group.center.service
 
 import com.khm.group.center.config.HeartbeatConfig
+import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.config.MachineConfig
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
@@ -33,7 +34,8 @@ class MachineStatusService {
         var lastHeartbeatTime: Long? = null,  // 最后一次agent心跳时间戳
         var pingStatus: Boolean = false,  // 当前ping状态
         var agentStatus: Boolean = false,  // agent在线状态
-        var lastPingError: String? = null  // 最后一次ping错误信息
+        var lastPingError: String? = null,  // 最后一次ping错误信息
+        var firstPingFailureTime: Long? = null  // 第一次ping失败的时间戳
     )
 
     /**
@@ -62,9 +64,20 @@ class MachineStatusService {
                     status.lastPingTime = currentTime
                     status.pingStatus = true
                     status.lastPingError = null
+                    status.firstPingFailureTime = null  // 重置ping失败时间
                 } else {
                     status.pingStatus = false
                     status.lastPingError = "Ping timeout"
+                    
+                    // 记录第一次ping失败的时间
+                    if (status.firstPingFailureTime == null) {
+                        status.firstPingFailureTime = currentTime
+                        logger.debug("First ping failure recorded for ${machine.nameEng} (${machine.host})")
+                    } else {
+                        // 检查是否需要触发ping失败报警
+                        checkAndTriggerPingFailureAlarm(machine, status, currentTime)
+                    }
+                    
                     logger.debug("Ping failed: ${machine.nameEng} (${machine.host})")
                 }
 
@@ -77,6 +90,17 @@ class MachineStatusService {
                 val status = machineStatusMap.getOrPut(machine.nameEng) { MachineStatus() }
                 status.pingStatus = false
                 status.lastPingError = e.message ?: "Unknown error"
+                
+                val currentTime = DateTimeUtils.getCurrentTimestamp()
+                
+                // 记录第一次ping失败的时间
+                if (status.firstPingFailureTime == null) {
+                    status.firstPingFailureTime = currentTime
+                    logger.debug("First ping failure recorded for ${machine.nameEng} (${machine.host})")
+                } else {
+                    // 检查是否需要触发ping失败报警
+                    checkAndTriggerPingFailureAlarm(machine, status, currentTime)
+                }
                 
                 // 更新MachineConfig中的状态
                 machine.pingStatus = false
@@ -121,15 +145,20 @@ class MachineStatusService {
             logger.warn("Machine ${machine.nameEng} timestamp difference is large: ${timeDiff} seconds (${timeDiffMinutes} minutes, ${timeDiffHours} hours, ${timeDiffDays} days), may need time synchronization")
             logger.info("Client timestamp: $clientTimestampSeconds, Server timestamp: $currentTime, Time difference: $timeDiff seconds")
             
-            // 推送时间同步报警到报警群（默认不紧急）
-            BotPushService.pushTimeSyncAlarm(
-                machine.nameEng,
-                clientTimestampSeconds,
-                currentTime,
-                timeDiff,
-                heartbeatConfig.timeSyncThreshold.toLong(),
-                urgent = false
-            )
+            // 检查时间同步报警开关
+            if (ConfigEnvironment.ALARM_TIME_SYNC_ENABLE) {
+                // 推送时间同步报警到报警群（默认不紧急）
+                BotPushService.pushTimeSyncAlarm(
+                    machine.nameEng,
+                    clientTimestampSeconds,
+                    currentTime,
+                    timeDiff,
+                    heartbeatConfig.timeSyncThreshold.toLong(),
+                    urgent = false
+                )
+            } else {
+                logger.debug("Time sync alarm is disabled, skip pushing alarm for machine ${machine.nameEng}")
+            }
         }
 
         val status = machineStatusMap.getOrPut(serverNameEng) { MachineStatus() }
@@ -181,6 +210,53 @@ class MachineStatusService {
     }
 
     /**
+     * 检查并触发ping失败报警
+     */
+    private fun checkAndTriggerPingFailureAlarm(machine: MachineConfig, status: MachineStatus, currentTime: Long) {
+        val firstFailureTime = status.firstPingFailureTime ?: return
+        
+        val failureDuration = currentTime - firstFailureTime
+        
+        // 检查是否超过报警阈值
+        if (failureDuration >= heartbeatConfig.pingFailureAlarmThreshold) {
+            // 计算可读的失败持续时间
+            val failureMinutes = failureDuration / 60
+            val failureHours = failureMinutes / 60
+            
+            val failureDurationReadable = buildString {
+                append("${failureDuration}秒")
+                if (failureMinutes > 0) {
+                    append(" (${failureMinutes}分钟")
+                    if (failureHours > 0) {
+                        append(", ${failureHours}小时")
+                    }
+                    append(")")
+                }
+            }
+            
+            logger.warn("Machine ${machine.nameEng} has been unreachable for $failureDurationReadable, triggering ping failure alarm")
+            
+            // 检查ping失败报警开关
+            if (ConfigEnvironment.ALARM_PING_FAILURE_ENABLE) {
+                // 推送ping失败报警到报警群，并艾特全体成员
+                BotPushService.pushPingFailureAlarm(
+                    machine.nameEng,
+                    machine.host,
+                    firstFailureTime,
+                    currentTime,
+                    failureDuration,
+                    heartbeatConfig.pingFailureAlarmThreshold.toLong()
+                )
+            } else {
+                logger.debug("Ping failure alarm is disabled, skip pushing alarm for machine ${machine.nameEng}")
+            }
+            
+            // 重置第一次ping失败时间，避免重复报警
+            status.firstPingFailureTime = null
+        }
+    }
+
+    /**
      * 清理过期状态（超过配置时间无心跳的机器标记为离线并推送报警）
      */
     fun cleanupExpiredStatus() {
@@ -201,8 +277,13 @@ class MachineStatusService {
                     val machine = MachineConfig.getMachineByNameEng(nameEng)
                     machine?.agentStatus = false
                     
-                    // 推送到报警群
-                    offlineMachines.add(nameEng)
+                    // 检查agent离线报警开关
+                    if (ConfigEnvironment.ALARM_AGENT_OFFLINE_ENABLE) {
+                        // 推送到报警群
+                        offlineMachines.add(nameEng)
+                    } else {
+                        logger.debug("Agent offline alarm is disabled, skip pushing alarm for machine $nameEng")
+                    }
                 }
             }
         }
