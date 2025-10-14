@@ -43,8 +43,12 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
         return isEnable && botId.isNotEmpty() && botKey.isNotEmpty()
     }
 
-    fun sendText(content: String): Boolean {
-        val finalContent = content.trim()
+    fun sendText(content: String, atAll: Boolean = false): Boolean {
+        val finalContent = if (atAll) {
+            "${content.trim()}\n<at user_id=\"all\">所有人</at>"
+        } else {
+            content.trim()
+        }
 
         val timestamp = LarkGroupBotKey.getLarkTimestamp()
         try {
@@ -81,7 +85,8 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
 
     suspend fun sendTextWithSilentMode(
         text: String,
-        silentModeConfig: SilentModeConfig?
+        silentModeConfig: SilentModeConfig?,
+        atAll: Boolean = false
     ) {
         if (silentModeConfig != null) {
             println("Try to async send lark group bot text with silent mode for $botId")
@@ -89,11 +94,11 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
                 // Delay
                 delay(ConfigEnvironment.SilentModeWaitTime)
             }
-            sendText(text)
+            sendText(text, atAll)
             println("Sent lark group bot text with silent mode for $botId")
         } else {
             println("Sent lark group bot text with silent mode for $botId")
-            sendText(text)
+            sendText(text, atAll)
         }
     }
 

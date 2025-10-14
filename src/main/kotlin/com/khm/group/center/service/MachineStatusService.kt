@@ -98,13 +98,38 @@ class MachineStatusService {
         }
 
         val currentTime = DateTimeUtils.getCurrentTimestamp()
-        val timeDiff = kotlin.math.abs(currentTime - timestamp)
+        
+        // 检测时间戳单位并转换为秒级
+        // 客户端发送的是毫秒级时间戳，服务器端使用秒级时间戳
+        val clientTimestampSeconds = if (timestamp > 1_000_000_000_000L) {
+            // 如果时间戳大于这个值，说明是毫秒级，需要转换为秒级
+            timestamp / 1000
+        } else {
+            // 否则认为是秒级时间戳
+            timestamp
+        }
+        
+        val timeDiff = kotlin.math.abs(currentTime - clientTimestampSeconds)
         
         // 时间戳验证：如果时间相差超过配置阈值，记录警告并推送报警
         if (timeDiff > heartbeatConfig.timeSyncThreshold) {
-            logger.warn("Machine ${machine.nameEng} timestamp difference is large: ${timeDiff} seconds, may need time synchronization")
-            // 推送时间同步报警到报警群
-            BotPushService.pushTimeSyncAlarm(machine.nameEng, timeDiff, heartbeatConfig.timeSyncThreshold.toLong())
+            // 计算可读的时间差
+            val timeDiffMinutes = timeDiff / 60
+            val timeDiffHours = timeDiffMinutes / 60
+            val timeDiffDays = timeDiffHours / 24
+            
+            logger.warn("Machine ${machine.nameEng} timestamp difference is large: ${timeDiff} seconds (${timeDiffMinutes} minutes, ${timeDiffHours} hours, ${timeDiffDays} days), may need time synchronization")
+            logger.info("Client timestamp: $clientTimestampSeconds, Server timestamp: $currentTime, Time difference: $timeDiff seconds")
+            
+            // 推送时间同步报警到报警群（默认不紧急）
+            BotPushService.pushTimeSyncAlarm(
+                machine.nameEng,
+                clientTimestampSeconds,
+                currentTime,
+                timeDiff,
+                heartbeatConfig.timeSyncThreshold.toLong(),
+                urgent = false
+            )
         }
 
         val status = machineStatusMap.getOrPut(serverNameEng) { MachineStatus() }
