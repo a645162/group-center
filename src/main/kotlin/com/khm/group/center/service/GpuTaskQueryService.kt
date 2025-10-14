@@ -186,4 +186,34 @@ class GpuTaskQueryService {
 
         return statisticsCalculator.calculateStatistics(tasks)
     }
+
+    /**
+     * 通过taskId精确匹配任务
+     */
+    fun getTaskByTaskId(taskId: String): GpuTaskInfoModel? {
+        logger.info("Query task by taskId: $taskId")
+        
+        if (taskId.isBlank()) {
+            logger.warn("Empty taskId provided")
+            return null
+        }
+
+        try {
+            val queryWrapper = QueryWrapper<GpuTaskInfoModel>()
+            queryWrapper.eq("task_id", taskId.trim())
+            
+            val task = gpuTaskInfoMapper.selectOne(queryWrapper)
+            
+            if (task == null) {
+                logger.info("No task found with taskId: $taskId")
+            } else {
+                logger.info("Task found with taskId: $taskId")
+            }
+            
+            return task
+        } catch (e: Exception) {
+            logger.error("Failed to query task by taskId: $taskId", e)
+            return null
+        }
+    }
 }

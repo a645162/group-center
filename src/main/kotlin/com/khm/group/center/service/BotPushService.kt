@@ -8,6 +8,7 @@ import com.khm.group.center.message.webhook.lark.LarkGroupBot
 import com.khm.group.center.message.webhook.wecom.WeComGroupBot
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
+import com.khm.group.center.utils.time.DateTimeUtils
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -33,23 +34,78 @@ class BotPushService {
         private lateinit var instance: BotPushService
 
         @JvmStatic
-        fun pushToAlarmGroup(message: String) {
-            instance.pushToGroupsInternal(message, "alarm")
+        fun pushToAlarmGroup(message: String, urgent: Boolean = false) {
+            instance.pushToGroupsInternal(message, "alarm", urgent = urgent)
         }
 
         @JvmStatic
-        fun pushToShortTermGroup(message: String) {
-            instance.pushToGroupsInternal(message, "shortterm")
+        fun pushToShortTermGroup(message: String, urgent: Boolean = false) {
+            instance.pushToGroupsInternal(message, "shortterm", urgent = urgent)
         }
 
         @JvmStatic
-        fun pushToLongTermGroup(message: String) {
-            instance.pushToGroupsInternal(message, "longterm")
+        fun pushToLongTermGroup(message: String, urgent: Boolean = false) {
+            instance.pushToGroupsInternal(message, "longterm", urgent = urgent)
         }
 
         @JvmStatic
-        fun pushToGroup(message: String, groupType: String) {
-            instance.pushToGroupsInternal(message, groupType)
+        fun pushToGroup(message: String, groupType: String, urgent: Boolean = false) {
+            instance.pushToGroupsInternal(message, groupType, urgent = urgent)
+        }
+
+        /**
+         * 推送ping失败报警（艾特全体成员）
+         * @param machineName 机器名称
+         * @param host 机器主机
+         * @param firstFailureTime 第一次ping失败时间
+         * @param currentTime 当前时间
+         * @param failureDuration 失败持续时间（秒）
+         * @param threshold 阈值（秒），默认3600秒（1小时）
+         */
+        @JvmStatic
+        fun pushPingFailureAlarm(machineName: String, host: String, firstFailureTime: Long, currentTime: Long, failureDuration: Long, threshold: Long = 3600) {
+            // 格式化时间显示
+            val firstFailureTimeFormatted = DateTimeUtils.convertTimestampToDateTime(firstFailureTime)
+            val currentTimeFormatted = DateTimeUtils.convertTimestampToDateTime(currentTime)
+            val firstFailureTimeStr = DateTimeUtils.formatDateTimeFull(firstFailureTimeFormatted)
+            val currentTimeStr = DateTimeUtils.formatDateTimeFull(currentTimeFormatted)
+            
+            // 计算失败持续时间的可读格式
+            val failureMinutes = failureDuration / 60
+            val failureHours = failureMinutes / 60
+            
+            val failureDurationReadable = buildString {
+                append("${failureDuration}秒")
+                if (failureMinutes > 0) {
+                    append(" (${failureMinutes}分钟")
+                    if (failureHours > 0) {
+                        append(", ${failureHours}小时")
+                    }
+                    append(")")
+                }
+            }
+            
+            // 添加艾特全体成员的标记
+            val atAllTag = "@全体成员 "
+            
+            val message = """
+            🚨 ${atAllTag}Ping失败报警
+            ====================
+            机器: $machineName
+            主机: $host
+            
+            📊 时间信息:
+            • 首次失败时间: $firstFailureTimeStr
+            • 当前时间: $currentTimeStr
+            • 失败持续时间: $failureDurationReadable
+            • 报警阈值: ${threshold}秒
+            
+            ⚠️ 状态: 机器已超过${failureHours}小时${failureMinutes % 60}分钟无法ping通
+            
+            💡 建议: 请立即检查网络连接、机器电源和系统状态！
+            """.trimIndent()
+            
+            instance.pushToGroupsInternal(message, "alarm", urgent = true)
         }
 
         /**
@@ -59,16 +115,47 @@ class BotPushService {
          * @param threshold 阈值（秒），默认5分钟
          */
         @JvmStatic
-        fun pushTimeSyncAlarm(machineName: String, timeDiff: Long, threshold: Long = 300) {
+        fun pushTimeSyncAlarm(machineName: String, clientTimestamp: Long, serverTimestamp: Long, timeDiff: Long, threshold: Long = 300, urgent: Boolean = false) {
+            // 格式化时间显示
+            val clientTime = DateTimeUtils.convertTimestampToDateTime(clientTimestamp)
+            val serverTime = DateTimeUtils.convertTimestampToDateTime(serverTimestamp)
+            val clientTimeStr = DateTimeUtils.formatDateTimeFull(clientTime)
+            val serverTimeStr = DateTimeUtils.formatDateTimeFull(serverTime)
+            
+            // 计算时间差的可读格式
+            val timeDiffMinutes = timeDiff / 60
+            val timeDiffHours = timeDiffMinutes / 60
+            val timeDiffDays = timeDiffHours / 24
+            
+            val timeDiffReadable = buildString {
+                append("${timeDiff}秒")
+                if (timeDiffMinutes > 0) {
+                    append(" (${timeDiffMinutes}分钟")
+                    if (timeDiffHours > 0) {
+                        append(", ${timeDiffHours}小时")
+                        if (timeDiffDays > 0) {
+                            append(", ${timeDiffDays}天")
+                        }
+                    }
+                    append(")")
+                }
+            }
+            
             val message = """
             ⚠️ 时间同步报警
             ====================
             机器: $machineName
-            时间差: ${timeDiff}秒
-            阈值: ${threshold}秒
-            建议: 请使用ntp服务同步时间
+            
+            📊 时间信息:
+            • 客户端时间: $clientTimeStr
+            • 服务器时间: $serverTimeStr
+            • 时间差: $timeDiffReadable
+            • 阈值: ${threshold}秒
+            
+            💡 建议: 请使用ntp服务同步时间
             """.trimIndent()
-            instance.pushToGroupsInternal(message, "alarm")
+            
+            instance.pushToGroupsInternal(message, "alarm", urgent = urgent)
         }
     }
 
@@ -200,47 +287,47 @@ class BotPushService {
     /**
      * 推送消息到指定类型的bot群
      */
-    fun pushToBotGroups(type: String, title: String, content: String) {
+    fun pushToBotGroups(type: String, title: String, content: String, urgent: Boolean = false) {
         val targetGroups = getBotGroupsByType(type)
 
         for (group in targetGroups) {
-            pushMessageToGroup(group, title, content)
+            pushMessageToGroup(group, title, content, urgent)
         }
     }
 
     /**
      * 推送消息到指定名称的bot群
      */
-    fun pushToBotGroup(groupName: String, title: String, content: String) {
+    fun pushToBotGroup(groupName: String, title: String, content: String, urgent: Boolean = false) {
         val group = botGroups.find { it.name == groupName && it.isValid() }
         if (group != null) {
-            pushMessageToGroup(group, title, content)
+            pushMessageToGroup(group, title, content, urgent)
         }
     }
 
     /**
      * 推送报警消息
      */
-    fun pushAlarmMessage(title: String, content: String) {
-        pushToBotGroups("alarm", title, content)
+    fun pushAlarmMessage(title: String, content: String, urgent: Boolean = false) {
+        pushToBotGroups("alarm", title, content, urgent)
     }
 
     /**
      * 推送到短期群（包含作息时间分析）
      */
-    fun pushToShortTermGroup(title: String, content: String) {
+    fun pushToShortTermGroup(title: String, content: String, urgent: Boolean = false) {
         val sleepAnalysisContent = getSleepAnalysisContent("shortterm")
         val fullContent = content + sleepAnalysisContent
-        pushToBotGroups("shortterm", title, fullContent)
+        pushToBotGroups("shortterm", title, fullContent, urgent)
     }
 
     /**
      * 推送到长期群（包含作息时间分析）
      */
-    fun pushToLongTermGroup(title: String, content: String) {
+    fun pushToLongTermGroup(title: String, content: String, urgent: Boolean = false) {
         val sleepAnalysisContent = getSleepAnalysisContent("longterm")
         val fullContent = content + sleepAnalysisContent
-        pushToBotGroups("longterm", title, fullContent)
+        pushToBotGroups("longterm", title, fullContent, urgent)
     }
 
     /**
@@ -253,13 +340,13 @@ class BotPushService {
     /**
      * 推送到指定类型的群组（内部实现）
      */
-    private fun pushToGroupsInternal(message: String, groupType: String, removeEachLineBlank: Boolean = true) {
+    private fun pushToGroupsInternal(message: String, groupType: String, removeEachLineBlank: Boolean = true, urgent: Boolean = false) {
         if (removeEachLineBlank) {
             // 移除每行的空白字符
             val lines = message.lines()
             val cleanedLines = lines.map { it.trim() }.filter { it.isNotEmpty() }
             val cleanedMessage = cleanedLines.joinToString("\n")
-            return pushToGroupsInternal(cleanedMessage, groupType, false)
+            return pushToGroupsInternal(cleanedMessage, groupType, false, urgent)
         }
 
         try {
@@ -272,8 +359,8 @@ class BotPushService {
                     if (group.larkGroupBotId.isNotBlank() && group.larkGroupBotKey.isNotBlank()) {
                         val larkBot = LarkGroupBot(group.larkGroupBotId, group.larkGroupBotKey)
                         if (larkBot.isValid()) {
-                            larkBot.sendText(message)
-                            logger.info("Successfully pushed to Lark ${groupType} group: ${group.name}")
+                            larkBot.sendText(message, urgent)
+                            logger.info("Successfully pushed to Lark ${groupType} group: ${group.name}, urgent: $urgent")
                         }
                     }
 
@@ -283,7 +370,7 @@ class BotPushService {
                             group.weComGroupBotKey, message,
                             null, null
                         )
-                        logger.info("Successfully pushed to WeCom ${groupType} group: ${group.name}")
+                        logger.info("Successfully pushed to WeCom ${groupType} group: ${group.name}, urgent: $urgent")
                     }
                 } catch (e: Exception) {
                     // 记录推送失败日志
@@ -295,7 +382,7 @@ class BotPushService {
         }
     }
 
-    private fun pushMessageToGroup(group: BotGroupConfig, title: String, content: String) {
+    private fun pushMessageToGroup(group: BotGroupConfig, title: String, content: String, urgent: Boolean = false) {
         val fullContent = "[$title]\n$content"
 
         runBlocking {
@@ -304,13 +391,13 @@ class BotPushService {
                 if (group.weComGroupBotKey.isNotEmpty()) {
                     val weComUrl = WeComGroupBot.getWebhookUrl(group.weComGroupBotKey)
                     WeComGroupBot.directSendTextWithUrl(weComUrl, fullContent, emptyList(), emptyList())
-                    logger.info("Sent WeCom message to ${group.name}")
+                    logger.info("Sent WeCom message to ${group.name}, urgent: $urgent")
                 }
 
                 if (group.larkGroupBotId.isNotEmpty() && group.larkGroupBotKey.isNotEmpty()) {
                     val larkBot = LarkGroupBot(group.larkGroupBotId, group.larkGroupBotKey)
-                    larkBot.sendTextWithSilentMode(fullContent, null)
-                    logger.info("Sent Lark message to ${group.name}")
+                    larkBot.sendTextWithSilentMode(fullContent, null, urgent)
+                    logger.info("Sent Lark message to ${group.name}, urgent: $urgent")
                 }
             } catch (e: Exception) {
                 logger.error("Failed to send message to ${group.name}: ${e.message}")

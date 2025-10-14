@@ -39,6 +39,11 @@ class ConfigEnvironment {
         var REPORT_MONTHLY_ENABLE: Boolean = true
         var REPORT_YEARLY_ENABLE: Boolean = true
 
+        // 报警开关
+        var ALARM_PING_FAILURE_ENABLE: Boolean = true
+        var ALARM_AGENT_OFFLINE_ENABLE: Boolean = true
+        var ALARM_TIME_SYNC_ENABLE: Boolean = true
+
         fun getEnvStr(key: String, defaultValue: String = ""): String {
             val uppercaseKey = key.trim().uppercase()
 
@@ -212,6 +217,20 @@ class ConfigEnvironment {
             REPORT_YEARLY_ENABLE = getEnvBool(
                 "REPORT_YEARLY_ENABLE",
                 REPORT_YEARLY_ENABLE
+            )
+
+            // 初始化报警开关
+            ALARM_PING_FAILURE_ENABLE = getEnvBool(
+                "ALARM_PING_FAILURE_ENABLE",
+                ALARM_PING_FAILURE_ENABLE
+            )
+            ALARM_AGENT_OFFLINE_ENABLE = getEnvBool(
+                "ALARM_AGENT_OFFLINE_ENABLE",
+                ALARM_AGENT_OFFLINE_ENABLE
+            )
+            ALARM_TIME_SYNC_ENABLE = getEnvBool(
+                "ALARM_TIME_SYNC_ENABLE",
+                ALARM_TIME_SYNC_ENABLE
             )
         }
     }

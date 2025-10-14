@@ -47,6 +47,8 @@ heartbeat:
   online-check-interval: 120
   # 定时任务执行间隔（毫秒），默认300000毫秒（5分钟）
   scheduled-interval: 300000
+  # Ping失败报警阈值（秒），默认3600秒（1小时）
+  ping-failure-alarm-threshold: 3600
 
 # # https://blog.csdn.net/weixin_42703501/article/details/139587100
 # # https://www.jobrunr.io/en/documentation/configuration/spring/

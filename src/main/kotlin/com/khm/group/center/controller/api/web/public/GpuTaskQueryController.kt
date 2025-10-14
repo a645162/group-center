@@ -196,6 +196,36 @@ class GpuTaskQueryController {
     }
 
     /**
+     * 通过taskId精确匹配任务
+     */
+    @Operation(
+        summary = "Get Task by Task ID",
+        description = "Retrieve a specific GPU task by exact task ID match"
+    )
+    @GetMapping("/task/{taskId}")
+    fun getTaskByTaskId(
+        @Parameter(description = "Task ID for exact matching") @PathVariable taskId: String
+    ): ClientResponse {
+        logger.info("Received task query by taskId: $taskId")
+
+        val task = gpuTaskQueryService.getTaskByTaskId(taskId)
+        
+        val clientResponse = ClientResponse()
+        if (task != null) {
+            clientResponse.result = task
+            clientResponse.isSucceed = true
+            logger.info("Task found by taskId: $taskId")
+        } else {
+            clientResponse.result = mapOf("message" to "Task not found")
+            clientResponse.isSucceed = false
+            clientResponse.haveError = true
+            logger.info("Task not found by taskId: $taskId")
+        }
+        
+        return clientResponse
+    }
+
+    /**
      * 构建过滤器列表
      */
     private fun buildFilters(

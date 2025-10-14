@@ -39,12 +39,20 @@ class HeartbeatConfig {
      */
     var scheduledInterval: Long = 300000
 
+    /**
+     * Ping失败报警阈值（秒）
+     * 当机器连续ping失败超过此时间时，触发报警
+     * 默认：3600秒（1小时）
+     */
+    var pingFailureAlarmThreshold: Int = 3600
+
     override fun toString(): String {
         return "HeartbeatConfig(" +
                 "timeSyncThreshold=$timeSyncThreshold, " +
                 "offlineTimeout=$offlineTimeout, " +
                 "onlineCheckInterval=$onlineCheckInterval, " +
-                "scheduledInterval=$scheduledInterval" +
+                "scheduledInterval=$scheduledInterval, " +
+                "pingFailureAlarmThreshold=$pingFailureAlarmThreshold" +
                 ")"
     }
 }
