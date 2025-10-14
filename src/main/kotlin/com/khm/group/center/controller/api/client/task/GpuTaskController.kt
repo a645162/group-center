@@ -2,6 +2,7 @@ package com.khm.group.center.controller.api.client.task
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper
 import com.khm.group.center.datatype.config.MachineConfig
+import com.khm.group.center.service.GpuTaskNotifyService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
@@ -22,6 +23,9 @@ class GpuTaskController {
 
     @Autowired
     lateinit var gpuTaskInfoMapper: GpuTaskInfoMapper
+
+    @Autowired
+    lateinit var gpuTaskNotifyService: GpuTaskNotifyService
 
     @Operation(summary = "GPU任务变动")
     @RequestMapping("/api/client/gpu_task/info", method = [RequestMethod.POST])
@@ -50,6 +54,13 @@ class GpuTaskController {
         // Notify in a separate coroutine
         CoroutineScope(Dispatchers.IO).launch {
             newTaskNotify(gpuTaskInfo)
+        }
+
+        // 如果是任务完成消息，触发订阅通知
+        if (gpuTaskInfo.messageType == "finish") {
+            CoroutineScope(Dispatchers.IO).launch {
+                handleTaskCompletionNotification(gpuTaskInfo)
+            }
         }
 
         return responseObj
@@ -141,6 +152,22 @@ class GpuTaskController {
             .eq("project_directory", gpuTaskInfo.projectDirectory)
 
         return gpuTaskInfoMapper.selectList(queryWrapper)
+    }
+
+    /**
+     * 处理任务完成时的订阅通知
+     */
+    private suspend fun handleTaskCompletionNotification(gpuTaskInfo: GpuTaskInfo) {
+        try {
+            val projectId = gpuTaskInfo.projectName
+            val taskId = gpuTaskInfo.taskId
+            val taskName = gpuTaskInfo.pyFileName.ifEmpty { gpuTaskInfo.projectName }
+
+            // 异步触发订阅通知
+            gpuTaskNotifyService.notifyTaskCompletionAsync(projectId, taskId, taskName)
+        } catch (e: Exception) {
+            println("处理任务完成通知失败: ${e.message}")
+        }
     }
 
 }
