@@ -13,6 +13,7 @@ import com.khm.group.center.datatype.statistics.TimeTrendStatistics
 import com.khm.group.center.datatype.statistics.DailyStats
 import com.khm.group.center.datatype.statistics.UserActivityTimeDistribution
 import com.khm.group.center.datatype.statistics.UserActivityTimeRange
+import com.khm.group.center.utils.enum.EnumUtils
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import org.springframework.stereotype.Component
@@ -435,7 +436,7 @@ class ReportCacheManager {
             val jsonObject = JSON.parseObject(jsonContent)
             
             Report(
-                reportType = ReportType.valueOf(jsonObject.getString("reportType")),
+                reportType = EnumUtils.safeValueOfFlexible(jsonObject.getString("reportType"), ReportType.TODAY),
                 title = jsonObject.getString("title"),
                 periodStartDate = LocalDate.parse(jsonObject.getString("periodStartDate")),
                 periodEndDate = LocalDate.parse(jsonObject.getString("periodEndDate")),
@@ -548,7 +549,7 @@ class ReportCacheManager {
             val jsonObject = JSON.parseObject(jsonContent)
             
             TimeTrendStatistics(
-                period = com.khm.group.center.utils.time.TimePeriod.valueOf(jsonObject.getString("period")),
+                period = EnumUtils.safeValueOfFlexible(jsonObject.getString("period"), com.khm.group.center.utils.time.TimePeriod.ONE_WEEK),
                 dailyStats = parseDailyStatsList(jsonObject.getJSONArray("dailyStats")),
                 totalTasks = jsonObject.getIntValue("totalTasks"),
                 totalRuntime = jsonObject.getIntValue("totalRuntime"),

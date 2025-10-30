@@ -3,6 +3,8 @@ package com.khm.group.center.controller.api.client.task
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper
 import com.khm.group.center.datatype.config.MachineConfig
 import com.khm.group.center.service.GpuTaskNotifyService
+import com.khm.group.center.utils.program.Slf4jKt
+import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
@@ -39,7 +41,7 @@ class GpuTaskController {
         responseObj.isSucceed = true
         responseObj.isAuthenticated = true
 
-        println(
+        logger.info(
             "Receive task from nvi-notify" +
                     " [${gpuTaskInfo.taskType}]" +
                     " Project:${gpuTaskInfo.projectName}" +
@@ -102,7 +104,8 @@ class GpuTaskController {
                 && waitTimes <= waitTimeThreshold
             ) {
                 multiGpuTaskInfoModel = getMultiGpuTaskInfoModel(gpuTaskInfo)
-                if (multiGpuTaskInfoModel.size == gpuTaskInfo.multiDeviceWorldSize) {
+                // 安全检查：确保multiGpuTaskInfoModel不为null
+                if (multiGpuTaskInfoModel != null && multiGpuTaskInfoModel.size == gpuTaskInfo.multiDeviceWorldSize) {
                     break
                 }
 
@@ -128,8 +131,31 @@ class GpuTaskController {
     private fun getGpuTaskInfoByTaskId(taskId: String): GpuTaskInfoModel? {
         val queryWrapper = QueryWrapper<GpuTaskInfoModel>()
         queryWrapper.eq("task_id", taskId)
-        return gpuTaskInfoMapper.selectOne(queryWrapper)
+        
+        val results = gpuTaskInfoMapper.selectList(queryWrapper)
+        
+        if (results.isEmpty()) {
+            return null
+        }
+        
+        // 如果找到多个结果，返回较早的一个（按ID升序），并删除其他重复记录
+        if (results.size > 1) {
+            logger.warn("Found ${results.size} records for taskId: $taskId, using the earliest one and deleting duplicates")
+            val sortedResults = results.sortedBy { it.id ?: 0L }
+            val earliestRecord = sortedResults.first()
+            
+            // 删除其他重复记录
+            sortedResults.drop(1).forEach { duplicateRecord ->
+                gpuTaskInfoMapper.deleteById(duplicateRecord.id)
+                logger.info("Deleted duplicate record with id: ${duplicateRecord.id} for taskId: $taskId")
+            }
+            
+            return earliestRecord
+        }
+        
+        return results.first()
     }
+
 
     private fun getMultiGpuTaskInfoModel(gpuTaskInfo: GpuTaskInfo): List<GpuTaskInfoModel> {
         val queryWrapper = QueryWrapper<GpuTaskInfoModel>()
@@ -166,7 +192,7 @@ class GpuTaskController {
             // 异步触发订阅通知
             gpuTaskNotifyService.notifyTaskCompletionAsync(projectId, taskId, taskName)
         } catch (e: Exception) {
-            println("处理任务完成通知失败: ${e.message}")
+            logger.error("处理任务完成通知失败: ${e.message}")
         }
     }
 

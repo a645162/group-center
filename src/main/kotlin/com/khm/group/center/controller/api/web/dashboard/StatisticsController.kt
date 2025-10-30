@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.khm.group.center.datatype.response.ClientResponse
 import com.khm.group.center.service.BaseStatisticsService
 import com.khm.group.center.service.CachedStatisticsService
+import com.khm.group.center.utils.enum.EnumUtils
 import com.khm.group.center.utils.time.TimePeriod
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -37,7 +38,7 @@ class StatisticsController {
         @Parameter(description = "Time period for statistics (default: ONE_WEEK)", example = "ONE_WEEK")
         @RequestParam(defaultValue = "ONE_WEEK") timePeriod: String
     ): ClientResponse {
-        val period = TimePeriod.valueOf(timePeriod)
+        val period = EnumUtils.safeValueOfFlexible(timePeriod, TimePeriod.ONE_WEEK)
         val stats = cachedStatisticsService.getUserStatistics(period)
         
         val result = ClientResponse()
@@ -54,7 +55,7 @@ class StatisticsController {
         @Parameter(description = "Time period for statistics (default: ONE_WEEK)", example = "ONE_WEEK")
         @RequestParam(defaultValue = "ONE_WEEK") timePeriod: String
     ): ClientResponse {
-        val period = TimePeriod.valueOf(timePeriod)
+        val period = EnumUtils.safeValueOfFlexible(timePeriod, TimePeriod.ONE_WEEK)
         val stats = cachedStatisticsService.getGpuStatistics(period)
         
         val result = ClientResponse()
@@ -71,7 +72,7 @@ class StatisticsController {
         @Parameter(description = "Time period for statistics (default: ONE_WEEK)", example = "ONE_WEEK")
         @RequestParam(defaultValue = "ONE_WEEK") timePeriod: String
     ): ClientResponse {
-        val period = TimePeriod.valueOf(timePeriod)
+        val period = EnumUtils.safeValueOfFlexible(timePeriod, TimePeriod.ONE_WEEK)
         val stats = cachedStatisticsService.getServerStatistics(period)
         
         val result = ClientResponse()
@@ -88,7 +89,7 @@ class StatisticsController {
         @Parameter(description = "Time period for statistics (default: ONE_WEEK)", example = "ONE_WEEK")
         @RequestParam(defaultValue = "ONE_WEEK") timePeriod: String
     ): ClientResponse {
-        val period = TimePeriod.valueOf(timePeriod)
+        val period = EnumUtils.safeValueOfFlexible(timePeriod, TimePeriod.ONE_WEEK)
         val stats = cachedStatisticsService.getProjectStatistics(period)
         
         val result = ClientResponse()
@@ -105,7 +106,7 @@ class StatisticsController {
         @Parameter(description = "Time period for trend analysis (default: ONE_WEEK)", example = "ONE_WEEK")
         @RequestParam(defaultValue = "ONE_WEEK") timePeriod: String
     ): ClientResponse {
-        val period = TimePeriod.valueOf(timePeriod)
+        val period = EnumUtils.safeValueOfFlexible(timePeriod, TimePeriod.ONE_WEEK)
         val stats = cachedStatisticsService.getTimeTrendStatistics(period)
         
         val result = ClientResponse()
@@ -229,7 +230,7 @@ class StatisticsController {
     fun getSleepAnalysis(
         @RequestParam(defaultValue = "ONE_WEEK") timePeriod: String
     ): ClientResponse {
-        val period = TimePeriod.valueOf(timePeriod)
+        val period = EnumUtils.safeValueOfFlexible(timePeriod, TimePeriod.ONE_WEEK)
         
         // 使用基础服务（无缓存）进行作息分析
         val tasks = (baseStatisticsService as com.khm.group.center.service.StatisticsServiceImpl)
@@ -281,7 +282,7 @@ class StatisticsController {
         @Parameter(description = "Time period for statistics (default: ONE_WEEK)", example = "ONE_WEEK")
         @RequestParam(defaultValue = "ONE_WEEK") timePeriod: String
     ): ClientResponse {
-        val period = TimePeriod.valueOf(timePeriod)
+        val period = EnumUtils.safeValueOfFlexible(timePeriod, TimePeriod.ONE_WEEK)
         
         // 使用缓存服务获取用户活动时间分布
         val distribution = cachedStatisticsService.getUserActivityTimeDistribution(period)

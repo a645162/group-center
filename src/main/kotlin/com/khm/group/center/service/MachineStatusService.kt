@@ -23,6 +23,9 @@ class MachineStatusService {
     @Autowired
     private lateinit var heartbeatConfig: HeartbeatConfig
 
+    @Autowired
+    private lateinit var alarmPushService: AlarmPushService
+
     // 存储机器状态信息
     private val machineStatusMap = ConcurrentHashMap<String, MachineStatus>()
 
@@ -147,8 +150,8 @@ class MachineStatusService {
             
             // 检查时间同步报警开关
             if (ConfigEnvironment.ALARM_TIME_SYNC_ENABLE) {
-                // 推送时间同步报警到报警群（默认不紧急）
-                BotPushService.pushTimeSyncAlarm(
+                // 使用间隔推送服务推送时间同步报警
+                alarmPushService.pushTimeSyncAlarm(
                     machine.nameEng,
                     clientTimestampSeconds,
                     currentTime,
@@ -238,8 +241,8 @@ class MachineStatusService {
             
             // 检查ping失败报警开关
             if (ConfigEnvironment.ALARM_PING_FAILURE_ENABLE) {
-                // 推送ping失败报警到报警群，并艾特全体成员
-                BotPushService.pushPingFailureAlarm(
+                // 使用间隔推送服务推送ping失败报警
+                alarmPushService.pushPingFailureAlarm(
                     machine.nameEng,
                     machine.host,
                     firstFailureTime,
@@ -294,15 +297,8 @@ class MachineStatusService {
             // 推送离线报警到报警群
             if (offlineMachines.isNotEmpty()) {
                 val timeoutMinutes = heartbeatConfig.offlineTimeout / 60
-                val offlineMessage = """
-                🚨 机器离线报警
-                ====================
-                以下机器超过${timeoutMinutes}分钟无心跳，已标记为离线：
-                ${offlineMachines.joinToString(", ")}
-                
-                请及时检查机器状态和网络连接！
-                """.trimIndent()
-                BotPushService.pushToAlarmGroup(offlineMessage)
+                // 使用间隔推送服务推送agent离线报警
+                alarmPushService.pushAgentOfflineAlarm(offlineMachines, timeoutMinutes)
             }
         }
     }
