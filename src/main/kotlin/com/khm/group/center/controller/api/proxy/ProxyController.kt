@@ -142,13 +142,16 @@ class ProxyController {
                 proxyHealthCheckScheduler.triggerManualHealthCheck()
             }
 
-            val successCount = results.count { it.value }
+            val successCount = results.count { it.value.first }
             val failedCount = results.size - successCount
 
             ResponseEntity.ok(HealthCheckResponse(
                 success = true,
                 message = "代理测试健康检查完成: 成功 $successCount 个, 失败 $failedCount 个",
-                results = results
+                results = results.mapValues { it.value.first },
+                detailedResults = results.mapValues { (_, pair) ->
+                    pair.second.map { UrlTestResultInfo.fromUrlTestResult(it) }
+                }
             ))
         } catch (e: Exception) {
             logger.error("Manual proxy health check failed: ${e.message}", e)
@@ -228,7 +231,8 @@ data class ProxyStatusResponse(
 data class HealthCheckResponse(
     val success: Boolean,
     val message: String,
-    val results: Map<String, Boolean> = emptyMap()
+    val results: Map<String, Boolean> = emptyMap(),
+    val detailedResults: Map<String, List<UrlTestResultInfo>> = emptyMap()
 )
 
 /**
@@ -264,7 +268,8 @@ data class ProxyServerInfo(
     val healthCheckEnabled: Boolean,
     val healthCheckInterval: Int,
     val healthCheckTimeout: Int,
-    val testUrls: List<String>
+    val testUrls: List<String>,
+    val urlTestResults: List<UrlTestResultInfo>
 ) {
     companion object {
         fun fromStatusDetails(details: com.khm.group.center.service.ProxyStatusDetails): ProxyServerInfo {
@@ -288,7 +293,37 @@ data class ProxyServerInfo(
                 healthCheckEnabled = details.proxy.testConfig.enable,
                 healthCheckInterval = details.proxy.testConfig.interval,
                 healthCheckTimeout = details.proxy.testConfig.timeout,
-                testUrls = listOf(details.proxy.testConfig.testUrl, details.proxy.testConfig.directTestUrl)
+                testUrls = details.proxy.testConfig.getEnabledTestUrls().map { it.url },
+                urlTestResults = details.urlTestResults.map { UrlTestResultInfo.fromUrlTestResult(it) }
+            )
+        }
+    }
+}
+
+/**
+ * URL测试结果信息（用于API响应）
+ */
+data class UrlTestResultInfo(
+    val url: String,
+    val name: String,
+    val nameEng: String,
+    val isSuccess: Boolean,
+    val responseTime: Long?,
+    val statusCode: Int?,
+    val error: String?,
+    val testTime: Long
+) {
+    companion object {
+        fun fromUrlTestResult(result: com.khm.group.center.service.UrlTestResult): UrlTestResultInfo {
+            return UrlTestResultInfo(
+                url = result.url,
+                name = result.name,
+                nameEng = result.nameEng,
+                isSuccess = result.isSuccess,
+                responseTime = result.responseTime,
+                statusCode = result.statusCode,
+                error = result.error,
+                testTime = result.testTime
             )
         }
     }

@@ -51,16 +51,23 @@ class ProxyHealthCheckScheduler {
         runBlocking {
             try {
                 val results = proxyHealthCheckService.checkAllEnabledProxyTests()
-                val successCount = results.count { it.value }
+                val successCount = results.count { it.value.first }
                 val failedCount = results.size - successCount
 
                 logger.debug("Proxy health check completed: $successCount successful, $failedCount failed")
 
                 // 记录详细的检查结果（仅记录失败的情况）
-                results.forEach { (proxyName, isAvailable) ->
+                results.forEach { (proxyName, proxyResult) ->
+                    val (isAvailable, urlResults) = proxyResult
                     val status = ProxyConfigManager.proxyStatusMap[proxyName]
                     if (!isAvailable) {
                         logger.warn("Proxy test server $proxyName check failed, error: ${status?.lastError}")
+                        // 记录URL测试结果详情
+                        urlResults.forEach { urlResult ->
+                            if (!urlResult.isSuccess) {
+                                logger.debug("URL test failed: ${urlResult.nameEng} - ${urlResult.error}")
+                            }
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -155,7 +162,7 @@ class ProxyHealthCheckScheduler {
     /**
      * 手动触发健康检查（用于测试或管理）
      */
-    suspend fun triggerManualHealthCheck(): Map<String, Boolean> {
+    suspend fun triggerManualHealthCheck(): Map<String, Pair<Boolean, List<com.khm.group.center.service.UrlTestResult>>> {
         logger.info("Manually triggering proxy health check")
         return proxyHealthCheckService.checkAllEnabledProxyTests()
     }

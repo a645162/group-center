@@ -22,8 +22,18 @@ proxyTestList:
       enable: true
       interval: 300  # 检查间隔（秒），默认5分钟
       timeout: 10    # 超时时间（秒），默认10秒
-      # HTTP代理测试URL（应该能通过代理访问）
-      testUrl: "http://www.google.com"
+      # 多个测试URL配置（应该能通过代理访问）
+      testUrls:
+        - url: "http://www.google.com"
+          name: "Google测试"
+          nameEng: "google-test"
+          enable: true
+          expectedStatusCode: 200
+        - url: "https://wandb.ai"
+          name: "WandB 测试"
+          nameEng: "wandb-home-test"
+          enable: true
+          expectedStatusCode: 200
       # 直接访问测试URL（应该无法访问，用于对比）
       directTestUrl: "http://www.google.com"
 
@@ -41,8 +51,23 @@ proxyTestList:
       enable: true
       interval: 300
       timeout: 10
-      # HTTPS代理测试URL（应该能通过代理访问）
-      testUrl: "https://www.youtube.com"
+      # 多个测试URL配置（应该能通过代理访问）
+      testUrls:
+        - url: "https://www.youtube.com"
+          name: "YouTube测试"
+          nameEng: "youtube-test"
+          enable: true
+          expectedStatusCode: 200
+        - url: "https://api.wandb.ai"
+          name: "WandB API测试"
+          nameEng: "wandb-api-test"
+          enable: true
+          expectedStatusCode: 200
+        - url: "https://www.github.com"
+          name: "GitHub测试"
+          nameEng: "github-test"
+          enable: true
+          expectedStatusCode: 200
       # 直接访问测试URL（应该无法访问，用于对比）
       directTestUrl: "https://www.youtube.com"
 
@@ -60,8 +85,23 @@ proxyTestList:
       enable: true
       interval: 300
       timeout: 10
-      # SOCKS5代理测试URL（应该能通过代理访问）
-      testUrl: "https://www.facebook.com"
+      # 多个测试URL配置（应该能通过代理访问）
+      testUrls:
+        - url: "https://www.facebook.com"
+          name: "Facebook测试"
+          nameEng: "facebook-test"
+          enable: true
+          expectedStatusCode: 200
+        - url: "https://api.wandb.ai"
+          name: "WandB API测试"
+          nameEng: "wandb-api-test"
+          enable: true
+          expectedStatusCode: 200
+        - url: "https://www.twitter.com"
+          name: "Twitter测试"
+          nameEng: "twitter-test"
+          enable: true
+          expectedStatusCode: 200
       # 直接访问测试URL（应该无法访问，用于对比）
       directTestUrl: "https://www.facebook.com"
 
