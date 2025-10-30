@@ -46,13 +46,21 @@ class HeartbeatConfig {
      */
     var pingFailureAlarmThreshold: Int = 3600
 
+    /**
+     * 报警推送间隔（秒）
+     * 相同类型的报警消息推送间隔，避免频繁推送
+     * 默认：3600秒（1小时）
+     */
+    var alarmPushInterval: Int = 3600
+
     override fun toString(): String {
         return "HeartbeatConfig(" +
                 "timeSyncThreshold=$timeSyncThreshold, " +
                 "offlineTimeout=$offlineTimeout, " +
                 "onlineCheckInterval=$onlineCheckInterval, " +
                 "scheduledInterval=$scheduledInterval, " +
-                "pingFailureAlarmThreshold=$pingFailureAlarmThreshold" +
+                "pingFailureAlarmThreshold=$pingFailureAlarmThreshold, " +
+                "alarmPushInterval=$alarmPushInterval" +
                 ")"
     }
 }
