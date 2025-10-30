@@ -54,15 +54,45 @@ data class ProxyTestServer(
 }
 
 /**
+ * 测试URL配置
+ */
+data class TestUrlConfig(
+    val url: String = "",
+    val name: String = "",
+    val nameEng: String = "",
+    val enable: Boolean = true,
+    val expectedStatusCode: Int = 200  // 期望的HTTP状态码
+)
+
+/**
  * 测试配置
  */
 data class TestConfig(
     val enable: Boolean = true,
     val interval: Int = 300,  // 默认5分钟
     val timeout: Int = 10,    // 默认10秒
-    val testUrl: String = "https://www.google.com",  // 通过代理访问的测试URL
+    val testUrls: List<TestUrlConfig> = emptyList(),  // 多个测试URL配置
     val directTestUrl: String = "https://www.google.com"  // 直接访问的对比URL
-)
+) {
+    /**
+     * 获取启用的测试URL配置
+     */
+    fun getEnabledTestUrls(): List<TestUrlConfig> {
+        return testUrls.filter { it.enable }
+    }
+
+    /**
+     * 获取默认测试URL（向后兼容）
+     */
+    fun getDefaultTestUrl(): String {
+        val enabledUrls = getEnabledTestUrls()
+        return if (enabledUrls.isNotEmpty()) {
+            enabledUrls.first().url
+        } else {
+            "https://www.google.com"  // 默认URL
+        }
+    }
+}
 
 /**
  * 全局测试配置
@@ -90,7 +120,8 @@ data class ProxyStatus(
     var lastError: String? = null,        // 最后一次错误信息
     var successCount: Int = 0,            // 成功次数
     var failureCount: Int = 0,            // 失败次数
-    var lastSuccessTime: Long? = null     // 最后一次成功时间
+    var lastSuccessTime: Long? = null,    // 最后一次成功时间
+    var lastUrlTestResults: List<com.khm.group.center.service.UrlTestResult> = emptyList()  // 最后一次URL测试结果
 ) {
     /**
      * 获取成功率

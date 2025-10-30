@@ -3,6 +3,7 @@ package com.khm.group.center.service
 import com.khm.group.center.datatype.config.ProxyTestServer
 import com.khm.group.center.datatype.config.ProxyType
 import com.khm.group.center.datatype.config.TestConfig
+import com.khm.group.center.datatype.config.TestUrlConfig
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,7 +36,15 @@ class ProxyHealthCheckServiceTest {
             port = 7890,
             enable = true,
             testConfig = TestConfig(
-                testUrl = "https://www.google.com",
+                testUrls = listOf(
+                    TestUrlConfig(
+                        url = "https://www.google.com",
+                        name = "Google测试",
+                        nameEng = "google-test",
+                        enable = true,
+                        expectedStatusCode = 200
+                    )
+                ),
                 directTestUrl = "https://www.google.com",
                 timeout = 10
             )
@@ -43,17 +52,26 @@ class ProxyHealthCheckServiceTest {
 
         println("Start testing HTTP proxy accessing HTTPS website...")
         println("Proxy server: ${testProxy.host}:${testProxy.port}")
-        println("Test URL: ${testProxy.testConfig.testUrl}")
+        println("Test URLs: ${testProxy.testConfig.getEnabledTestUrls().map { it.url }}")
 
         try {
             val result = runBlocking {
                 proxyHealthCheckService.checkProxyHealth(testProxy)
             }
 
-            if (result) {
+            val (isAvailable, urlResults) = result
+            if (isAvailable) {
                 println("✅ Proxy health check succeeded")
+                println("URL test results:")
+                urlResults.forEach { urlResult ->
+                    println("  - ${urlResult.nameEng}: ${if (urlResult.isSuccess) "✅" else "❌"} (${urlResult.responseTime}ms)")
+                }
             } else {
                 println("❌ Proxy health check failed")
+                println("URL test results:")
+                urlResults.forEach { urlResult ->
+                    println("  - ${urlResult.nameEng}: ${if (urlResult.isSuccess) "✅" else "❌"} (${urlResult.responseTime}ms) - ${urlResult.error}")
+                }
             }
         } catch (e: Exception) {
             println("❌ Test exception: ${e.javaClass.simpleName} - ${e.message}")

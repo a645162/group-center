@@ -8,6 +8,7 @@ import com.khm.group.center.datatype.config.ProxyConfigManager
 import com.khm.group.center.datatype.config.ProxyTestServer
 import com.khm.group.center.datatype.config.ProxyStatus
 import com.khm.group.center.datatype.config.ProxyType
+import com.khm.group.center.datatype.config.TestUrlConfig
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,7 +41,10 @@ class ProxyConfigLoader {
             }
 
             val yamlContent = Files.readString(configFile)
+            logger.debug("Raw YAML content: $yamlContent")
+            
             val proxyConfig = yamlMapper.readValue(yamlContent, ProxyConfig::class.java)
+            logger.debug("Parsed proxy config: version=${proxyConfig.version}, enable=${proxyConfig.enable}, proxyTestList size=${proxyConfig.proxyTestList.size}")
             
             // 验证和修复配置
             val validatedConfig = validateAndFixConfig(proxyConfig)
@@ -83,6 +87,48 @@ class ProxyConfigLoader {
             }
 
             // 验证测试配置
+            val fixedTestUrls = if (proxy.testConfig.testUrls.isEmpty()) {
+                // 向后兼容：如果没有配置testUrls，使用默认URL
+                listOf(
+                    TestUrlConfig(
+                        url = "https://www.google.com",
+                        name = "默认测试",
+                        nameEng = "default-test",
+                        enable = true,
+                        expectedStatusCode = 200
+                    )
+                )
+            } else {
+                // 验证和修复测试URL配置
+                proxy.testConfig.testUrls.map { testUrl ->
+                    TestUrlConfig(
+                        url = if (testUrl.url.isBlank()) {
+                            logger.warn("Proxy test ${proxy.nameEng} test URL is empty, using default URL")
+                            "https://www.google.com"
+                        } else {
+                            testUrl.url
+                        },
+                        name = if (testUrl.name.isBlank()) {
+                            "未命名测试"
+                        } else {
+                            testUrl.name
+                        },
+                        nameEng = if (testUrl.nameEng.isBlank()) {
+                            "unnamed-test"
+                        } else {
+                            testUrl.nameEng
+                        },
+                        enable = testUrl.enable,
+                        expectedStatusCode = if (testUrl.expectedStatusCode <= 0) {
+                            logger.warn("Proxy test ${proxy.nameEng} expected status code invalid: ${testUrl.expectedStatusCode}, using default 200")
+                            200
+                        } else {
+                            testUrl.expectedStatusCode
+                        }
+                    )
+                }
+            }
+            
             val fixedTestConfig = proxy.testConfig.copy(
                 interval = if (proxy.testConfig.interval <= 0) {
                     logger.warn("Proxy test ${proxy.nameEng} check interval invalid: ${proxy.testConfig.interval}, using default 300 seconds")
@@ -96,12 +142,7 @@ class ProxyConfigLoader {
                 } else {
                     proxy.testConfig.timeout
                 },
-                testUrl = if (proxy.testConfig.testUrl.isBlank()) {
-                    logger.warn("Proxy test ${proxy.nameEng} test URL is empty, using default URL")
-                    "https://www.google.com"
-                } else {
-                    proxy.testConfig.testUrl
-                },
+                testUrls = fixedTestUrls,
                 directTestUrl = if (proxy.testConfig.directTestUrl.isBlank()) {
                     logger.warn("Proxy test ${proxy.nameEng} direct test URL is empty, using default URL")
                     "https://www.google.com"

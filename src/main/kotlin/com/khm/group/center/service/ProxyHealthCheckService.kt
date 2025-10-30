@@ -28,58 +28,108 @@ class ProxyHealthCheckService {
     /**
      * 检查单个代理服务器的健康状况
      */
-    suspend fun checkProxyHealth(proxy: ProxyTestServer): Boolean {
+    suspend fun checkProxyHealth(proxy: ProxyTestServer): Pair<Boolean, List<UrlTestResult>> {
         return withContext(Dispatchers.IO) {
-            try {
-                val startTime = System.currentTimeMillis()
-                
-                // 创建代理配置的OkHttpClient
-                val okHttpClient = createOkHttpClientWithProxy(proxy)
-                
-                // 测试URL
-                val testUrl = proxy.testConfig.testUrl
-                
-                logger.debug("Starting proxy health check: ${proxy.nameEng}, type=${proxy.type}, address=${proxy.host}:${proxy.port}, testURL=$testUrl")
-                
-                val request = Request.Builder()
-                    .url(testUrl)
-                    .build()
-                
-                val response = okHttpClient.newCall(request).execute()
-                val endTime = System.currentTimeMillis()
-                val responseTime = endTime - startTime
-                
-                // 检查响应状态
-                val statusCode = response.code
-                val isSuccess = statusCode in 200..399
+            val enabledTestUrls = proxy.testConfig.getEnabledTestUrls()
+            
+            if (enabledTestUrls.isEmpty()) {
+                logger.warn("Proxy ${proxy.nameEng} has no enabled test URLs, skipping health check")
+                updateProxyStatus(proxy, false, null, "No enabled test URLs configured")
+                return@withContext Pair(false, emptyList())
+            }
+            
+            logger.debug("Starting proxy health check: ${proxy.nameEng}, type=${proxy.type}, address=${proxy.host}:${proxy.port}, testURLs=${enabledTestUrls.size}")
+            
+            // 测试所有启用的URL，只要有一个成功就认为代理可用
+            var overallSuccess = false
+            var bestResponseTime: Long? = null
+            var lastError: String? = null
+            val urlTestResults = mutableListOf<UrlTestResult>()
+            
+            for (testUrlConfig in enabledTestUrls) {
+                val testStartTime = System.currentTimeMillis()
+                var isSuccess = false
+                var responseTime: Long? = null
+                var statusCode: Int? = null
+                var error: String? = null
                 
                 try {
-                    if (isSuccess) {
-                        logger.debug("Proxy ${proxy.nameEng} health check successful, response time: ${responseTime}ms")
-                        updateProxyStatus(proxy, true, responseTime, null)
-                        true
-                    } else {
-                        logger.warn("Proxy ${proxy.nameEng} health check failed, status code: $statusCode")
-                        logger.debug("Proxy test details: HTTP proxy accessing HTTPS website, status code=$statusCode")
-                        updateProxyStatus(proxy, false, null, "HTTP status code: $statusCode")
-                        false
+                    val startTime = System.currentTimeMillis()
+                    
+                    // 创建代理配置的OkHttpClient
+                    val okHttpClient = createOkHttpClientWithProxy(proxy)
+                    
+                    logger.debug("Testing proxy ${proxy.nameEng} with URL: ${testUrlConfig.url} (${testUrlConfig.nameEng})")
+                    
+                    val request = Request.Builder()
+                        .url(testUrlConfig.url)
+                        .build()
+                    
+                    val response = okHttpClient.newCall(request).execute()
+                    val endTime = System.currentTimeMillis()
+                    responseTime = endTime - startTime
+                    
+                    // 检查响应状态
+                    statusCode = response.code
+                    val expectedStatus = testUrlConfig.expectedStatusCode
+                    isSuccess = statusCode == expectedStatus
+                    
+                    try {
+                        if (isSuccess) {
+                            logger.debug("Proxy ${proxy.nameEng} URL test successful: ${testUrlConfig.nameEng}, response time: ${responseTime}ms")
+                            overallSuccess = true
+                            if (bestResponseTime == null || responseTime < bestResponseTime) {
+                                bestResponseTime = responseTime
+                            }
+                        } else {
+                            logger.warn("Proxy ${proxy.nameEng} URL test failed: ${testUrlConfig.nameEng}, status code: $statusCode (expected: $expectedStatus)")
+                            error = "HTTP status code: $statusCode (expected: $expectedStatus)"
+                            lastError = "URL ${testUrlConfig.nameEng}: $error"
+                        }
+                    } finally {
+                        // 确保响应体被正确关闭，避免连接泄漏
+                        response.close()
                     }
-                } finally {
-                    // 确保响应体被正确关闭，避免连接泄漏
-                    response.close()
+                } catch (e: Exception) {
+                    logger.error("Proxy ${proxy.nameEng} URL test exception: ${testUrlConfig.nameEng}, error: ${e.message}")
+                    logger.debug("Exception type: ${e.javaClass.simpleName}")
+                    
+                    // 针对SSL/TLS错误的特殊处理
+                    if (e.message?.contains("SSL") == true || e.message?.contains("TLS") == true) {
+                        logger.warn("SSL/TLS handshake failed for URL ${testUrlConfig.nameEng}, proxy server may not support HTTPS CONNECT tunnel")
+                    }
+                    
+                    error = e.message ?: "Unknown error"
+                    lastError = "URL ${testUrlConfig.nameEng}: $error"
                 }
-            } catch (e: Exception) {
-                logger.error("Proxy ${proxy.nameEng} health check exception: ${e.message}")
-                logger.debug("Proxy details: type=${proxy.type}, address=${proxy.host}:${proxy.port}, testURL=${proxy.testConfig.testUrl}")
-                logger.debug("Exception type: ${e.javaClass.simpleName}")
                 
-                // 针对SSL/TLS错误的特殊处理
-                if (e.message?.contains("SSL") == true || e.message?.contains("TLS") == true) {
-                    logger.warn("SSL/TLS handshake failed, proxy server may not support HTTPS CONNECT tunnel")
-                }
+                // 记录每个URL的测试结果
+                urlTestResults.add(UrlTestResult(
+                    url = testUrlConfig.url,
+                    name = testUrlConfig.name,
+                    nameEng = testUrlConfig.nameEng,
+                    isSuccess = isSuccess,
+                    responseTime = responseTime,
+                    statusCode = statusCode,
+                    error = error,
+                    testTime = testStartTime
+                ))
                 
-                updateProxyStatus(proxy, false, null, e.message ?: "Unknown error")
-                false
+                // 注释掉提前结束的逻辑，确保测试所有URL
+                // if (overallSuccess) {
+                //     logger.debug("Proxy ${proxy.nameEng} health check successful, best response time: ${bestResponseTime}ms")
+                //     break
+                // }
+            }
+            
+            if (overallSuccess) {
+                logger.debug("Proxy ${proxy.nameEng} health check successful, best response time: ${bestResponseTime}ms")
+                updateProxyStatus(proxy, true, bestResponseTime, null, urlTestResults)
+                Pair(true, urlTestResults)
+            } else {
+                logger.warn("Proxy ${proxy.nameEng} health check failed for all test URLs")
+                updateProxyStatus(proxy, false, null, lastError ?: "All URL tests failed", urlTestResults)
+                Pair(false, urlTestResults)
             }
         }
     }
@@ -113,7 +163,7 @@ class ProxyHealthCheckService {
     /**
      * 更新代理服务器状态
      */
-    private fun updateProxyStatus(proxy: ProxyTestServer, isAvailable: Boolean, responseTime: Long?, error: String?) {
+    private fun updateProxyStatus(proxy: ProxyTestServer, isAvailable: Boolean, responseTime: Long?, error: String?, urlTestResults: List<UrlTestResult> = emptyList()) {
         val status = ProxyConfigManager.proxyStatusMap.getOrPut(proxy.nameEng) { ProxyStatus() }
         
         if (isAvailable) {
@@ -121,12 +171,15 @@ class ProxyHealthCheckService {
         } else {
             status.updateFailure(error ?: "Unknown error")
         }
+        
+        // 存储URL测试结果
+        status.lastUrlTestResults = urlTestResults
     }
 
     /**
      * 批量检查所有启用的代理服务器
      */
-    suspend fun checkAllEnabledProxyTests(): Map<String, Boolean> {
+    suspend fun checkAllEnabledProxyTests(): Map<String, Pair<Boolean, List<UrlTestResult>>> {
         val enabledProxyTests = ProxyConfigManager.getEnabledProxyTests()
         
         if (enabledProxyTests.isEmpty()) {
@@ -145,7 +198,7 @@ class ProxyHealthCheckService {
             }
             
             val results = checkJobs.awaitAll()
-            val successCount = results.count { it.second }
+            val successCount = results.count { it.second.first }
             val failedCount = results.size - successCount
             
             logger.info("Proxy health check completed: $successCount successful, $failedCount failed")
@@ -169,7 +222,8 @@ class ProxyHealthCheckService {
             isAvailable = status.isAvailable,
             responseTime = status.responseTime,
             successRate = status.getSuccessRate(),
-            totalChecks = status.successCount + status.failureCount
+            totalChecks = status.successCount + status.failureCount,
+            urlTestResults = status.lastUrlTestResults
         )
     }
 
@@ -188,7 +242,8 @@ class ProxyHealthCheckService {
                     isAvailable = status.isAvailable,
                     responseTime = status.responseTime,
                     successRate = status.getSuccessRate(),
-                    totalChecks = status.successCount + status.failureCount
+                    totalChecks = status.successCount + status.failureCount,
+                    urlTestResults = status.lastUrlTestResults
                 )
             } else {
                 null
@@ -196,6 +251,20 @@ class ProxyHealthCheckService {
         }
     }
 }
+
+/**
+ * 单个URL测试结果
+ */
+data class UrlTestResult(
+    val url: String,
+    val name: String,
+    val nameEng: String,
+    val isSuccess: Boolean,
+    val responseTime: Long?,
+    val statusCode: Int?,
+    val error: String?,
+    val testTime: Long
+)
 
 /**
  * 代理状态详细信息
@@ -208,7 +277,8 @@ data class ProxyStatusDetails(
     val isAvailable: Boolean,
     val responseTime: Long?,
     val successRate: Double,
-    val totalChecks: Int
+    val totalChecks: Int,
+    val urlTestResults: List<UrlTestResult> = emptyList()
 ) {
     /**
      * 获取可读的状态描述
