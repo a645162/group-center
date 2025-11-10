@@ -10,8 +10,11 @@ import com.lark.oapi.service.im.v1.model.CreateMessageReqBody
 
 import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.config.feature.SilentModeConfig
+import com.khm.group.center.utils.program.Slf4jKt
+import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import kotlinx.coroutines.delay
 
+@Slf4jKt
 class LarkBot(val userId: String) {
     data class Content(
         val text: String
@@ -19,6 +22,9 @@ class LarkBot(val userId: String) {
 
     fun sendText(text: String): Boolean {
         try {
+            logger.info("Starting to send Lark message to user: $userId")
+            logger.debug("Message content preview: ${text.take(100)}...")
+            
             // 构建client
             val client = Client.newBuilder(
                 ConfigEnvironment.LARK_BOT_APP_ID,
@@ -41,21 +47,23 @@ class LarkBot(val userId: String) {
                 )
                 .build()
 
+            logger.debug("Lark API request prepared for user: $userId")
+
             // 发起请求
             val resp = client.im().message().create(req)
 
             // 处理服务端错误
             if (!resp.success()) {
-                println(String.format("code:%s,msg:%s,reqId:%s", resp.code, resp.msg, resp.requestId))
+                logger.error("Lark API call failed for user $userId: code=${resp.code}, msg=${resp.msg}, reqId=${resp.requestId}")
                 return false
             }
 
             // 业务数据处理
-            println(Jsons.DEFAULT.toJson(resp.data))
+            logger.debug("Lark API response: ${Jsons.DEFAULT.toJson(resp.data)}")
+            logger.info("Successfully sent Lark message to user: $userId")
             return true
         } catch (e: Exception) {
-            println("Failed to send lark personal bot text for $userId")
-            println("Error: $e")
+            logger.error("Failed to send Lark message to user $userId: ${e.message}", e)
             return false
         }
     }
@@ -64,13 +72,18 @@ class LarkBot(val userId: String) {
         text: String,
         silentModeConfig: SilentModeConfig
     ): Boolean {
-        println("Try to async send lark personal bot text with silent mode for $userId")
+        logger.info("Starting async Lark message with silent mode for user: $userId")
+        logger.debug("Silent mode config: $silentModeConfig")
+        
         while (silentModeConfig.isSilentMode()) {
+            logger.debug("Silent mode active for user $userId, waiting...")
             // Delay
             delay(ConfigEnvironment.SilentModeWaitTime)
         }
+        
+        logger.info("Silent mode ended, sending message to user: $userId")
         val isSuccess = sendText(text)
-        println("Sent lark personal bot text with silent mode for $userId")
+        logger.info("Async Lark message with silent mode completed for user $userId: success=$isSuccess")
 
         return isSuccess
     }
