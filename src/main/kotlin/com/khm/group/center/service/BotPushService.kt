@@ -245,35 +245,76 @@ class BotPushService {
         }
 
         try {
+            logger.info("Starting to push message to $groupType groups, message length: ${message.length}")
             ensureConfigLoaded()
             val groups = botGroups.filter { it.type == groupType && it.enable && it.isValid() }
 
+            if (groups.isEmpty()) {
+                logger.warn("No valid bot groups found for type: $groupType")
+                logger.debug("Available bot groups: ${botGroups.map { "${it.name} (${it.type}, enabled=${it.enable}, valid=${it.isValid()})" }}")
+                return
+            }
+
+            logger.info("Found ${groups.size} valid bot groups for type: $groupType")
+            
+            var successCount = 0
+            var failureCount = 0
+
             groups.forEach { group ->
                 try {
+                    logger.debug("Processing bot group: ${group.name}, type: ${group.type}")
+                    
+                    var groupSuccess = false
+
                     // 推送到飞书群
                     if (group.larkGroupBotId.isNotBlank() && group.larkGroupBotKey.isNotBlank()) {
                         val larkBot = LarkGroupBot(group.larkGroupBotId, group.larkGroupBotKey)
                         if (larkBot.isValid()) {
-                            larkBot.sendText(message, urgent)
-                            logger.info("Successfully pushed to Lark ${groupType} group: ${group.name}, urgent: $urgent")
+                            val larkResult = larkBot.sendText(message, urgent)
+                            if (larkResult) {
+                                logger.info("Successfully pushed to Lark ${groupType} group: ${group.name}, urgent: $urgent")
+                                groupSuccess = true
+                            } else {
+                                logger.error("Failed to push to Lark ${groupType} group: ${group.name}")
+                            }
+                        } else {
+                            logger.warn("Lark bot is invalid for group: ${group.name}")
                         }
+                    } else {
+                        logger.debug("Lark bot configuration incomplete for group: ${group.name}")
                     }
 
                     // 推送到企业微信群
                     if (group.weComGroupBotKey.isNotBlank()) {
-                        WeComGroupBot.directSendTextWithUrl(
-                            group.weComGroupBotKey, message,
-                            null, null
-                        )
-                        logger.info("Successfully pushed to WeCom ${groupType} group: ${group.name}, urgent: $urgent")
+                        try {
+                            WeComGroupBot.directSendTextWithUrl(
+                                group.weComGroupBotKey, message,
+                                null, null
+                            )
+                            logger.info("Successfully pushed to WeCom ${groupType} group: ${group.name}, urgent: $urgent")
+                            groupSuccess = true
+                        } catch (e: Exception) {
+                            logger.error("Failed to push to WeCom ${groupType} group ${group.name}: ${e.message}")
+                        }
+                    } else {
+                        logger.debug("WeCom bot configuration incomplete for group: ${group.name}")
+                    }
+
+                    if (groupSuccess) {
+                        successCount++
+                    } else {
+                        failureCount++
                     }
                 } catch (e: Exception) {
                     // 记录推送失败日志
-                    logger.error("Failed to push to ${groupType} group ${group.name}: ${e.message}")
+                    logger.error("Failed to push to ${groupType} group ${group.name}: ${e.message}", e)
+                    failureCount++
                 }
             }
+
+            logger.info("Push to $groupType groups completed: $successCount successful, $failureCount failed")
         } catch (e: Exception) {
-            logger.error("Failed to push to ${groupType} groups: ${e.message}")
+            logger.error("Failed to push to ${groupType} groups: ${e.message}", e)
         }
     }
 

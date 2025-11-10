@@ -44,38 +44,56 @@ class ReportPushService {
              return
          }
          
+         logger.info("Starting to push today report")
          val report = statisticsService.getTodayReport()
+         logger.debug("Today report data retrieved")
+         
          // 使用基础服务（无缓存）进行作息分析，基于今日报告的实际时间范围
          val sleepAnalysis = getSleepAnalysisForReport(report)
+         logger.debug("Sleep analysis for today report completed")
+         
          val message = generateReportString(report, "today", sleepAnalysis)
+         logger.debug("Today report message generated, length: ${message.length}")
  
          // 推送到短期群（日报）
-         BotPushService.pushToShortTermGroup(message)
+         logger.info("Pushing today report to short term group")
+         val pushResult = BotPushService.pushToShortTermGroup(message)
+         logger.info("Today report push result: $pushResult")
  
          // 记录推送状态
          recordPushStatus("today", LocalDate.now())
+         logger.info("Today report push process completed")
      }
  
      /**
       * 推送昨日日报到指定群组（昨天凌晨12点到今天凌晨12点）
       */
      fun pushYesterdayReport() {
-         if (!ConfigEnvironment.REPORT_DAILY_ENABLE) {
-             logger.info("Daily report push disabled, skip pushing")
-             return
-         }
-         
-         val report = statisticsService.getYesterdayReport()
-         // 使用基础服务（无缓存）进行作息分析，基于昨日报告的实际时间范围
-         val sleepAnalysis = getSleepAnalysisForReport(report)
-         val message = generateReportString(report, "yesterday", sleepAnalysis)
- 
-         // 推送到短期群（日报）
-         BotPushService.pushToShortTermGroup(message)
- 
-         // 记录推送状态
-         recordPushStatus("yesterday", LocalDate.now().minusDays(1))
-     }
+          if (!ConfigEnvironment.REPORT_DAILY_ENABLE) {
+              logger.info("Daily report push disabled, skip pushing")
+              return
+          }
+          
+          logger.info("Starting to push yesterday report")
+          val report = statisticsService.getYesterdayReport()
+          logger.debug("Yesterday report data retrieved")
+          
+          // 使用基础服务（无缓存）进行作息分析，基于昨日报告的实际时间范围
+          val sleepAnalysis = getSleepAnalysisForReport(report)
+          logger.debug("Sleep analysis for yesterday report completed")
+          
+          val message = generateReportString(report, "yesterday", sleepAnalysis)
+          logger.debug("Yesterday report message generated, length: ${message.length}")
+  
+          // 推送到短期群（日报）
+          logger.info("Pushing yesterday report to short term group")
+          val pushResult = BotPushService.pushToShortTermGroup(message)
+          logger.info("Yesterday report push result: $pushResult")
+  
+          // 记录推送状态
+          recordPushStatus("yesterday", LocalDate.now().minusDays(1))
+          logger.info("Yesterday report push process completed")
+      }
     /**
      * 推送周报到指定群组
      */

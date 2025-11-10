@@ -56,6 +56,20 @@
         </rollingPolicy>
     </appender>
 
+    <!-- 消息发送专用日志文件 -->
+    <appender name="MESSAGE_SEND_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/message-send.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/message-send.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>50MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
     <!-- 控制台输出 -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -113,6 +127,27 @@
 
     <logger name="com.khm.group.center.task.MachinePingScheduler" level="INFO" additivity="false">
         <appender-ref ref="MACHINE_STATUS_FILE"/>
+    </logger>
+
+    <!-- 消息发送相关类的日志配置 -->
+    <logger name="com.khm.group.center.service.ReportPushService" level="INFO" additivity="false">
+        <appender-ref ref="MESSAGE_SEND_FILE"/>
+    </logger>
+
+    <logger name="com.khm.group.center.task.ReportSchedulerService" level="INFO" additivity="false">
+        <appender-ref ref="MESSAGE_SEND_FILE"/>
+    </logger>
+
+    <logger name="com.khm.group.center.message.webhook.lark.LarkBot" level="INFO" additivity="false">
+        <appender-ref ref="MESSAGE_SEND_FILE"/>
+    </logger>
+
+    <logger name="com.khm.group.center.service.BotPushService" level="INFO" additivity="false">
+        <appender-ref ref="MESSAGE_SEND_FILE"/>
+    </logger>
+
+    <logger name="com.khm.group.center.service.GpuTaskNotifyService" level="INFO" additivity="false">
+        <appender-ref ref="MESSAGE_SEND_FILE"/>
     </logger>
 
     <!-- 根日志配置 -->
