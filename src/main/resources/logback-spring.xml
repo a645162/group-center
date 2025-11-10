@@ -28,6 +28,34 @@
         </rollingPolicy>
     </appender>
 
+    <!-- GPU任务专用日志文件 -->
+    <appender name="GPU_TASK_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/gpu-task.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/gpu-task.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>50MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 机器状态专用日志文件 -->
+    <appender name="MACHINE_STATUS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/machine-status.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/machine-status.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>50MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
     <!-- 控制台输出 -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -38,22 +66,53 @@
     <!-- 代理相关类的日志配置 -->
     <logger name="com.khm.group.center.task.ProxyHealthCheckScheduler" level="INFO" additivity="false">
         <appender-ref ref="PROXY_FILE"/>
-        <appender-ref ref="CONSOLE"/>
     </logger>
 
     <logger name="com.khm.group.center.service.ProxyHealthCheckService" level="INFO" additivity="false">
         <appender-ref ref="PROXY_FILE"/>
-        <appender-ref ref="CONSOLE"/>
     </logger>
 
     <logger name="com.khm.group.center.config.ProxyConfigLoader" level="INFO" additivity="false">
         <appender-ref ref="PROXY_FILE"/>
-        <appender-ref ref="CONSOLE"/>
     </logger>
 
     <logger name="com.khm.group.center.datatype.config.ProxyConfigManager" level="INFO" additivity="false">
         <appender-ref ref="PROXY_FILE"/>
-        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <!-- 协程相关的代理日志配置 -->
+    <logger name="kotlinx.coroutines.CoroutineScope" level="INFO" additivity="false">
+        <appender-ref ref="PROXY_FILE"/>
+    </logger>
+
+    <!-- GPU任务相关类的日志配置 -->
+    <logger name="com.khm.group.center.controller.api.client.task.GpuTaskController" level="INFO" additivity="false">
+        <appender-ref ref="GPU_TASK_FILE"/>
+    </logger>
+
+    <logger name="com.khm.group.center.service.GpuTaskNotifyService" level="INFO" additivity="false">
+        <appender-ref ref="GPU_TASK_FILE"/>
+    </logger>
+
+    <logger name="com.khm.group.center.service.GpuTaskQueryService" level="INFO" additivity="false">
+        <appender-ref ref="GPU_TASK_FILE"/>
+    </logger>
+
+    <logger name="com.khm.group.center.service.GpuTaskQueryBuilder" level="INFO" additivity="false">
+        <appender-ref ref="GPU_TASK_FILE"/>
+    </logger>
+
+    <!-- 机器状态相关类的日志配置 -->
+    <logger name="com.khm.group.center.service.MachineStatusService" level="INFO" additivity="false">
+        <appender-ref ref="MACHINE_STATUS_FILE"/>
+    </logger>
+
+    <logger name="com.khm.group.center.controller.api.MachineStatusController" level="INFO" additivity="false">
+        <appender-ref ref="MACHINE_STATUS_FILE"/>
+    </logger>
+
+    <logger name="com.khm.group.center.task.MachinePingScheduler" level="INFO" additivity="false">
+        <appender-ref ref="MACHINE_STATUS_FILE"/>
     </logger>
 
     <!-- 根日志配置 -->
