@@ -3,6 +3,8 @@ package com.khm.group.center.message.webhook.lark
 import com.alibaba.fastjson2.JSON
 import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.config.feature.SilentModeConfig
+import com.khm.group.center.utils.program.Slf4jKt
+import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import kotlinx.coroutines.delay
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -10,6 +12,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
+@Slf4jKt
 class LarkGroupBot(val botId: String, var botKey: String = "") {
     private var webhookUrl: String = "https://open.feishu.cn/open-apis/bot/v2/hook/"
 
@@ -69,16 +72,15 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
 
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
-                    println("Failed to send lark group bot text for $botId")
+                    logger.warn("Failed to send lark group bot text for $botId, response code: ${response.code}")
                     return false
                 }
-                // println(response.body?.string())
+                logger.debug("Successfully sent lark group bot text for $botId")
             }
 
             return true
         } catch (e: Exception) {
-            println("Failed to send lark group bot text for $botId")
-            println("Error: $e")
+            logger.error("Failed to send lark group bot text for $botId, error: ${e.message}", e)
             return false
         }
     }
@@ -89,15 +91,15 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
         atAll: Boolean = false
     ) {
         if (silentModeConfig != null) {
-            println("Try to async send lark group bot text with silent mode for $botId")
+            logger.info("Try to async send lark group bot text with silent mode for $botId")
             while (silentModeConfig.isSilentMode()) {
-                // Delay
+                logger.debug("Silent mode active for $botId, waiting...")
                 delay(ConfigEnvironment.SilentModeWaitTime)
             }
             sendText(text, atAll)
-            println("Sent lark group bot text with silent mode for $botId")
+            logger.info("Sent lark group bot text with silent mode for $botId")
         } else {
-            println("Sent lark group bot text with silent mode for $botId")
+            logger.info("Sent lark group bot text with silent mode for $botId")
             sendText(text, atAll)
         }
     }
