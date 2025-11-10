@@ -1,9 +1,12 @@
 package com.khm.group.center.message
 
+import com.khm.group.center.utils.program.Slf4jKt
+import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
+@Slf4jKt
 class MessageCenter : CoroutineScope {
     private val job = Job()
     private val messageQueue: Queue<MessageItem> = LinkedList()
@@ -37,11 +40,11 @@ class MessageCenter : CoroutineScope {
 
     private suspend fun sendMessage(message: MessageItem) {
         if (!message.machineConfig.webhook.haveValidWebHookService()) {
-            println("No any valid webhook server.")
+            logger.warn("No any valid webhook server for message: ${message.content.take(50)}...")
             return
         }
 
-        // println("Sending message: $message")
+        logger.debug("Sending message: ${message.content.take(100)}...")
 
         // Night Silent Mode
 //        while (message.machineConfig.webhook.silentMode.isSilentMode()) {

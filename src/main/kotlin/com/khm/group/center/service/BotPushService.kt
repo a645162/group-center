@@ -6,6 +6,7 @@ import com.khm.group.center.config.BotConfig
 import com.khm.group.center.datatype.config.webhook.BotGroupConfig
 import com.khm.group.center.message.webhook.lark.LarkGroupBot
 import com.khm.group.center.message.webhook.wecom.WeComGroupBot
+import com.khm.group.center.service.UnifiedPushService
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import com.khm.group.center.utils.time.DateTimeUtils
@@ -24,6 +25,9 @@ class BotPushService {
 
     @Autowired
     private lateinit var objectMapper: ObjectMapper
+
+    @Autowired
+    private lateinit var unifiedPushService: UnifiedPushService
 
     private val yamlMapper = ObjectMapper(YAMLFactory())
 
@@ -183,10 +187,8 @@ class BotPushService {
      * 推送消息到指定类型的bot群
      */
     fun pushToBotGroups(type: String, title: String, content: String, urgent: Boolean = false) {
-        val targetGroups = getBotGroupsByType(type)
-
-        for (group in targetGroups) {
-            pushMessageToGroup(group, title, content, urgent)
+        runBlocking {
+            unifiedPushService.pushToGroupType(type, content, title, urgent)
         }
     }
 
@@ -196,7 +198,26 @@ class BotPushService {
     fun pushToBotGroup(groupName: String, title: String, content: String, urgent: Boolean = false) {
         val group = botGroups.find { it.name == groupName && it.isValid() }
         if (group != null) {
-            pushMessageToGroup(group, title, content, urgent)
+            runBlocking {
+                val fullContent = "[$title]\n$content"
+                var success = false
+
+                // 推送到飞书群组
+                if (group.larkGroupBotId.isNotBlank() && group.larkGroupBotKey.isNotBlank()) {
+                    success = unifiedPushService.pushToLarkGroup(group.larkGroupBotId, group.larkGroupBotKey, fullContent, urgent)
+                }
+
+                // 推送到企业微信群组
+                if (!success && group.weComGroupBotKey.isNotBlank()) {
+                    success = unifiedPushService.pushToWeComGroup(group.weComGroupBotKey, fullContent, urgent)
+                }
+
+                if (success) {
+                    logger.info("Successfully pushed to bot group: $groupName")
+                } else {
+                    logger.warn("Failed to push to bot group: $groupName")
+                }
+            }
         }
     }
 
@@ -318,22 +339,34 @@ class BotPushService {
         }
     }
 
+    /**
+     * 推送消息到指定群组（内部方法，保持向后兼容）
+     */
     private fun pushMessageToGroup(group: BotGroupConfig, title: String, content: String, urgent: Boolean = false) {
         val fullContent = "[$title]\n$content"
 
         runBlocking {
             try {
+                var success = false
+
                 // 推送企业微信
                 if (group.weComGroupBotKey.isNotEmpty()) {
-                    val weComUrl = WeComGroupBot.getWebhookUrl(group.weComGroupBotKey)
-                    WeComGroupBot.directSendTextWithUrl(weComUrl, fullContent, emptyList(), emptyList())
-                    logger.info("Sent WeCom message to ${group.name}, urgent: $urgent")
+                    success = unifiedPushService.pushToWeComGroup(group.weComGroupBotKey, fullContent, urgent)
+                    if (success) {
+                        logger.info("Sent WeCom message to ${group.name}, urgent: $urgent")
+                    }
                 }
 
-                if (group.larkGroupBotId.isNotEmpty() && group.larkGroupBotKey.isNotEmpty()) {
-                    val larkBot = LarkGroupBot(group.larkGroupBotId, group.larkGroupBotKey)
-                    larkBot.sendTextWithSilentMode(fullContent, null, urgent)
-                    logger.info("Sent Lark message to ${group.name}, urgent: $urgent")
+                // 推送飞书群组
+                if (!success && group.larkGroupBotId.isNotEmpty() && group.larkGroupBotKey.isNotEmpty()) {
+                    success = unifiedPushService.pushToLarkGroup(group.larkGroupBotId, group.larkGroupBotKey, fullContent, urgent)
+                    if (success) {
+                        logger.info("Sent Lark message to ${group.name}, urgent: $urgent")
+                    }
+                }
+
+                if (!success) {
+                    logger.error("Failed to send message to ${group.name}")
                 }
             } catch (e: Exception) {
                 logger.error("Failed to send message to ${group.name}: ${e.message}")

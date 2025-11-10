@@ -3,8 +3,11 @@ package com.khm.group.center.service
 import com.khm.group.center.datatype.config.GroupUserConfig
 import com.khm.group.center.db.model.subscription.ProjectSubscriptionModel
 import com.khm.group.center.message.webhook.lark.LarkBot
+import com.khm.group.center.service.UnifiedPushService
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
+import kotlinx.coroutines.runBlocking
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import java.util.concurrent.CompletableFuture
@@ -17,6 +20,9 @@ import java.util.concurrent.CompletableFuture
 class GpuTaskNotifyService(
     private val projectSubscriptionService: ProjectSubscriptionService
 ) {
+
+    @Autowired
+    private lateinit var unifiedPushService: UnifiedPushService
 
     /**
      * 异步处理任务完成通知
@@ -107,20 +113,15 @@ class GpuTaskNotifyService(
                 return
             }
             
-            // 检查飞书配置是否有效
-            if (!LarkBot.isAppIdSecretValid()) {
-                logger.warn("飞书bot配置无效，无法发送消息给用户 $userNameEng")
-                return
-            }
-            
-            // 创建LarkBot实例并发送消息
-            val larkBot = LarkBot(userConfig.webhook.lark.userId)
-            val success = larkBot.sendText(message)
-            
-            if (success) {
-                logger.info("成功发送任务完成通知给用户 $userNameEng: 项目 $projectId, 任务 $taskId")
-            } else {
-                logger.warn("发送任务完成通知给用户 $userNameEng 失败")
+            // 使用统一推送服务发送消息
+            runBlocking {
+                val success = unifiedPushService.pushToUser(userNameEng, message, "任务完成通知")
+                
+                if (success) {
+                    logger.info("成功发送任务完成通知给用户 $userNameEng: 项目 $projectId, 任务 $taskId")
+                } else {
+                    logger.warn("发送任务完成通知给用户 $userNameEng 失败")
+                }
             }
         } catch (e: Exception) {
             logger.error("发送任务完成消息给用户 ${subscription.userNameEng} 失败: ${e.message}", e)
