@@ -29,7 +29,7 @@ val fastjsonVersion = "2.0.59"
 
 group = "com.khm.group"
 // version = "1.5.5-SNAPSHOT"
-version = "1.5.6"
+version = "1.5.7"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_24
@@ -73,7 +73,7 @@ dependencies {
     // https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.1")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
@@ -117,13 +117,13 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.tencent.kona/kona-crypto
     // https://github.com/Tencent/TencentKonaSMSuite
-    implementation("com.tencent.kona:kona-crypto:1.0.18")
+    implementation("com.tencent.kona:kona-crypto:1.0.19")
 
     // https://mvnrepository.com/artifact/commons-codec/commons-codec
     implementation("commons-codec:commons-codec:1.17.1")
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Message WebHook
-    implementation("com.squareup.okhttp3:okhttp:5.2.1")
+    implementation("com.squareup.okhttp3:okhttp:5.3.0")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
     implementation("com.larksuite.oapi:oapi-sdk:2.4.24")
