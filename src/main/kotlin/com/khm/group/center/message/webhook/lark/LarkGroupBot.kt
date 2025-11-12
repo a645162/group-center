@@ -33,8 +33,12 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
         val content: Content
     )
 
-    private fun LarkBotMessage.toRequestBody(): RequestBody {
+    private fun LarkBotMessage.toJsonString(): String {
         return JSON.toJSONString(this)
+    }
+
+    private fun LarkBotMessage.toRequestBody(): RequestBody {
+        return toJsonString()
             .toRequestBody("application/json".toMediaType())
     }
 
@@ -63,6 +67,8 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
                 Content(finalContent)
             )
             val client = OkHttpClient()
+
+            // val json = message.toJsonString()
 
             val request = Request.Builder()
                 .url(webhookUrl)
@@ -105,12 +111,18 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
     }
 
     companion object {
-        fun getAtUserHtml(userId: String): String {
+        fun getAtUserHtml(userId: String, userName: String = ""): String {
             val finalUserId = userId.trim()
+            val finalUserName = if (userId.lowercase() != "all") {
+                userName
+            } else {
+                "所有人"
+            }
+
             if (finalUserId.isEmpty()) {
                 return ""
             }
-            return "<at user_id=\"$finalUserId\"></at>"
+            return "<at user_id=\"$finalUserId\">$finalUserName</at>"
         }
     }
 }

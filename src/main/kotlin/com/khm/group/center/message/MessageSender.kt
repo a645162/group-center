@@ -121,7 +121,7 @@ class MessageSender(private val messageItem: MessageItem) {
             } else {
                 val atUserConfig = GroupUserConfig.getUserByName(atName)
                 if (atUserConfig != null) {
-                    atText += LarkGroupBot.getAtUserHtml(atUserConfig.webhook.lark.userId)
+                    atText += LarkGroupBot.getAtUserHtml(atUserConfig.webhook.lark.userId, atUserConfig.name)
                 }
             }
         }

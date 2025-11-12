@@ -29,7 +29,7 @@ val fastjsonVersion = "2.0.59"
 
 group = "com.khm.group"
 // version = "1.5.5-SNAPSHOT"
-version = "1.6.0"
+version = "1.6.1"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_24
@@ -126,7 +126,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:5.3.0")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
-    implementation("com.larksuite.oapi:oapi-sdk:2.4.24")
+    implementation("com.larksuite.oapi:oapi-sdk:2.4.25")
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
