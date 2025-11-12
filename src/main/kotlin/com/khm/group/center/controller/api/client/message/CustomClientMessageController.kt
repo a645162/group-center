@@ -31,11 +31,7 @@ class CustomClientMessageController {
         responseObj.isSucceed = false
         responseObj.isAuthenticated = true
 
-        val machineConfig = MachineConfig.getMachineByNameEng(machineMessage.serverNameEng)
-
-        if (machineConfig == null) {
-            return responseObj
-        }
+        val machineConfig = MachineConfig.getMachineByNameEng(machineMessage.serverNameEng) ?: return responseObj
 
         // Send Message
         var finalText = machineMessage.content
