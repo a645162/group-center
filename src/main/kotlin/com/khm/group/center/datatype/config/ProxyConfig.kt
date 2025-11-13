@@ -65,6 +65,15 @@ data class TestUrlConfig(
 )
 
 /**
+ * 报警配置
+ */
+data class AlarmConfig(
+    val enable: Boolean = false,  // 是否启用报警
+    val offlineTimeoutMinutes: Int = 360,  // 离线超时报警时间（分钟），默认6小时
+    val urgent: Boolean = true  // 是否紧急报警
+)
+
+/**
  * 测试配置
  */
 data class TestConfig(
@@ -72,7 +81,8 @@ data class TestConfig(
     val interval: Int = 300,  // 默认5分钟
     val timeout: Int = 10,    // 默认10秒
     val testUrls: List<TestUrlConfig> = emptyList(),  // 多个测试URL配置
-    val directTestUrl: String = "https://www.google.com"  // 直接访问的对比URL
+    val directTestUrl: String = "https://www.google.com",  // 直接访问的对比URL
+    val alarmConfig: AlarmConfig = AlarmConfig()  // 报警配置
 ) {
     /**
      * 获取启用的测试URL配置
@@ -121,7 +131,9 @@ data class ProxyStatus(
     var successCount: Int = 0,            // 成功次数
     var failureCount: Int = 0,            // 失败次数
     var lastSuccessTime: Long? = null,    // 最后一次成功时间
-    var lastUrlTestResults: List<com.khm.group.center.service.UrlTestResult> = emptyList()  // 最后一次URL测试结果
+    var lastUrlTestResults: List<com.khm.group.center.service.UrlTestResult> = emptyList(),  // 最后一次URL测试结果
+    var lastAlarmTime: Long? = null,      // 最后一次报警时间
+    var offlineDurationMinutes: Long = 0  // 离线持续时间（分钟）
 ) {
     /**
      * 获取成功率
@@ -141,17 +153,55 @@ data class ProxyStatus(
         lastError = null
         successCount++
         lastSuccessTime = lastCheckTime
+        offlineDurationMinutes = 0  // 重置离线时间
     }
 
     /**
      * 更新失败状态
      */
     fun updateFailure(error: String) {
-        lastCheckTime = System.currentTimeMillis()
+        val currentTime = System.currentTimeMillis()
+        lastCheckTime = currentTime
         isAvailable = false
         responseTime = null
         lastError = error
         failureCount++
+        
+        // 计算离线持续时间
+        if (lastSuccessTime != null) {
+            val offlineDurationMs = currentTime - lastSuccessTime!!
+            offlineDurationMinutes = offlineDurationMs / (60 * 1000)  // 转换为分钟
+        } else {
+            // 如果从未成功过，使用第一次失败时间
+            offlineDurationMinutes = (currentTime - (lastCheckTime ?: currentTime)) / (60 * 1000)
+        }
+    }
+
+    /**
+     * 检查是否需要发送离线报警
+     */
+    fun shouldSendOfflineAlarm(alarmConfig: AlarmConfig): Boolean {
+        if (!alarmConfig.enable || isAvailable) {
+            return false
+        }
+        
+        // 检查离线时间是否超过阈值
+        val isTimeout = offlineDurationMinutes >= alarmConfig.offlineTimeoutMinutes
+        
+        // 检查报警间隔（避免频繁报警）
+        val lastAlarmTimeMs = lastAlarmTime ?: 0
+        val currentTime = System.currentTimeMillis()
+        val alarmIntervalMs = alarmConfig.offlineTimeoutMinutes * 60 * 1000L  // 使用超时时间作为报警间隔
+        val canSendAlarm = currentTime - lastAlarmTimeMs >= alarmIntervalMs
+        
+        return isTimeout && canSendAlarm
+    }
+
+    /**
+     * 记录报警时间
+     */
+    fun recordAlarmTime() {
+        lastAlarmTime = System.currentTimeMillis()
     }
 }
 

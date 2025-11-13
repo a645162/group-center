@@ -4,7 +4,7 @@ enable: False
 userList:
   - name: "孔昊旻"
     nameEng: "konghaomin"
-    keywords: [ "khm","konghaomin" ]
+    keywords: ["khm", "konghaomin"]
     year: 2023
 
     webhook:
