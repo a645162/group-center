@@ -3,6 +3,7 @@ package com.khm.group.center.task
 import com.khm.group.center.config.ProxyConfigLoader
 import com.khm.group.center.datatype.config.ProxyConfigManager
 import com.khm.group.center.service.ProxyHealthCheckService
+import com.khm.group.center.service.ProxyOfflineAlarmService
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import kotlinx.coroutines.*
@@ -25,6 +26,9 @@ class ProxyHealthCheckScheduler {
 
     @Autowired
     private lateinit var proxyConfigLoader: ProxyConfigLoader
+
+    @Autowired
+    private lateinit var proxyOfflineAlarmService: ProxyOfflineAlarmService
 
     private var isInitialized = false
     private var lastConfigModifiedTime: Long = -1L
@@ -70,6 +74,9 @@ class ProxyHealthCheckScheduler {
                         }
                     }
                 }
+
+                // 检查离线报警
+                proxyOfflineAlarmService.checkAllProxyOfflineAlarms()
             } catch (e: Exception) {
                 logger.error("Proxy health check execution exception: ${e.message}", e)
             }

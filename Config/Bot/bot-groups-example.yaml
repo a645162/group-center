@@ -7,7 +7,7 @@ bot:
     - name: "报警群(管理员)"
       type: "alarm"
       weComGroupBotKey: "your-wecom-alarm-bot-key" # 企业微信报警群机器人key
-      larkGroupBotId: "your-lark-alarm-bot-id"     # 飞书报警群机器人ID
+      larkGroupBotId: "your-lark-alarm-bot-id" # 飞书报警群机器人ID
       larkGroupBotKey: "your-lark-alarm-bot-secret" # 飞书报警群机器人密钥
       enable: true
 
