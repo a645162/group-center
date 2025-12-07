@@ -5,14 +5,11 @@ import com.khm.group.center.datatype.config.GroupUserConfig
 import com.khm.group.center.message.webhook.lark.LarkBot
 import com.khm.group.center.message.webhook.lark.LarkGroupBot
 import com.khm.group.center.message.webhook.wecom.WeComGroupBot
-import com.khm.group.center.utils.program.Slf4jKt
-import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-@Slf4jKt
 class MessageSender(private val messageItem: MessageItem) {
 
     // Get User Config Object by User Name
@@ -21,7 +18,7 @@ class MessageSender(private val messageItem: MessageItem) {
 
     suspend fun sendMessage() = coroutineScope {
         if (!messageItem.machineConfig.webhook.haveValidWebHookService()) {
-            logger.warn("No any valid webhook server for message: ${messageItem.content.take(50)}...")
+            println("No any valid webhook server.")
             return@coroutineScope
         }
 
@@ -59,9 +56,9 @@ class MessageSender(private val messageItem: MessageItem) {
                 mentionedMobileList.add(userMobilePhone)
         }
 
-        logger.info("Try to async send WeCom text with silent mode for ${userConfig?.nameEng}")
+        println("Try to async send WeCom text with silent mode for ${userConfig?.nameEng}")
         while (messageItem.machineConfig.webhook.silentMode.isSilentMode()) {
-            logger.debug("Silent mode active for ${userConfig?.nameEng}, waiting...")
+            // Delay
             delay(ConfigEnvironment.SilentModeWaitTime)
         }
 
@@ -70,7 +67,7 @@ class MessageSender(private val messageItem: MessageItem) {
             mentionedIdList,
             mentionedMobileList
         )
-        logger.info("Sent WeCom text with silent mode for ${userConfig?.nameEng}")
+        println("Sent WeCom text with silent mode for ${userConfig?.nameEng}")
     }
 
     private suspend fun sendByLark() = coroutineScope {
