@@ -1,6 +1,6 @@
 package com.khm.group.center.interceptor
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.alibaba.fastjson2.JSON
 import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.response.AuthResponse
 import com.khm.group.center.security.program.ClientAccessKey
@@ -95,8 +95,7 @@ class ClientAuthInterceptor : HandlerInterceptor {
         errorResponse.haveError = true
         errorResponse.ipAddress = ipAddress
 
-        val objectMapper = ObjectMapper()
-        val jsonString = objectMapper.writeValueAsString(errorResponse)
+        val jsonString = JSON.toJSONString(errorResponse)
         response.status = HttpServletResponse.SC_UNAUTHORIZED
         response.characterEncoding = "UTF-8"
         response.contentType = "application/json"
