@@ -1,7 +1,7 @@
 package com.khm.group.center.security.program
 
-import com.alibaba.fastjson2.JSON
-import com.alibaba.fastjson2.JSONObject
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.security.ProgramCrypto
 import com.khm.group.center.datatype.utils.datetime.DateTime
@@ -35,10 +35,11 @@ class ClientAccessKey(private var accessKey: String = "") {
             )?.toString() ?: ""
         try {
             if (originalText.isNotEmpty()) {
-                val jsonObject = JSON.parseObject(originalText) as JSONObject
-                nameEng = jsonObject.getString("nameEng") ?: ""
-                ipAddress = jsonObject.getString("ipAddress") ?: ""
-                dateTimeString = jsonObject.getString("dateTimeString") ?: ""
+                val objectMapper = ObjectMapper()
+                val jsonObject = objectMapper.readValue<Map<String, String>>(originalText)
+                nameEng = jsonObject["nameEng"] ?: ""
+                ipAddress = jsonObject["ipAddress"] ?: ""
+                dateTimeString = jsonObject["dateTimeString"] ?: ""
             }
         } catch (e: Exception) {
             originalText = ""
@@ -56,7 +57,8 @@ class ClientAccessKey(private var accessKey: String = "") {
             ipAddress = this.ipAddress,
             dateTimeString = this.dateTimeString
         )
-        originalText = JSON.toJSONString(accessKey)
+        val objectMapper = ObjectMapper()
+        originalText = objectMapper.writeValueAsString(accessKey)
 
         encryptedString =
             ProgramCrypto.encryptJWTString(
