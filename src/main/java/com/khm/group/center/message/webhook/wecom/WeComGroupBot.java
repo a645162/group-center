@@ -12,7 +12,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import com.alibaba.fastjson2.JSON;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +29,8 @@ public class WeComGroupBot {
             new OkHttpClient();
     private static final MediaType mediaType =
             MediaType.get("application/json; charset=utf-8");
+    private static final ObjectMapper objectMapper =
+            new ObjectMapper();
 
     public static boolean directSendTextWithUrl(
             String webhookUrlOrKey,
@@ -65,7 +67,13 @@ public class WeComGroupBot {
         weComMessageMap.put("text", textMap);
 
         // Hashmap 序列化为 JSON
-        String json = JSON.toJSONString(weComMessageMap);
+        String json;
+        try {
+            json = objectMapper.writeValueAsString(weComMessageMap);
+        } catch (Exception e) {
+            logger.error("Failed to serialize message to JSON", e);
+            return false;
+        }
 
         RequestBody requestBody = RequestBody.create(json, mediaType);
         Request request = new Request.Builder()

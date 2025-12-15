@@ -1,6 +1,6 @@
 package com.khm.group.center.message.webhook.lark
 
-import com.alibaba.fastjson2.JSON
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.khm.group.center.config.env.ConfigEnvironment
 import com.khm.group.center.datatype.config.feature.SilentModeConfig
 import kotlinx.coroutines.delay
@@ -31,7 +31,8 @@ class LarkGroupBot(val botId: String, var botKey: String = "") {
     )
 
     private fun LarkBotMessage.toJsonString(): String {
-        return JSON.toJSONString(this)
+        val objectMapper = ObjectMapper()
+        return objectMapper.writeValueAsString(this)
     }
 
     private fun LarkBotMessage.toRequestBody(): RequestBody {

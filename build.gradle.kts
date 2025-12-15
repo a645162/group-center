@@ -24,15 +24,15 @@ val kotlinVersion = "2.2.21"
 val springBootVersion = "3.5.7"
 val myBatisVersion = "3.0.5"
 
-val fastjsonVersion = "2.0.59"
+//val fastjsonVersion = "2.0.59"
 //val fastjsonVersion = "2.0.60"
 
 group = "com.khm.group"
 // version = "1.5.5-SNAPSHOT"
-version = "1.6.2"
+version = "1.7.0"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_24
+    sourceCompatibility = JavaVersion.VERSION_17
 }
 
 fun isNonStable(version: String): Boolean {
@@ -78,7 +78,7 @@ dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
-    implementation("com.alibaba.fastjson2:fastjson2-extension-spring6:${fastjsonVersion}")
+//    implementation("com.alibaba.fastjson2:fastjson2-extension-spring6:${fastjsonVersion}")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Database
@@ -131,7 +131,7 @@ dependencies {
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
 //    implementation("com.alibaba.fastjson2:fastjson2:2.0.52")
-    implementation("com.alibaba.fastjson2:fastjson2-kotlin:${fastjsonVersion}")
+//    implementation("com.alibaba.fastjson2:fastjson2-kotlin:${fastjsonVersion}")
 
     // Config File
     implementation("com.akuleshov7:ktoml-core:0.7.0")
@@ -213,7 +213,7 @@ tasks.named(
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_24)
+        jvmTarget.set(JvmTarget.JVM_17)
         apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
     }
 }
