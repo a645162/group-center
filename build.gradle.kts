@@ -15,7 +15,7 @@ plugins {
     kotlin("plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.serialization") version kotlinVersion
 
-    id("com.github.ben-manes.versions") version "0.52.0"
+    id("com.github.ben-manes.versions") version "0.53.0"
 }
 
 val kotlinVersion = "2.2.21"
@@ -24,12 +24,13 @@ val kotlinVersion = "2.2.21"
 val springBootVersion = "3.5.7"
 val myBatisVersion = "3.0.5"
 
-val fastjsonVersion = "2.0.59"
-//val fastjsonVersion = "2.0.60"
+//val fastjsonVersion = "2.0.59"
+val fastjsonVersion = "2.0.60"
+//val fastjsonVersionExtension = "2.0.59"
 
 group = "com.khm.group"
 // version = "1.5.5-SNAPSHOT"
-version = "1.6.2"
+version = "1.7.1"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_24
@@ -78,7 +79,7 @@ dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
-    implementation("com.alibaba.fastjson2:fastjson2-extension-spring6:${fastjsonVersion}")
+//    implementation("com.alibaba.fastjson2:fastjson2-extension-spring6:${fastjsonVersionExtension}")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Database
@@ -86,7 +87,7 @@ dependencies {
     implementation("com.alibaba:druid-spring-boot-starter:1.2.27")
 
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${myBatisVersion}")
-    implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.14")
+    implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.15")
 
     // https://mvnrepository.com/artifact/com.gitee.sunchenbin.mybatis.actable/mybatis-enhance-actable
 //    implementation("com.gitee.sunchenbin.mybatis.actable:mybatis-enhance-actable:1.5.0.RELEASE")
@@ -123,10 +124,10 @@ dependencies {
     implementation("commons-codec:commons-codec:1.17.1")
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Message WebHook
-    implementation("com.squareup.okhttp3:okhttp:5.3.0")
+    implementation("com.squareup.okhttp3:okhttp:5.3.2")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
-    implementation("com.larksuite.oapi:oapi-sdk:2.4.25")
+    implementation("com.larksuite.oapi:oapi-sdk:2.5.1")
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
@@ -137,7 +138,7 @@ dependencies {
     implementation("com.akuleshov7:ktoml-core:0.7.0")
     implementation("com.akuleshov7:ktoml-file:0.7.0")
 
-    implementation("com.charleskorn.kaml:kaml:0.67.0")
+    implementation("com.charleskorn.kaml:kaml:0.104.0")
 
     // File Encoding
     implementation("com.github.albfernandez:juniversalchardet:2.5.0")
