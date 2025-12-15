@@ -1,19 +1,16 @@
 package com.khm.group.center.config.env
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import com.alibaba.fastjson2.JSON
 
 class JsonEnvParser {
     companion object {
-        private val objectMapper = ObjectMapper()
-        
         fun parseJsonText(
             text: String,
             includeClassName: Boolean = true
         ): HashMap<String, String> {
             val result = HashMap<String, String>()
 
-            val jsonRoot = objectMapper.readValue<Map<String, Any>>(text)
+            val jsonRoot = JSON.parseObject(text)
             for (originalClassName in jsonRoot.keys) {
                 var className =
                     if (includeClassName) {
@@ -21,15 +18,13 @@ class JsonEnvParser {
                     } else {
                         ""
                     }
-                val classJson = objectMapper.readValue<Map<String, String>>(
-                    objectMapper.writeValueAsString(jsonRoot[originalClassName])
-                )
+                val classJson = jsonRoot.getJSONObject(originalClassName)
 
                 if (className.isNotEmpty()) className = className.plus("_")
 
                 for (originalKey in classJson.keys) {
                     val key = (className + originalKey).uppercase()
-                    val value = classJson[originalKey]?.trim() ?: ""
+                    val value = classJson.getString(originalKey).trim()
 
                     if (value.isEmpty()) {
                         continue

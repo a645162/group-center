@@ -1,7 +1,6 @@
 package com.khm.group.center.service.cache
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import com.alibaba.fastjson2.JSON
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import com.khm.group.center.utils.program.VersionExtractor
@@ -88,10 +87,9 @@ object CacheVersionManager {
      */
     private fun saveVersionInfo(cacheDirPath: Path) {
         try {
-            val objectMapper = ObjectMapper()
             val versionInfo = VersionInfo(CURRENT_VERSION)
             val versionFile = cacheDirPath.resolve(VERSION_INFO_FILE)
-            val jsonContent = objectMapper.writeValueAsString(versionInfo)
+            val jsonContent = JSON.toJSONString(versionInfo)
             
             Files.writeString(
                 versionFile,
@@ -116,9 +114,8 @@ object CacheVersionManager {
                 return null
             }
             
-            val objectMapper = ObjectMapper()
             val jsonContent = Files.readString(versionFile)
-            objectMapper.readValue<VersionInfo>(jsonContent)
+            JSON.parseObject(jsonContent, VersionInfo::class.java)
         } catch (e: Exception) {
             logger.error("Failed to load version info: $cacheDirPath", e)
             null

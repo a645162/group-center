@@ -1,6 +1,6 @@
 package com.khm.group.center.message.webhook.lark
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.alibaba.fastjson2.JSON
 import java.util.UUID
 
 import com.lark.oapi.Client
@@ -31,9 +31,8 @@ class LarkBot(val userId: String) {
                 ConfigEnvironment.LARK_BOT_APP_SECRET
             ).build()
 
-            val objectMapper = ObjectMapper()
             val content = Content(text)
-            val jsonContent = objectMapper.writeValueAsString(content)
+            val jsonContent = JSON.toJSONString(content)
 
             // 创建请求对象
             val req = CreateMessageReq.newBuilder()

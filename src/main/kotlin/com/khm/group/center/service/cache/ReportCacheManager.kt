@@ -1,7 +1,7 @@
 package com.khm.group.center.service.cache
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import com.alibaba.fastjson2.JSON
+import com.alibaba.fastjson2.JSONObject
 import com.khm.group.center.datatype.statistics.Report
 import com.khm.group.center.datatype.statistics.ReportType
 import com.khm.group.center.datatype.statistics.UserStatistics
@@ -107,16 +107,16 @@ class ReportCacheManager {
                 data is List<*> && data.isNotEmpty() && data[0] is ServerStatistics ||
                 data is List<*> && data.isNotEmpty() && data[0] is ProjectStatistics) {
                 return data as T
-            } else if (data is List<*>) {
-                // 处理从磁盘反序列化时可能出现的List类型
-                logger.debug("🔄 Converting List to appropriate list type for key: $cacheKey")
-                val convertedData = convertListToTypedList(data, cacheKey)
+            } else if (data is com.alibaba.fastjson2.JSONArray) {
+                // 处理从磁盘反序列化时可能出现的JSONArray类型
+                logger.debug("🔄 Converting JSONArray to appropriate list type for key: $cacheKey")
+                val convertedData = convertJsonArrayToTypedList(data, cacheKey)
                 if (convertedData != null) {
                     // 更新内存缓存中的数据类型
                     memoryCache[cacheKey] = CacheEntry(convertedData as Any, memoryEntry.timestamp, memoryEntry.expiryTime)
                     return convertedData as T
                 } else {
-                    logger.warn("⚠️ Failed to convert List for key: $cacheKey, type: ${data.javaClass.name}")
+                    logger.warn("⚠️ Failed to convert JSONArray for key: $cacheKey, type: ${data.javaClass.name}")
                     memoryCache.remove(cacheKey)
                 }
             } else {
@@ -201,8 +201,7 @@ class ReportCacheManager {
                 }
                 else -> {
                     // 其他统计信息使用泛型反序列化
-                    val objectMapper = ObjectMapper()
-                    objectMapper.readValue<Any>(jsonContent) as? T
+                    JSON.parseObject(jsonContent, Any::class.java) as? T
                 }
             }
         } catch (e: Exception) {
@@ -216,9 +215,8 @@ class ReportCacheManager {
      */
     private fun <T> saveToDisk(cacheKey: String, data: T) {
         try {
-            val objectMapper = ObjectMapper()
             val filePath = ReportCachePathManager.getStatisticsPath(cacheKey)
-            val jsonContent = objectMapper.writeValueAsString(data)
+            val jsonContent = JSON.toJSONString(data)
             
             Files.writeString(
                 filePath, 
@@ -435,26 +433,25 @@ class ReportCacheManager {
      */
     private fun parseReportFromJson(jsonContent: String): Report? {
         return try {
-            val objectMapper = ObjectMapper()
-            val jsonObject = objectMapper.readValue<Map<String, Any>>(jsonContent)
+            val jsonObject = JSON.parseObject(jsonContent)
             
             Report(
-                reportType = EnumUtils.safeValueOfFlexible(jsonObject["reportType"]?.toString(), ReportType.TODAY),
-                title = jsonObject["title"]?.toString() ?: "",
-                periodStartDate = LocalDate.parse(jsonObject["periodStartDate"]?.toString()),
-                periodEndDate = LocalDate.parse(jsonObject["periodEndDate"]?.toString()),
-                startTime = LocalDateTime.parse(jsonObject["startTime"]?.toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                endTime = LocalDateTime.parse(jsonObject["endTime"]?.toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                actualTaskStartTime = LocalDateTime.parse(jsonObject["actualTaskStartTime"]?.toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                actualTaskEndTime = LocalDateTime.parse(jsonObject["actualTaskEndTime"]?.toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                totalTasks = (jsonObject["totalTasks"] as? Number)?.toInt() ?: 0,
-                totalRuntime = (jsonObject["totalRuntime"] as? Number)?.toInt() ?: 0,
-                activeUsers = (jsonObject["activeUsers"] as? Number)?.toInt() ?: 0,
-                topUsers = parseUserStatisticsList(jsonObject["topUsers"]),
-                topGpus = parseGpuStatisticsList(jsonObject["topGpus"]),
-                topProjects = parseProjectStatisticsList(jsonObject["topProjects"]),
-                sleepAnalysis = parseSleepAnalysis(jsonObject["sleepAnalysis"]),
-                refreshTime = LocalDateTime.parse(jsonObject["refreshTime"]?.toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                reportType = EnumUtils.safeValueOfFlexible(jsonObject.getString("reportType"), ReportType.TODAY),
+                title = jsonObject.getString("title"),
+                periodStartDate = LocalDate.parse(jsonObject.getString("periodStartDate")),
+                periodEndDate = LocalDate.parse(jsonObject.getString("periodEndDate")),
+                startTime = LocalDateTime.parse(jsonObject.getString("startTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                endTime = LocalDateTime.parse(jsonObject.getString("endTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                actualTaskStartTime = LocalDateTime.parse(jsonObject.getString("actualTaskStartTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                actualTaskEndTime = LocalDateTime.parse(jsonObject.getString("actualTaskEndTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                totalTasks = jsonObject.getIntValue("totalTasks"),
+                totalRuntime = jsonObject.getIntValue("totalRuntime"),
+                activeUsers = jsonObject.getIntValue("activeUsers"),
+                topUsers = parseUserStatisticsList(jsonObject.getJSONArray("topUsers")),
+                topGpus = parseGpuStatisticsList(jsonObject.getJSONArray("topGpus")),
+                topProjects = parseProjectStatisticsList(jsonObject.getJSONArray("topProjects")),
+                sleepAnalysis = parseSleepAnalysis(jsonObject.getJSONObject("sleepAnalysis")),
+                refreshTime = LocalDateTime.parse(jsonObject.getString("refreshTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
             )
         } catch (e: Exception) {
             logger.error("Failed to parse Report from JSON", e)
@@ -465,21 +462,18 @@ class ReportCacheManager {
     /**
      * 解析用户统计列表
      */
-    private fun parseUserStatisticsList(jsonArray: Any?): List<UserStatistics> {
+    private fun parseUserStatisticsList(jsonArray: com.alibaba.fastjson2.JSONArray?): List<UserStatistics> {
         if (jsonArray == null) return emptyList()
         
-        val objectMapper = ObjectMapper()
-        @Suppress("UNCHECKED_CAST")
-        val list = objectMapper.convertValue(jsonArray, object : com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Any>>>() {})
-        
-        return list.map { obj ->
+        return jsonArray.map { item ->
+            val obj = item as JSONObject
             UserStatistics(
-                userName = obj["userName"]?.toString() ?: "",
-                totalTasks = (obj["totalTasks"] as? Number)?.toInt() ?: 0,
-                totalRuntime = (obj["totalRuntime"] as? Number)?.toInt() ?: 0,
-                averageRuntime = (obj["averageRuntime"] as? Number)?.toDouble() ?: 0.0,
-                favoriteGpu = obj["favoriteGpu"]?.toString() ?: "",
-                favoriteProject = obj["favoriteProject"]?.toString() ?: ""
+                userName = obj.getString("userName"),
+                totalTasks = obj.getIntValue("totalTasks"),
+                totalRuntime = obj.getIntValue("totalRuntime"),
+                averageRuntime = obj.getDoubleValue("averageRuntime"),
+                favoriteGpu = obj.getString("favoriteGpu"),
+                favoriteProject = obj.getString("favoriteProject")
             )
         }
     }
@@ -487,22 +481,19 @@ class ReportCacheManager {
     /**
      * 解析GPU统计列表
      */
-    private fun parseGpuStatisticsList(jsonArray: Any?): List<GpuStatistics> {
+    private fun parseGpuStatisticsList(jsonArray: com.alibaba.fastjson2.JSONArray?): List<GpuStatistics> {
         if (jsonArray == null) return emptyList()
         
-        val objectMapper = ObjectMapper()
-        @Suppress("UNCHECKED_CAST")
-        val list = objectMapper.convertValue(jsonArray, object : com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Any>>>() {})
-        
-        return list.map { obj ->
+        return jsonArray.map { item ->
+            val obj = item as JSONObject
             GpuStatistics(
-                gpuName = obj["gpuName"]?.toString() ?: "",
-                serverName = obj["serverName"]?.toString() ?: "",
-                totalUsageCount = (obj["totalUsageCount"] as? Number)?.toInt() ?: 0,
-                totalRuntime = (obj["totalRuntime"] as? Number)?.toInt() ?: 0,
-                averageUsagePercent = (obj["averageUsagePercent"] as? Number)?.toDouble() ?: 0.0,
-                averageMemoryUsage = (obj["averageMemoryUsage"] as? Number)?.toDouble() ?: 0.0,
-                totalMemoryUsage = (obj["totalMemoryUsage"] as? Number)?.toDouble() ?: 0.0
+                gpuName = obj.getString("gpuName"),
+                serverName = obj.getString("serverName"),
+                totalUsageCount = obj.getIntValue("totalUsageCount"),
+                totalRuntime = obj.getIntValue("totalRuntime"),
+                averageUsagePercent = obj.getDoubleValue("averageUsagePercent"),
+                averageMemoryUsage = obj.getDoubleValue("averageMemoryUsage"),
+                totalMemoryUsage = obj.getDoubleValue("totalMemoryUsage")
             )
         }
     }
@@ -510,21 +501,17 @@ class ReportCacheManager {
     /**
      * 解析项目统计列表
      */
-    private fun parseProjectStatisticsList(jsonArray: Any?): List<ProjectStatistics> {
+    private fun parseProjectStatisticsList(jsonArray: com.alibaba.fastjson2.JSONArray?): List<ProjectStatistics> {
         if (jsonArray == null) return emptyList()
         
-        val objectMapper = ObjectMapper()
-        @Suppress("UNCHECKED_CAST")
-        val list = objectMapper.convertValue(jsonArray, object : com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Any>>>() {})
-        
-        return list.map { obj ->
-            val activeUsersList = objectMapper.convertValue(obj["activeUsers"], object : com.fasterxml.jackson.core.type.TypeReference<List<String>>() {})
+        return jsonArray.map { item ->
+            val obj = item as JSONObject
             ProjectStatistics(
-                projectName = obj["projectName"]?.toString() ?: "",
-                totalRuntime = (obj["totalRuntime"] as? Number)?.toInt() ?: 0,
-                totalTasks = (obj["totalTasks"] as? Number)?.toInt() ?: 0,
-                activeUsers = activeUsersList.toMutableSet(),
-                averageRuntime = (obj["averageRuntime"] as? Number)?.toDouble() ?: 0.0
+                projectName = obj.getString("projectName"),
+                totalRuntime = obj.getIntValue("totalRuntime"),
+                totalTasks = obj.getIntValue("totalTasks"),
+                activeUsers = (obj.getJSONArray("activeUsers")?.map { it.toString() }?.toMutableSet() ?: mutableSetOf()),
+                averageRuntime = obj.getDoubleValue("averageRuntime")
             )
         }
     }
@@ -532,27 +519,20 @@ class ReportCacheManager {
     /**
      * 解析作息分析数据
      */
-    private fun parseSleepAnalysis(jsonObject: Any?): SleepAnalysis? {
+    private fun parseSleepAnalysis(jsonObject: JSONObject?): SleepAnalysis? {
         if (jsonObject == null) return null
         
         return try {
-            val objectMapper = ObjectMapper()
-            @Suppress("UNCHECKED_CAST")
-            val obj = objectMapper.convertValue(jsonObject, Map::class.java) as Map<String, Any>
-            
-            val lateNightUsersList = objectMapper.convertValue(obj["lateNightUsers"], object : com.fasterxml.jackson.core.type.TypeReference<List<String>>() {})
-            val earlyMorningUsersList = objectMapper.convertValue(obj["earlyMorningUsers"], object : com.fasterxml.jackson.core.type.TypeReference<List<String>>() {})
-            
             SleepAnalysis(
                 lateNightTasks = emptyList(), // 由于GpuTaskInfoModel复杂，暂时不反序列化
                 earlyMorningTasks = emptyList(),
                 lateNightChampion = null,
                 earlyMorningChampion = null,
-                totalLateNightTasks = (obj["totalLateNightTasks"] as? Number)?.toInt() ?: 0,
-                totalEarlyMorningTasks = (obj["totalEarlyMorningTasks"] as? Number)?.toInt() ?: 0,
-                lateNightUsers = lateNightUsersList.toSet(),
-                earlyMorningUsers = earlyMorningUsersList.toSet(),
-                refreshTime = LocalDateTime.parse(obj["refreshTime"]?.toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                totalLateNightTasks = jsonObject.getIntValue("totalLateNightTasks"),
+                totalEarlyMorningTasks = jsonObject.getIntValue("totalEarlyMorningTasks"),
+                lateNightUsers = (jsonObject.getJSONArray("lateNightUsers")?.map { it.toString() }?.toSet() ?: emptySet()),
+                earlyMorningUsers = (jsonObject.getJSONArray("earlyMorningUsers")?.map { it.toString() }?.toSet() ?: emptySet()),
+                refreshTime = LocalDateTime.parse(jsonObject.getString("refreshTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
             )
         } catch (e: Exception) {
             logger.warn("Failed to parse SleepAnalysis, returning null", e)
@@ -566,17 +546,16 @@ class ReportCacheManager {
      */
     private fun parseTimeTrendStatisticsFromJson(jsonContent: String): TimeTrendStatistics? {
         return try {
-            val objectMapper = ObjectMapper()
-            val jsonObject = objectMapper.readValue<Map<String, Any>>(jsonContent)
+            val jsonObject = JSON.parseObject(jsonContent)
             
             TimeTrendStatistics(
-                period = EnumUtils.safeValueOfFlexible(jsonObject["period"]?.toString(), com.khm.group.center.utils.time.TimePeriod.ONE_WEEK),
-                dailyStats = parseDailyStatsList(jsonObject["dailyStats"]),
-                totalTasks = (jsonObject["totalTasks"] as? Number)?.toInt() ?: 0,
-                totalRuntime = (jsonObject["totalRuntime"] as? Number)?.toInt() ?: 0,
-                totalUsers = (jsonObject["totalUsers"] as? Number)?.toInt() ?: 0,
-                averageDailyTasks = (jsonObject["averageDailyTasks"] as? Number)?.toInt() ?: 0,
-                averageDailyRuntime = (jsonObject["averageDailyRuntime"] as? Number)?.toInt() ?: 0
+                period = EnumUtils.safeValueOfFlexible(jsonObject.getString("period"), com.khm.group.center.utils.time.TimePeriod.ONE_WEEK),
+                dailyStats = parseDailyStatsList(jsonObject.getJSONArray("dailyStats")),
+                totalTasks = jsonObject.getIntValue("totalTasks"),
+                totalRuntime = jsonObject.getIntValue("totalRuntime"),
+                totalUsers = jsonObject.getIntValue("totalUsers"),
+                averageDailyTasks = jsonObject.getIntValue("averageDailyTasks"),
+                averageDailyRuntime = jsonObject.getIntValue("averageDailyRuntime")
             )
         } catch (e: Exception) {
             logger.error("Failed to parse TimeTrendStatistics from JSON", e)
@@ -587,21 +566,17 @@ class ReportCacheManager {
     /**
      * 解析DailyStats列表
      */
-    private fun parseDailyStatsList(jsonArray: Any?): List<DailyStats> {
+    private fun parseDailyStatsList(jsonArray: com.alibaba.fastjson2.JSONArray?): List<DailyStats> {
         if (jsonArray == null) return emptyList()
         
-        val objectMapper = ObjectMapper()
-        @Suppress("UNCHECKED_CAST")
-        val list = objectMapper.convertValue(jsonArray, object : com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Any>>>() {})
-        
-        return list.map { obj ->
-            val activeUsersList = objectMapper.convertValue(obj["activeUsers"], object : com.fasterxml.jackson.core.type.TypeReference<List<String>>() {})
+        return jsonArray.map { item ->
+            val obj = item as JSONObject
             DailyStats(
-                date = LocalDate.parse(obj["date"]?.toString()),
-                totalTasks = (obj["totalTasks"] as? Number)?.toInt() ?: 0,
-                totalRuntime = (obj["totalRuntime"] as? Number)?.toInt() ?: 0,
-                activeUsers = activeUsersList.toMutableSet(),
-                peakGpuUsage = (obj["peakGpuUsage"] as? Number)?.toDouble() ?: 0.0
+                date = LocalDate.parse(obj.getString("date")),
+                totalTasks = obj.getIntValue("totalTasks"),
+                totalRuntime = obj.getIntValue("totalRuntime"),
+                activeUsers = (obj.getJSONArray("activeUsers")?.map { it.toString() }?.toMutableSet() ?: mutableSetOf()),
+                peakGpuUsage = obj.getDoubleValue("peakGpuUsage")
             )
         }
     }
@@ -611,13 +586,12 @@ class ReportCacheManager {
      */
     private fun parseUserActivityTimeDistributionFromJson(jsonContent: String): UserActivityTimeDistribution? {
         return try {
-            val objectMapper = ObjectMapper()
-            val jsonObject = objectMapper.readValue<Map<String, Any>>(jsonContent)
+            val jsonObject = JSON.parseObject(jsonContent)
             
             UserActivityTimeDistribution(
-                users = parseUserActivityTimeRangeList(jsonObject["users"]),
-                totalUsers = (jsonObject["totalUsers"] as? Number)?.toInt() ?: 0,
-                refreshTime = LocalDateTime.parse(jsonObject["refreshTime"]?.toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                users = parseUserActivityTimeRangeList(jsonObject.getJSONArray("users")),
+                totalUsers = jsonObject.getIntValue("totalUsers"),
+                refreshTime = LocalDateTime.parse(jsonObject.getString("refreshTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
             )
         } catch (e: Exception) {
             logger.error("Failed to parse UserActivityTimeDistribution from JSON", e)
@@ -628,32 +602,29 @@ class ReportCacheManager {
     /**
      * 解析用户活动时间范围列表
      */
-    private fun parseUserActivityTimeRangeList(jsonArray: Any?): List<UserActivityTimeRange> {
+    private fun parseUserActivityTimeRangeList(jsonArray: com.alibaba.fastjson2.JSONArray?): List<UserActivityTimeRange> {
         if (jsonArray == null) return emptyList()
         
-        val objectMapper = ObjectMapper()
-        @Suppress("UNCHECKED_CAST")
-        val list = objectMapper.convertValue(jsonArray, object : com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Any>>>() {})
-        
-        return list.map { obj ->
+        return jsonArray.map { item ->
+            val obj = item as JSONObject
             UserActivityTimeRange(
-                userName = obj["userName"]?.toString() ?: "",
+                userName = obj.getString("userName"),
                 earliestStartTime = if (obj.containsKey("earliestStartTime"))
-                    LocalDateTime.parse(obj["earliestStartTime"]?.toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    LocalDateTime.parse(obj.getString("earliestStartTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                     else null,
                 latestStartTime = if (obj.containsKey("latestStartTime"))
-                    LocalDateTime.parse(obj["latestStartTime"]?.toString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    LocalDateTime.parse(obj.getString("latestStartTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                     else null,
-                activityTimeRange = obj["activityTimeRange"]?.toString() ?: "",
-                totalTasks = (obj["totalTasks"] as? Number)?.toInt() ?: 0,
-                totalRuntime = (obj["totalRuntime"] as? Number)?.toInt() ?: 0,
-                isCrossDayActivity = obj["isCrossDayActivity"] as? Boolean ?: false,
-                crossDayActivityRange = obj["crossDayActivityRange"]?.toString() ?: "",
-                isSinglePointActivity = obj["isSinglePointActivity"] as? Boolean ?: false,
-                dailyRangesCount = (obj["dailyRangesCount"] as? Number)?.toInt() ?: 0,
-                hasLateNightActivity = obj["hasLateNightActivity"] as? Boolean ?: false,
-                hasEarlyMorningActivity = obj["hasEarlyMorningActivity"] as? Boolean ?: false,
-                hasDaytimeActivity = obj["hasDaytimeActivity"] as? Boolean ?: false
+                activityTimeRange = obj.getString("activityTimeRange"),
+                totalTasks = obj.getIntValue("totalTasks"),
+                totalRuntime = obj.getIntValue("totalRuntime"),
+                isCrossDayActivity = obj.getBooleanValue("isCrossDayActivity"),
+                crossDayActivityRange = obj.getString("crossDayActivityRange"),
+                isSinglePointActivity = obj.getBooleanValue("isSinglePointActivity"),
+                dailyRangesCount = obj.getIntValue("dailyRangesCount"),
+                hasLateNightActivity = obj.getBooleanValue("hasLateNightActivity"),
+                hasEarlyMorningActivity = obj.getBooleanValue("hasEarlyMorningActivity"),
+                hasDaytimeActivity = obj.getBooleanValue("hasDaytimeActivity")
             )
         }
     }
@@ -661,74 +632,67 @@ class ReportCacheManager {
     /**
      * 将JSONArray转换为适当的类型化列表
      */
-    private fun convertListToTypedList(list: List<*>, cacheKey: String): Any? {
+    private fun convertJsonArrayToTypedList(jsonArray: com.alibaba.fastjson2.JSONArray, cacheKey: String): Any? {
         return try {
-            val objectMapper = ObjectMapper()
             when {
                 cacheKey.startsWith("user_stats") -> {
-                    list.map { item ->
-                        @Suppress("UNCHECKED_CAST")
-                        val obj = objectMapper.convertValue(item, Map::class.java) as Map<String, Any>
+                    jsonArray.map { item ->
+                        val obj = item as JSONObject
                         UserStatistics(
-                            userName = obj["userName"]?.toString() ?: "",
-                            totalTasks = (obj["totalTasks"] as? Number)?.toInt() ?: 0,
-                            totalRuntime = (obj["totalRuntime"] as? Number)?.toInt() ?: 0,
-                            averageRuntime = (obj["averageRuntime"] as? Number)?.toDouble() ?: 0.0,
-                            favoriteGpu = obj["favoriteGpu"]?.toString() ?: "",
-                            favoriteProject = obj["favoriteProject"]?.toString() ?: ""
+                            userName = obj.getString("userName"),
+                            totalTasks = obj.getIntValue("totalTasks"),
+                            totalRuntime = obj.getIntValue("totalRuntime"),
+                            averageRuntime = obj.getDoubleValue("averageRuntime"),
+                            favoriteGpu = obj.getString("favoriteGpu"),
+                            favoriteProject = obj.getString("favoriteProject")
                         )
                     }
                 }
                 cacheKey.startsWith("gpu_stats") -> {
-                    list.map { item ->
-                        @Suppress("UNCHECKED_CAST")
-                        val obj = objectMapper.convertValue(item, Map::class.java) as Map<String, Any>
+                    jsonArray.map { item ->
+                        val obj = item as JSONObject
                         GpuStatistics(
-                            gpuName = obj["gpuName"]?.toString() ?: "",
-                            serverName = obj["serverName"]?.toString() ?: "",
-                            totalUsageCount = (obj["totalUsageCount"] as? Number)?.toInt() ?: 0,
-                            totalRuntime = (obj["totalRuntime"] as? Number)?.toInt() ?: 0,
-                            averageUsagePercent = (obj["averageUsagePercent"] as? Number)?.toDouble() ?: 0.0,
-                            averageMemoryUsage = (obj["averageMemoryUsage"] as? Number)?.toDouble() ?: 0.0,
-                            totalMemoryUsage = (obj["totalMemoryUsage"] as? Number)?.toDouble() ?: 0.0
+                            gpuName = obj.getString("gpuName"),
+                            serverName = obj.getString("serverName"),
+                            totalUsageCount = obj.getIntValue("totalUsageCount"),
+                            totalRuntime = obj.getIntValue("totalRuntime"),
+                            averageUsagePercent = obj.getDoubleValue("averageUsagePercent"),
+                            averageMemoryUsage = obj.getDoubleValue("averageMemoryUsage"),
+                            totalMemoryUsage = obj.getDoubleValue("totalMemoryUsage")
                         )
                     }
                 }
                 cacheKey.startsWith("server_stats") -> {
-                    list.map { item ->
-                        @Suppress("UNCHECKED_CAST")
-                        val obj = objectMapper.convertValue(item, Map::class.java) as Map<String, Any>
-                        val activeUsersList = objectMapper.convertValue(obj["activeUsers"], object : com.fasterxml.jackson.core.type.TypeReference<List<String>>() {})
+                    jsonArray.map { item ->
+                        val obj = item as JSONObject
                         ServerStatistics(
-                            serverName = obj["serverName"]?.toString() ?: "",
-                            totalTasks = (obj["totalTasks"] as? Number)?.toInt() ?: 0,
-                            totalRuntime = (obj["totalRuntime"] as? Number)?.toInt() ?: 0,
-                            activeUsers = activeUsersList.toMutableSet(),
-                            gpuUtilization = (obj["gpuUtilization"] as? Number)?.toDouble() ?: 0.0
+                            serverName = obj.getString("serverName"),
+                            totalTasks = obj.getIntValue("totalTasks"),
+                            totalRuntime = obj.getIntValue("totalRuntime"),
+                            activeUsers = (obj.getJSONArray("activeUsers")?.map { it.toString() }?.toMutableSet() ?: mutableSetOf()),
+                            gpuUtilization = obj.getDoubleValue("gpuUtilization")
                         )
                     }
                 }
                 cacheKey.startsWith("project_stats") -> {
-                    list.map { item ->
-                        @Suppress("UNCHECKED_CAST")
-                        val obj = objectMapper.convertValue(item, Map::class.java) as Map<String, Any>
-                        val activeUsersList = objectMapper.convertValue(obj["activeUsers"], object : com.fasterxml.jackson.core.type.TypeReference<List<String>>() {})
+                    jsonArray.map { item ->
+                        val obj = item as JSONObject
                         ProjectStatistics(
-                            projectName = obj["projectName"]?.toString() ?: "",
-                            totalRuntime = (obj["totalRuntime"] as? Number)?.toInt() ?: 0,
-                            totalTasks = (obj["totalTasks"] as? Number)?.toInt() ?: 0,
-                            activeUsers = activeUsersList.toMutableSet(),
-                            averageRuntime = (obj["averageRuntime"] as? Number)?.toDouble() ?: 0.0
+                            projectName = obj.getString("projectName"),
+                            totalRuntime = obj.getIntValue("totalRuntime"),
+                            totalTasks = obj.getIntValue("totalTasks"),
+                            activeUsers = (obj.getJSONArray("activeUsers")?.map { it.toString() }?.toMutableSet() ?: mutableSetOf()),
+                            averageRuntime = obj.getDoubleValue("averageRuntime")
                         )
                     }
                 }
                 else -> {
-                    logger.warn("Unknown cache key type for List conversion: $cacheKey")
+                    logger.warn("Unknown cache key type for JSONArray conversion: $cacheKey")
                     null
                 }
             }
         } catch (e: Exception) {
-            logger.error("Failed to convert List for key: $cacheKey", e)
+            logger.error("Failed to convert JSONArray for key: $cacheKey", e)
             null
         }
     }
