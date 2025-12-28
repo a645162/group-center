@@ -163,7 +163,7 @@ class AlarmPushService {
         clientTimestamp: Long,
         serverTimestamp: Long,
         timeDiff: Long,
-        threshold: Long = 300,
+        threshold: Long = 120,
         urgent: Boolean = false
     ): Boolean {
         val alarmType = "time_sync_$machineName"
