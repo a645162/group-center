@@ -2,7 +2,7 @@ name: Docker Image Stable Newest CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
@@ -54,6 +54,11 @@ jobs:
         run: |
           echo "PROGRAM_VERSION=${{ needs.prepare-environment.outputs.program-version }}" >> $GITHUB_ENV
 
+      - name: Configure Maven Mirrors # 配置多源备份以增强构建稳定性
+        run: |
+          mkdir -p ~/.m2
+          cp deploy/maven/settings.xml ~/.m2/settings.xml
+
       - name: Build .jar file # 运行脚本构建JAR文件
         run: python build_with_docker.py
 
@@ -68,7 +73,7 @@ jobs:
 
   build-and-push: # 第三个任务: 构建并推送Docker镜像
     runs-on: ubuntu-latest
-    needs: [ prepare-environment, build-jar ] # 依赖前两个任务
+    needs: [prepare-environment, build-jar] # 依赖前两个任务
     steps:
       - name: Checkout repository # 拉取代码
         uses: actions/checkout@v4

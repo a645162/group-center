@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+  http://maven.apache.org/xsd/settings-1.0.0.xsd">
+	<mirrors>
+		<!-- 阿里云镜像(主源) -->
+		<mirror>
+			<id>aliyun-central</id>
+			<mirrorOf>central</mirrorOf>
+			<url>https://maven.aliyun.com/repository/central</url>
+		</mirror>
+		<!-- 官方中央仓库(备用源) -->
+		<mirror>
+			<id>central-backup</id>
+			<mirrorOf>central</mirrorOf>
+			<url>https://repo.maven.apache.org/maven2</url>
+		</mirror>
+	</mirrors>
+</settings>
