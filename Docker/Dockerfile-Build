@@ -28,4 +28,11 @@ ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo ${TZ} > /etc/timezone
 
+# 配置 Gradle 多镜像源备份，提高构建稳定性
+ENV GRADLE_USER_HOME="$BASE_PATH/.gradle"
+RUN mkdir -p $GRADLE_USER_HOME
+
+# 复制 Gradle 初始化脚本
+COPY deploy/gradle/init.gradle $GRADLE_USER_HOME/init.gradle
+
 ENTRYPOINT ["python3", "/usr/local/group-center/build.py", "--clean-cache"]
