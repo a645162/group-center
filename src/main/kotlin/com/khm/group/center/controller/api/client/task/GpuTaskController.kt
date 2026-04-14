@@ -105,7 +105,7 @@ class GpuTaskController {
             ) {
                 multiGpuTaskInfoModel = getMultiGpuTaskInfoModel(gpuTaskInfo)
                 // 安全检查：确保multiGpuTaskInfoModel不为null
-                if (multiGpuTaskInfoModel != null && multiGpuTaskInfoModel.size == gpuTaskInfo.multiDeviceWorldSize) {
+                if (multiGpuTaskInfoModel.size == gpuTaskInfo.multiDeviceWorldSize) {
                     break
                 }
 

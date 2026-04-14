@@ -5,8 +5,8 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 
 plugins {
-    val kotlinVersion = "2.2.21"
-    val springBootVersion = "3.5.7"
+    val kotlinVersion = "2.3.20"
+    val springBootVersion = "4.0.1"
 
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
@@ -18,11 +18,11 @@ plugins {
     id("com.github.ben-manes.versions") version "0.53.0"
 }
 
-val kotlinVersion = "2.2.21"
-// val kotlinVersionPrevious = "2.2.20"
+val kotlinVersion = "2.3.20"
+// val kotlinVersionPrevious = "2.2.21"
 
-val springBootVersion = "3.5.7"
-val myBatisVersion = "3.0.5"
+val springBootVersion = "4.0.1"
+val myBatisVersion = "4.0.1"
 
 //val fastjsonVersion = "2.0.59"
 val fastjsonVersion = "2.0.60"
@@ -30,7 +30,7 @@ val fastjsonVersion = "2.0.60"
 
 group = "com.khm.group"
 // version = "1.5.5-SNAPSHOT"
-version = "1.7.1"
+version = "1.8.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_24
@@ -84,17 +84,17 @@ dependencies {
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Database
     // https://mvnrepository.com/artifact/com.alibaba/druid-spring-boot-starter
-    implementation("com.alibaba:druid-spring-boot-starter:1.2.27")
+    implementation("com.alibaba:druid-spring-boot-starter:1.2.28")
 
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:${myBatisVersion}")
-    implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.15")
+    implementation("com.baomidou:mybatis-plus-spring-boot4-starter:3.5.16")
 
     // https://mvnrepository.com/artifact/com.gitee.sunchenbin.mybatis.actable/mybatis-enhance-actable
 //    implementation("com.gitee.sunchenbin.mybatis.actable:mybatis-enhance-actable:1.5.0.RELEASE")
 
     // Database Driver
     // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
-    runtimeOnly("com.mysql:mysql-connector-j:9.5.0")
+    runtimeOnly("com.mysql:mysql-connector-j:9.6.0")
 //    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     // https://mvnrepository.com/artifact/com.oceanbase/oceanbase-client
     // runtimeOnly("com.oceanbase:oceanbase-client:2.4.9")
@@ -127,7 +127,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:5.3.2")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
-    implementation("com.larksuite.oapi:oapi-sdk:2.5.1")
+    implementation("com.larksuite.oapi:oapi-sdk:2.5.3")
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
@@ -147,7 +147,7 @@ dependencies {
     // Dev Tools
     // Lombok for Java
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    compileOnly("org.projectlombok:lombok:1.18.42")
+    compileOnly("org.projectlombok:lombok:1.18.44")
 
     // Docker
     // runtimeOnly("org.springframework.boot:spring-boot-docker-compose")
