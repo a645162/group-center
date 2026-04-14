@@ -35,9 +35,9 @@ class HeartbeatConfig {
     /**
      * 定时任务执行间隔（毫秒）
      * ping检测和状态清理的执行频率
-     * 默认：300000毫秒（5分钟）
+     * 默认：3600000毫秒（1小时）
      */
-    var scheduledInterval: Long = 300000
+    var scheduledInterval: Long = 3600000
 
     /**
      * Ping失败报警阈值（秒）
