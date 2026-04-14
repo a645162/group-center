@@ -3,7 +3,7 @@
 
 # https://graalvm.java.net.cn/latest/getting-started/container-images/
 # https://github.com/graalvm/container/pkgs/container/jdk-community/
-FROM ghcr.io/graalvm/jdk-community:24
+FROM ghcr.io/graalvm/jdk-community:25
 
 # MAINTAINER Haomin Kong
 LABEL maintainer="Haomin Kong"

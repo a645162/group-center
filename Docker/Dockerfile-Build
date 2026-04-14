@@ -29,7 +29,8 @@ RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo ${TZ} > /etc/timezone
 
 # 配置 Gradle 多镜像源备份，提高构建稳定性
-ENV GRADLE_USER_HOME="$BASE_PATH/.gradle"
+# 使用 /root/.gradle 避免被 build.py --clean-cache 清理掉
+ENV GRADLE_USER_HOME="/root/.gradle"
 RUN mkdir -p $GRADLE_USER_HOME
 
 # 复制 Gradle 初始化脚本
