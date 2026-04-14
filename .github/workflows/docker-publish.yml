@@ -54,11 +54,6 @@ jobs:
         run: |
           echo "PROGRAM_VERSION=${{ needs.prepare-environment.outputs.program-version }}" >> $GITHUB_ENV
 
-      - name: Configure Maven Mirrors # 配置多源备份以增强构建稳定性
-        run: |
-          mkdir -p ~/.m2
-          cp deploy/maven/settings.xml ~/.m2/settings.xml
-
       - name: Build .jar file # 运行脚本构建JAR文件
         run: python build_with_docker.py
 

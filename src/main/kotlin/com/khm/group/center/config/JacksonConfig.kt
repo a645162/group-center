@@ -14,7 +14,8 @@ import org.springframework.context.annotation.Configuration
  *    必须在配置类中手动声明。
  * 2. 本配置类会注册一个全局唯一的ObjectMapper实例，
  *    推荐如需自定义特性等，也统一在这里集中定制。
- * 3. 该Bean与Http消息转换（REST API序列化/反序列化）使用的ObjectMapper是同一个（只要没自定义覆盖），避免配置割裂。
+ * 3. (注释)该Bean通过Spring提供的Jackson2ObjectMapperBuilder构建，
+ *    可复用Spring Boot的Jackson模块与定制链路，避免业务层与HTTP序列化配置割裂。
  *
  * 参考：
  * https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties.json
@@ -34,4 +35,9 @@ class JacksonConfig {
             .registerKotlinModule() // 支持Kotlin数据类/空安全
         // .enable(...) // 可以自定义序列化特性，如需特殊配置请补充
     }
+//    @Bean
+//    fun objectMapper(builder: Jackson2ObjectMapperBuilder): ObjectMapper {
+//        // 通过Spring的builder构建，继承自动配置与已注册customizer
+//        return builder.build()
+//    }
 }

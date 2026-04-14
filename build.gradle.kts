@@ -30,7 +30,7 @@ val fastjsonVersion = "2.0.61"
 
 group = "com.khm.group"
 // version = "1.5.5-SNAPSHOT"
-version = "1.8.03"
+version = "1.8.04"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_24
