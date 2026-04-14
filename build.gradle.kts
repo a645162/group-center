@@ -30,10 +30,10 @@ val fastjsonVersion = "2.0.61"
 
 group = "com.khm.group"
 // version = "1.5.5-SNAPSHOT"
-version = "1.8.04"
+version = "1.8.5"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_24
+    sourceCompatibility = JavaVersion.VERSION_25
 }
 
 fun isNonStable(version: String): Boolean {
@@ -214,7 +214,7 @@ tasks.named(
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_24)
+        jvmTarget.set(JvmTarget.JVM_25)
         apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
     }
 }
