@@ -6,7 +6,7 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     val kotlinVersion = "2.3.20"
-    val springBootVersion = "4.0.1"
+    val springBootVersion = "4.0.5"
 
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
@@ -21,16 +21,16 @@ plugins {
 val kotlinVersion = "2.3.20"
 // val kotlinVersionPrevious = "2.2.21"
 
-val springBootVersion = "4.0.1"
+val springBootVersion = "4.0.5"
 val myBatisVersion = "4.0.1"
 
 //val fastjsonVersion = "2.0.59"
-val fastjsonVersion = "2.0.60"
-//val fastjsonVersionExtension = "2.0.59"
+val fastjsonVersion = "2.0.61"
+//val fastjsonVersionExtension = "2.0.60"
 
 group = "com.khm.group"
 // version = "1.5.5-SNAPSHOT"
-version = "1.8.0"
+version = "1.8.1"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_24
@@ -74,7 +74,7 @@ dependencies {
     // https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.2")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
