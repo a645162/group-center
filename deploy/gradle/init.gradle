@@ -1,43 +1,4 @@
-allprojects {
-    buildscript {
-        repositories {
-            // 尝试从阿里云获取（主源）
-            maven {
-                url 'https://maven.aliyun.com/repository/central'
-            }
-            // 备用源1：官方中央仓库
-            maven {
-                url 'https://repo.maven.apache.org/maven2'
-            }
-            // 备用源2：Maven Central
-            maven {
-                url 'https://repo1.maven.org/maven2'
-            }
-            mavenCentral()
-        }
-    }
-    repositories {
-        // 阿里云镜像（主源）
-        maven {
-            url 'https://maven.aliyun.com/repository/central'
-        }
-        maven {
-            url 'https://maven.aliyun.com/repository/spring'
-        }
-        maven {
-            url 'https://maven.aliyun.com/repository/jcenter'
-        }
-        maven {
-            url 'https://maven.aliyun.com/repository/google'
-        }
-        // 备用源：官方仓库
-        maven {
-            url 'https://repo.maven.apache.org/maven2'
-        }
-        maven {
-            url 'https://repo1.maven.org/maven2'
-        }
-        mavenCentral()
-        google()
-    }
-}
+// Keep init script non-invasive.
+// Repository resolution is defined in settings.gradle.kts via
+// dependencyResolutionManagement + pluginManagement.
+// This avoids conflicts with RepositoriesMode.FAIL_ON_PROJECT_REPOS.
