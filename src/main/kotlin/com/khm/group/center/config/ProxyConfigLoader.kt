@@ -12,6 +12,7 @@ import com.khm.group.center.datatype.config.TestUrlConfig
 import com.khm.group.center.utils.program.Slf4jKt
 import com.khm.group.center.utils.program.Slf4jKt.Companion.logger
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Service
@@ -27,19 +28,23 @@ class ProxyConfigLoader {
 
     private val yamlMapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
 
+    @Value("\${proxy.config.file:Config/Proxy/proxy.yaml}")
+    private lateinit var configFilePath: String
+
     /**
      * 加载代理配置并创建配置Bean
      */
     @Bean
     fun loadProxyConfig(): ProxyConfig {
-        val configFile = Paths.get("Config/Proxy/proxy.yaml")
-        
+        val configFile = resolveConfigFile()
+
         return try {
-            if (!Files.exists(configFile)) {
-                logger.warn("Proxy configuration file does not exist: $configFile, using default configuration")
+            if (configFile == null || !Files.exists(configFile)) {
+                logger.warn("Proxy configuration file does not exist: ${configFile ?: configFilePath}, using default configuration")
                 return ProxyConfig()
             }
 
+            logger.info("Loading proxy configuration from: $configFile")
             val yamlContent = Files.readString(configFile)
             logger.debug("Raw YAML content: $yamlContent")
             
@@ -51,8 +56,26 @@ class ProxyConfigLoader {
             
             // 更新全局配置管理器
             ProxyConfigManager.proxyConfig = validatedConfig
-            
+
             logger.info("Proxy test configuration loaded successfully, version: ${validatedConfig.version}, enabled: ${validatedConfig.enable}, proxy test count: ${validatedConfig.proxyTestList.size}")
+
+            // 控制台输出配置摘要
+            val enabledList = validatedConfig.proxyTestList.filter { it.enable }
+            println("Proxy Config(${enabledList.size}/${validatedConfig.proxyTestList.size} enabled):")
+            if (validatedConfig.proxyTestList.isEmpty()) {
+                println("  (no proxy servers configured)")
+            } else {
+                for (proxy in validatedConfig.proxyTestList) {
+                    val status = if (proxy.enable) "enabled" else "disabled"
+                    println("Proxy: ${proxy.name}")
+                    println("  NameEng: ${proxy.nameEng}")
+                    println("  Host: ${proxy.host}")
+                    println("  Port: ${proxy.port}")
+                    println("  Type: ${proxy.getTypeString()}")
+                    println("  Status: $status")
+                }
+            }
+            println()
             
             validatedConfig
         } catch (e: Exception) {
@@ -181,20 +204,52 @@ class ProxyConfigLoader {
      * 检查配置文件是否存在
      */
     fun configFileExists(): Boolean {
-        val configFile = Paths.get("Config/Proxy/proxy.yaml")
-        return Files.exists(configFile)
+        val configFile = resolveConfigFile()
+        return configFile != null && Files.exists(configFile)
     }
 
     /**
      * 获取配置文件的最后修改时间
      */
     fun getConfigFileLastModified(): Long {
-        val configFile = Paths.get("Config/Proxy/proxy.yaml")
+        val configFile = resolveConfigFile()
         return try {
-            Files.getLastModifiedTime(configFile).toMillis()
+            if (configFile != null) Files.getLastModifiedTime(configFile).toMillis() else -1L
         } catch (e: Exception) {
             -1L
         }
+    }
+
+    /**
+     * 解析配置文件路径，依次尝试：配置值、classpath、项目根目录
+     */
+    private fun resolveConfigFile(): java.nio.file.Path? {
+        // 1. 直接使用配置的路径（绝对路径或相对路径）
+        val directPath = Paths.get(configFilePath)
+        if (Files.exists(directPath)) {
+            return directPath
+        }
+
+        // 2. 尝试从classpath加载
+        val classpathResource = javaClass.classLoader.getResource(configFilePath)
+        if (classpathResource != null) {
+            return try {
+                java.nio.file.Paths.get(classpathResource.toURI())
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        // 3. 尝试以user.dir为基准
+        val userDir = System.getProperty("user.dir")
+        if (userDir != null) {
+            val userDirPath = Paths.get(userDir, configFilePath)
+            if (Files.exists(userDirPath)) {
+                return userDirPath
+            }
+        }
+
+        return directPath  // 返回原始路径，让调用方处理不存在的情况
     }
 }
 

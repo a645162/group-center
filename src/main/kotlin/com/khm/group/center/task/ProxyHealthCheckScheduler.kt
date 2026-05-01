@@ -194,7 +194,7 @@ class ProxyHealthCheckScheduler {
             availableProxies = availableCount,
             availabilityRate = availabilityRate,
             averageResponseTime = averageResponseTime,
-            lastCheckTime = System.currentTimeMillis(),
+            lastCheckTime = System.currentTimeMillis() / 1000,
             isConfigEnabled = ProxyConfigManager.proxyConfig.enable
         )
     }

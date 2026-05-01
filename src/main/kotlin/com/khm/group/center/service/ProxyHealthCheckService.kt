@@ -47,7 +47,7 @@ class ProxyHealthCheckService {
             val urlTestResults = mutableListOf<UrlTestResult>()
             
             for (testUrlConfig in enabledTestUrls) {
-                val testStartTime = System.currentTimeMillis()
+                val testStartTime = System.currentTimeMillis() / 1000
                 var isSuccess = false
                 var responseTime: Long? = null
                 var statusCode: Int? = null

@@ -147,7 +147,7 @@ data class ProxyStatus(
      * 更新成功状态
      */
     fun updateSuccess(responseTimeMs: Long) {
-        lastCheckTime = System.currentTimeMillis()
+        lastCheckTime = System.currentTimeMillis() / 1000
         isAvailable = true
         this.responseTime = responseTimeMs
         lastError = null
@@ -160,20 +160,20 @@ data class ProxyStatus(
      * 更新失败状态
      */
     fun updateFailure(error: String) {
-        val currentTime = System.currentTimeMillis()
+        val currentTime = System.currentTimeMillis() / 1000
         lastCheckTime = currentTime
         isAvailable = false
         responseTime = null
         lastError = error
         failureCount++
-        
+
         // 计算离线持续时间
         if (lastSuccessTime != null) {
-            val offlineDurationMs = currentTime - lastSuccessTime!!
-            offlineDurationMinutes = offlineDurationMs / (60 * 1000)  // 转换为分钟
+            val offlineDurationSec = currentTime - lastSuccessTime!!
+            offlineDurationMinutes = offlineDurationSec / 60  // 转换为分钟
         } else {
             // 如果从未成功过，使用第一次失败时间
-            offlineDurationMinutes = (currentTime - (lastCheckTime ?: currentTime)) / (60 * 1000)
+            offlineDurationMinutes = (currentTime - (lastCheckTime ?: currentTime)) / 60
         }
     }
 
@@ -189,10 +189,10 @@ data class ProxyStatus(
         val isTimeout = offlineDurationMinutes >= alarmConfig.offlineTimeoutMinutes
         
         // 检查报警间隔（避免频繁报警）
-        val lastAlarmTimeMs = lastAlarmTime ?: 0
-        val currentTime = System.currentTimeMillis()
-        val alarmIntervalMs = alarmConfig.offlineTimeoutMinutes * 60 * 1000L  // 使用超时时间作为报警间隔
-        val canSendAlarm = currentTime - lastAlarmTimeMs >= alarmIntervalMs
+        val lastAlarmTimeSec = lastAlarmTime ?: 0
+        val currentTime = System.currentTimeMillis() / 1000
+        val alarmIntervalSec = alarmConfig.offlineTimeoutMinutes * 60L  // 使用超时时间作为报警间隔
+        val canSendAlarm = currentTime - lastAlarmTimeSec >= alarmIntervalSec
         
         return isTimeout && canSendAlarm
     }
@@ -201,7 +201,7 @@ data class ProxyStatus(
      * 记录报警时间
      */
     fun recordAlarmTime() {
-        lastAlarmTime = System.currentTimeMillis()
+        lastAlarmTime = System.currentTimeMillis() / 1000
     }
 }
 
