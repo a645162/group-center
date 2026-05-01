@@ -16,10 +16,10 @@ jobs:
         with:
           submodules: true
 
-      - name: Setup Python 3.12 # 设置Python 3.12 环境
+      - name: Setup Python 3.13 # 设置Python 3.13 环境
         uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: 3.13
 
       - name: Verify Python and pip # 检查Python和pip版本
         run: |
@@ -45,10 +45,10 @@ jobs:
         with:
           submodules: true
 
-      - name: Setup Python 3.12 # 设置Python 3.12 环境
+      - name: Setup Python 3.13 # 设置Python 3.13 环境
         uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: 3.13
 
       - name: Export program version # 从上一个任务获取版本号并设为环境变量
         run: |
