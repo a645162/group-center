@@ -47,33 +47,34 @@ class GpuTaskNotify(
             }
         }
 
-        // 记录正确的情况下，且不连续
-        if (isRecordCorrect && !isContinuous) {
-            sendGpuWarningMessage(
-                "GPU使用非连续警告",
-                "检测到GPU使用不连续：${gpuIdList.joinToString(",")}。\n\n建议使用连续的GPU以获得更好的性能。"
-            )
-        }
-
-        // 跨NUMA节点检测
-        val totalGpuCount = gpuTaskInfo.totalGpuCount
-        if (totalGpuCount >= 4) {
-            // 4卡及以上机器，前一半卡在NUMA1，后一半卡在NUMA2
-            val numa1MaxId = totalGpuCount / 2 - 1  // NUMA1的最大GPU ID
-
-            val isUseAllGpu = (gpuIdList.size == totalGpuCount)
-
-            // 检查使用的GPU是否跨越NUMA边界
-            val hasNuma1Gpu = gpuIdList.any { it <= numa1MaxId }
-            val hasNuma2Gpu = gpuIdList.any { it > numa1MaxId }
-
-            if (!isUseAllGpu && hasNuma1Gpu && hasNuma2Gpu) {
+        if (isRecordCorrect) {
+            if (!isContinuous) {
                 sendGpuWarningMessage(
-                    "跨NUMA节点警告",
-                    "使用GPU卡${gpuIdList.joinToString(",")}" +
-                            "跨越NUMA节点边界(边界在GPU${numa1MaxId}/${numa1MaxId + 1}之间)。" +
-                            "\n\n这可能影响性能，建议在同一NUMA节点内使用GPU。"
+                    "GPU使用非连续警告",
+                    "检测到GPU使用不连续：${gpuIdList.joinToString(",")}。\n\n建议使用连续的GPU以获得更好的性能。"
                 )
+            }
+
+            // 跨NUMA节点检测
+            val totalGpuCount = gpuTaskInfo.totalGpuCount
+            if (totalGpuCount >= 4) {
+                // 4卡及以上机器，前一半卡在NUMA1，后一半卡在NUMA2
+                val numa1MaxId = totalGpuCount / 2 - 1  // NUMA1的最大GPU ID
+
+                val isUseAllGpu = (gpuIdList.size == totalGpuCount)
+
+                // 检查使用的GPU是否跨越NUMA边界
+                val hasNuma1Gpu = gpuIdList.any { it <= numa1MaxId }
+                val hasNuma2Gpu = gpuIdList.any { it > numa1MaxId }
+
+                if (!isUseAllGpu && hasNuma1Gpu && hasNuma2Gpu) {
+                    sendGpuWarningMessage(
+                        "跨NUMA节点警告",
+                        "使用GPU卡${gpuIdList.joinToString(",")}" +
+                                "跨越NUMA节点边界(边界在GPU${numa1MaxId}/${numa1MaxId + 1}之间)。" +
+                                "\n\n这可能影响性能，建议在同一NUMA节点内使用GPU。"
+                    )
+                }
             }
         }
 
