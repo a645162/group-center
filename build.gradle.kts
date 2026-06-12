@@ -5,8 +5,8 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 
 plugins {
-    val kotlinVersion = "2.3.21"
-    val springBootVersion = "4.0.6"
+    val kotlinVersion = "2.4.0"
+    val springBootVersion = "4.1.0"
 
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.7"
@@ -18,14 +18,14 @@ plugins {
     id("com.github.ben-manes.versions") version "0.54.0"
 }
 
-val kotlinVersion = "2.3.21"
-// val kotlinVersionPrevious = "2.3.20"
+val kotlinVersion = "2.4.0"
+// val kotlinVersionPrevious = "2.3.21"
 
-val springBootVersion = "4.0.6"
+val springBootVersion = "4.1.0"
 val myBatisVersion = "4.0.1"
 
 //val fastjsonVersion = "2.0.59"
-val fastjsonVersion = "2.0.61"
+val fastjsonVersion = "2.0.62"
 //val fastjsonVersionExtension = "2.0.60"
 
 group = "com.khm.group"
@@ -72,9 +72,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
     // https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.3")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.22.0")
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Spring Boot
@@ -118,16 +118,16 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.tencent.kona/kona-crypto
     // https://github.com/Tencent/TencentKonaSMSuite
-    implementation("com.tencent.kona:kona-crypto:1.0.19")
+    implementation("com.tencent.kona:kona-crypto:1.0.21")
 
     // https://mvnrepository.com/artifact/commons-codec/commons-codec
     implementation("commons-codec:commons-codec:1.17.1")
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Message WebHook
-    implementation("com.squareup.okhttp3:okhttp:5.3.2")
+    implementation("com.squareup.okhttp3:okhttp:5.4.0")
 
     // https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk
-    implementation("com.larksuite.oapi:oapi-sdk:2.6.1")
+    implementation("com.larksuite.oapi:oapi-sdk:2.7.3")
 
     // Data
     // https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
